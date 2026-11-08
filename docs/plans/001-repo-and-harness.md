@@ -20,7 +20,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Write .claude/settings.json with allow and deny lists from the spec.
   Check: run `/permissions`; a read of `.env` is denied; `git push --force` is denied.
 
-- [ ] Task 4. Hook: protect-files.sh
+- [x] Task 4. Hook: protect-files.sh
   Write the script. It reads JSON from stdin, takes `tool_input.file_path` with node, exits 2 and prints a reason for .env (not .env.example) and key files, exits 0 otherwise. Register it in settings.json as PreToolUse for Edit and Write.
   Check, run both:
   `echo '{"tool_input":{"file_path":".env"}}' | bash .claude/hooks/protect-files.sh; echo $?` must print 2.

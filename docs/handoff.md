@@ -18,10 +18,12 @@ Last updated: 2026-11-08
 - Task 2. Docs skeleton: this folder
 - Task 3. Settings: `.claude/settings.json` denies `.env` reads, force push (also `git -C <path> push --force` and `+refspec`), `rm -rf`. Each tested live.
 
-## Next step: task 4
+- Task 4. Hook `.claude/hooks/protect-files.sh` (PreToolUse, Edit|Write|MultiEdit): blocks `.env`/`.env.*` (not `.env.example`) and key files. Fake inputs: `.env` exits 2, `README.md` exits 0. Live: a Write to `hook-test.pem` was blocked.
 
-Task 4. Hook `protect-files.sh`: read stdin JSON with node, take `tool_input.file_path`, exit 2 for `.env` (not `.env.example`) and key files, exit 0 otherwise. Register as PreToolUse for Edit and Write.
-Check: fake input for `.env` exits 2, for `README.md` exits 0; then a real edit of `.env` is blocked.
+## Next step: task 5
+
+Task 5. Hook `format-on-edit.sh` (PostToolUse, Edit and Write): pick a formatter by file extension, run it only if installed, otherwise exit 0 silently.
+Check: fake input for a `.md` file exits 0; fake input for a missing file exits 0 with no crash.
 
 ## Known gaps
 
