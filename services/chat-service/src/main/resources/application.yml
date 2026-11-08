@@ -19,6 +19,11 @@ spring:
     problemdetails:
       enabled: false
 
+logging:
+  structured:
+    format:
+      console: ecs
+
 server:
   port: ${CHAT_SERVICE_PORT:8081}
   error:

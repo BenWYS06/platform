@@ -42,7 +42,7 @@ Status: not started.
   bad `APP_ENV`, prod with no key, short key, default key, and local with no key (warning)
   (Done when 7 for chat); `git ls-files -s services/chat-service/mvnw` shows mode 100755.
 
-- [ ] Task 3. chat-service: errors, internal ping, request id and JSON logs
+- [x] Task 3. chat-service: errors, internal ping, request id and JSON logs
   `platform` package: exception handler giving `{ code }` for 404, 405, 400 and 500 (no
   whitelabel, no message on 500); request-id filter (accept a safe client id or generate one,
   put it in MDC and the response); structured JSON console logs. `GET /internal/ping` with
