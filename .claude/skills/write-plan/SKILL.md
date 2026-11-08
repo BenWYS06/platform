@@ -42,6 +42,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 - Branch: `feature/<short-name>` from an up-to-date `main`; never commit to `main`.
 - Stage files one by one: `git add <path>`. Never `git add -A` or `git add .`.
 - Format only the files this task changed; never reformat other files.
+- When a task's Check passes, tick it (`- [x]`) here and put that change in the task's commit.
 - Every commit ends with the trailer `Task N of plan NNN.` and the attribution line.
 
 ## Tasks

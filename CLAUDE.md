@@ -51,6 +51,8 @@ Placeholders until the code exists; update this table in the PR that adds each p
 
 - Work of 3+ points: spec first (`/write-spec`), then plan (`/write-plan`), then code.
 - One plan task at a time. After each task: run its check, show the output, stop.
+- When a task's check passes, tick it in the plan and put that change in the same commit
+  as the task.
 - One task, one commit. Commit and push only when the user says so.
 - One PR per issue. The last plan task marks the plan, plans index and roadmap `done` and
   points `docs/handoff.md` to the next issue, on the feature branch, before the PR opens.
