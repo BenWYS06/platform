@@ -71,7 +71,7 @@ Status: not started.
   Testcontainers test.
   Check: `./mvnw verify` -> BUILD SUCCESS, Testcontainers test passes (Done when 2 for ai).
 
-- [ ] Task 7. auth-service: project, config and production guard
+- [x] Task 7. auth-service: project, config and production guard
   `services/auth-service`: `package.json` (Node 24, ES modules, scripts build/test/lint/dev),
   `tsconfig.json` strict, ESLint, Vitest. `src/config.ts` is the only `process.env` reader:
   zod-validated `APP_ENV`, `INTERNAL_API_KEY`, `MONGODB_URI` (db `openbox_auth`), `REDIS_URL`,
