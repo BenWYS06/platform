@@ -22,6 +22,9 @@ Job: turn an idea or issue into a spec the user agrees with, before any plan or 
    Stop asking when every section below can be written without guessing.
 4. **Write** `docs/specs/NNN-short-name.md` with the template below. Short sentences.
    Each "Done when" item must be checkable by running or opening something.
+   "Must not happen" lists what would make the work wrong even if every Done when passes.
+   In "Decisions", mark each choice `Owner` (the user chose it) or `Claude` (Claude chose it;
+   the user can overrule it).
 5. **Show** the spec and ask for changes. Edit until the user says it is right.
 6. Do not write a plan or code in this skill. Suggest `/write-plan` as the next step.
 
@@ -48,6 +51,14 @@ Issue: <number and title>. Sprint <n>. Estimate <points>.
 ## Edge cases
 
 - <case and the expected behavior>
+
+## Must not happen
+
+- <outcome that is never acceptable, for example a secret in a log or a route left open>
+
+## Decisions
+
+- <choice>: <what was chosen>. Owner | Claude
 
 ## Done when
 
