@@ -67,6 +67,9 @@ Details: `.claude/rules/git-and-docs.md`, `.claude/rules/testing.md`.
 - Errors are `{ code, message? }` with codes from `contracts/error-codes.json`.
 - Clients call the relative `/api` base URL; no service host or port in client code.
 - Every bug fix comes with a test that failed before the fix.
+- Only change what the task needs. Outside the task, do not fix, rename or reformat: write an
+  issue and tell the user.
+- If one task's diff goes past about 200 lines (not tests), stop and ask.
 - Never force push, never `--no-verify`, never `rm -rf`. Do not work around a deny rule or
   a blocking hook: stop and tell the user.
 

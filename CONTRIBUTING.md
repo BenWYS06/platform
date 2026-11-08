@@ -53,6 +53,7 @@ The body names the plan task, e.g. `Task 3 of plan 001.`
 | `.claude/rules/security.md` | Identity from the token, internal key, secrets, new endpoint checklist |
 | `.claude/rules/git-and-docs.md` | Branch names, commit format, PR flow, docs in the same PR |
 | `.claude/rules/testing.md` | Test types per layer; a regression test for every bug fix |
+| `.claude/rules/clean-code.md` | File size limits, thin controllers, helpers only when shared |
 | `.claude/rules/spring.md` | Spring Boot conventions; loads only for Java services and the Java library |
 | `.claude/rules/express.md` | Express + TypeScript conventions; loads only for auth-service |
 | `.claude/rules/vue.md` | Vue 3 conventions; loads only for the web client |

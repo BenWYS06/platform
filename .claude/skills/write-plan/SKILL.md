@@ -37,6 +37,15 @@ Spec: docs/specs/NNN-short-name.md
 Branch: feature/<short-name>
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
+## Global Constraints
+
+- Branch: `feature/<short-name>` from an up-to-date `main`; never commit to `main`.
+- Stage files one by one: `git add <path>`. Never `git add -A` or `git add .`.
+- Format only the files this task changed; never reformat other files.
+- Every commit ends with the trailer `Task N of plan NNN.` and the attribution line.
+
+## Tasks
+
 - [ ] Task 1. <name>
   <what to do, in one to three lines>
   Check: <command or action> -> <expected result>.
