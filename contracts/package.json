@@ -1,0 +1,16 @@
+{
+  "name": "openbox-contracts",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared names for OpenBox services and clients, and the check that keeps them valid.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "ajv": "8.20.0"
+  }
+}

@@ -35,4 +35,5 @@ client -> Caddy -> /api/auth      -> auth-service
 ## Rules that cross services
 
 - Error responses use `{ code, message? }`; codes live in `contracts/error-codes.json`.
+- Capabilities, RabbitMQ names and events live in `contracts/` too; each issue adds the names it first uses.
 - Clients use a relative `/api` base URL, never a service port.
