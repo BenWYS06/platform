@@ -24,13 +24,20 @@ MongoDB (replica set), Redis, RabbitMQ, Qdrant. Runs locally with `infra/compose
 ## Routing
 
 ```
-client -> Caddy -> /api/auth      -> auth-service
-                -> /api/chat      -> chat-service
-                -> /api/ai        -> ai-service
-                -> /api/connector -> (TBD)
-                -> /ws            -> (TBD)
-                   /internal      -> blocked
+client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
+                      -> /api/chat/*     -> chat-service  :8081
+                      -> /api/ai/*       -> ai-service    :8082
+                      -> /api/connector  -> (TBD, issue 5.2)
+                      -> /ws             -> (TBD, issue 2.2)
+                         any /internal segment -> 404, never forwarded
 ```
+
+- Config: `infra/Caddyfile`. Caddy keeps the `/api/<service>` prefix; locally it forwards to
+  services on the host via `host.docker.internal` (ports from `.env`, defaults above).
+- `/internal` is blocked in any case, encoded or not, and when followed by any non-word
+  character (`internal;x`, `internal%09`), before routing. Services still check `X-Internal-Key`.
+- Caddy answers its own errors as contract JSON: service down -> 503 `SERVICE_UNAVAILABLE`,
+  unknown path or `/internal` -> 404 `NOT_FOUND`, anything else -> 500 `INTERNAL`.
 
 ## Rules that cross services
 

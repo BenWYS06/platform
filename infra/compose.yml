@@ -80,9 +80,34 @@ services:
       retries: 20
     restart: unless-stopped
 
+  caddy:
+    image: caddy:2.10.2
+    environment:
+      AUTH_SERVICE_PORT: ${AUTH_SERVICE_PORT:-3001}
+      CHAT_SERVICE_PORT: ${CHAT_SERVICE_PORT:-8081}
+      AI_SERVICE_PORT: ${AI_SERVICE_PORT:-8082}
+    ports:
+      - "127.0.0.1:8080:8080"
+    extra_hosts:
+      # Built in on Docker Desktop; needed on Linux Docker.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      # Admin API on 127.0.0.1:2019 inside the container only; not published.
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:2019/config/"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
 volumes:
   mongo-data:
   mongo-config:
   redis-data:
   rabbitmq-data:
   qdrant-data:
+  caddy-data:
+  caddy-config:

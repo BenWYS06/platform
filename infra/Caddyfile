@@ -1,0 +1,46 @@
+# Job: the one local entry point (issue 0.3). Clients call http://localhost:8080/api/...
+# Services run on the host; Caddy forwards to host.docker.internal and keeps the prefix.
+# Every error Caddy answers itself is contract JSON: { "code": ... }.
+
+{
+	auto_https off
+}
+
+:8080 {
+	# Any path with an /internal segment, any case, before routing: never forwarded.
+	# Matched on the decoded path, so %69nternal, //internal and /./internal are caught too;
+	# "internal" followed by any non-word character (internal;x, internal%09) is caught as well,
+	# because some servers strip ;params or trim before routing.
+	@internal path_regexp internal (?i)(^|/)internal([^a-z0-9_-]|$)
+	handle @internal {
+		header Content-Type application/json
+		respond `{"code":"NOT_FOUND"}` 404
+	}
+
+	handle /api/auth/* {
+		reverse_proxy host.docker.internal:{$AUTH_SERVICE_PORT}
+	}
+	handle /api/chat/* {
+		reverse_proxy host.docker.internal:{$CHAT_SERVICE_PORT}
+	}
+	handle /api/ai/* {
+		reverse_proxy host.docker.internal:{$AI_SERVICE_PORT}
+	}
+
+	handle {
+		header Content-Type application/json
+		respond `{"code":"NOT_FOUND"}` 404
+	}
+
+	# Errors Caddy raises itself; a service's own answers pass through unchanged.
+	handle_errors {
+		header Content-Type application/json
+		@unavailable expression `{err.status_code} in [502, 503, 504]`
+		handle @unavailable {
+			respond `{"code":"SERVICE_UNAVAILABLE"}` 503
+		}
+		handle {
+			respond `{"code":"INTERNAL"}` 500
+		}
+	}
+}

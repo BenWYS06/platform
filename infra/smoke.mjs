@@ -36,6 +36,30 @@ function get(port, path) {
   });
 }
 
+const CADDY_PORT = 8080;
+
+// Paths with an /internal segment, including tricks a proxy or service might normalize.
+const INTERNAL_PATHS = [
+  '/internal/x',
+  '/api/auth/internal/x',
+  '/INTERNAL/x',
+  '/api/auth/./internal/x',
+  '/api/auth/%69nternal/x',
+  '/api/auth//internal/x',
+  '/api/auth/%2e/internal/x',
+  '/api/auth%2Finternal/x',
+  '/api/auth/internal;x/y',
+  '/api/auth/internal%09',
+];
+
+// Caddy must answer with exactly { "code": code } as JSON.
+async function expectCaddy(path, status, code) {
+  const res = await get(CADDY_PORT, path);
+  if (res.status !== status) throw new Error(`status ${res.status}, body ${res.body}`);
+  if (!res.type.startsWith('application/json')) throw new Error(`content-type ${res.type}`);
+  if (res.body !== JSON.stringify({ code })) throw new Error(`body ${res.body}`);
+}
+
 const checks = [
   ['MongoDB answers on 27017', async () => tcp(27017)],
   ['Redis answers PING on 6379', async () => {
@@ -51,6 +75,13 @@ const checks = [
     const res = await get(6333, '/readyz');
     if (res.status !== 200) throw new Error(`status ${res.status}`);
   }],
+  ['Caddy: /api/auth/health with no auth-service running -> 503 SERVICE_UNAVAILABLE', async () =>
+    expectCaddy('/api/auth/health', 503, 'SERVICE_UNAVAILABLE')],
+  ['Caddy: unknown path -> 404 NOT_FOUND', async () => expectCaddy('/no-such-path', 404, 'NOT_FOUND')],
+  ...INTERNAL_PATHS.map((path) => [
+    `Caddy: ${path} -> 404 NOT_FOUND`,
+    async () => expectCaddy(path, 404, 'NOT_FOUND'),
+  ]),
 ];
 
 let failed = 0;

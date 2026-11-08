@@ -52,7 +52,7 @@ Status: in progress.
   message naming `RABBITMQ_PASSWORD`; `docker compose -f infra/compose.yml config` shows no
   `0.0.0.0` and no `latest` (Done when 1, 2, 6).
 
-- [ ] Task 5. Caddy, Caddyfile and the routing smoke checks
+- [x] Task 5. Caddy, Caddyfile and the routing smoke checks
   Add Caddy (pinned, `127.0.0.1:8080`, healthcheck, `extra_hosts: host.docker.internal:host-gateway`)
   and `infra/Caddyfile`: block any `/internal` segment first (case-insensitive, after path
   cleaning) with 404 JSON; route `/api/auth/*`, `/api/chat/*`, `/api/ai/*` with prefix kept to
