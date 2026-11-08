@@ -36,5 +36,5 @@ Plan: docs/plans/NNN-name.md
 
 ## Handoff
 
-- [ ] Plan ticked and `docs/handoff.md` updated (`/session-summary`)
+- [ ] Plan, `docs/plans/README.md` and `docs/roadmap.md` marked done; `docs/handoff.md` points to the next issue
 - [ ] I have read the full diff

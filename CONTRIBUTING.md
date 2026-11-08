@@ -11,8 +11,10 @@ Job: how work is done in this repo, and what every file in the harness is for.
 4. **Branch.** One branch per issue from an up-to-date `main`.
 5. **Task by task.** Do one task, run its check, show the output, stop. One task, one commit.
 6. **Handoff.** End each session with `/session-summary`; `docs/handoff.md` holds the next step.
-7. **PR.** Push, open a PR, fill in the template. CI green (from issue 0.6), the user reads
-   the full diff and merges.
+7. **Close.** The last plan task marks the plan, plans index and roadmap `done` and points
+   the handoff to the next issue, on the feature branch, before the PR opens.
+8. **PR.** One PR per issue. Scan, push, open a PR, fill in the template. CI green (from
+   issue 0.6), the user reads the full diff and merges.
 
 ## Branches
 

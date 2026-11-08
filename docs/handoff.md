@@ -7,7 +7,8 @@ Last updated: 2026-11-08
 ## Now
 
 - Issue 0.2 Contracts folder: done. PR #11 merged; plan 002 marked done; 0.2 ticked in the roadmap.
-- Branch: `docs/close-plan-002` (this closing PR).
+- Branch: `docs/one-pr-per-issue`: one PR per issue; the last plan task closes the plan,
+  index, roadmap and handoff on the feature branch (rule in `.claude/rules/git-and-docs.md`).
 - Next issue: 0.3 Local infra with Caddy (Sprint 1, Phase 0, 3 points).
 
 ## Done
@@ -17,9 +18,10 @@ Last updated: 2026-11-08
 
 ## Next step: issue 0.3 Local infra with Caddy (3 points)
 
-1. Merge this PR (`docs/close-plan-002`).
+1. Merge this PR (`docs/one-pr-per-issue`).
 2. Branch `feature/local-infra` from an updated `main`.
 3. 3 points, so a spec is required: run `/write-spec` for issue 0.3, then `/write-plan`.
+   Its last task is "Close the issue" (new rule); no separate closing PR.
    Scope from the docs: `infra/compose.yml` with MongoDB (replica set), Redis, RabbitMQ,
    Qdrant and Caddy; Caddy routes `/api/<service>` and `/ws`, and blocks `/internal` (D-002).
 
