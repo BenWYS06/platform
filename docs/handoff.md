@@ -26,10 +26,12 @@ Last updated: 2026-11-08
 
 - Task 7. Root `CLAUDE.md`: project, folder map, placeholder commands, every-session rules, gotchas, pointers.
 
-## Next step: task 8
+- Task 8. Skills `write-spec`, `write-plan`, `session-summary` in `.claude/skills/<name>/SKILL.md`. User still to check `/` shows them and to try write-spec on a dummy idea.
 
-Task 8. Skills `write-spec`, `write-plan`, `session-summary` in `.claude/skills/`, each with front matter (name, description).
-Check: typing `/` shows all three; run write-spec on a tiny dummy idea and delete the output.
+## Next step: task 9
+
+Task 9. GitHub files: PR template, bug and feature issue templates, CODEOWNERS (`@BenWYS06`).
+Check: push the branch, open a PR, see the template; "New issue" shows both templates.
 
 ## Known gaps
 

@@ -39,7 +39,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Write the root CLAUDE.md: what the project is, folder map, commands (placeholders until services exist), the rules that matter every session, and pointers to docs/handoff.md and the plans index.
   Check: `wc -l CLAUDE.md` is under 200.
 
-- [ ] Task 8. Skills
+- [x] Task 8. Skills
   Write write-spec, write-plan, session-summary, each with front matter (name, description).
   Check: type `/` in Claude Code and see all three; run write-spec on a tiny dummy idea and delete the output.
 
