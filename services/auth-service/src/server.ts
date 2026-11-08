@@ -1,6 +1,6 @@
 // Job: start auth-service: check config, then listen. Any startup failure exits with code 1.
 import http from 'node:http';
-import express from 'express';
+import { createApp } from './app.js';
 import { ConfigError, loadConfig } from './config.js';
 import { createLogger } from './logger.js';
 
@@ -18,7 +18,7 @@ try {
   fail(e instanceof ConfigError ? e.message : 'config could not be read');
 }
 
-const app = express();
+const app = createApp({ config, logger: log });
 const server = http.createServer(app);
 server.on('listening', () => log.info({ port: config.port, appEnv: config.appEnv }, 'auth-service listening'));
 server.on('error', (e: NodeJS.ErrnoException) => {

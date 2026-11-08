@@ -81,7 +81,7 @@ Status: not started.
   -> all pass; config tests cover the same five guard cases as Task 2 (Done when 7 for auth);
   `grep -rn "process.env" src` lists only `src/config.ts`.
 
-- [ ] Task 8. auth-service: app, errors, internal ping, request id and pino logs
+- [x] Task 8. auth-service: app, errors, internal ping, request id and pino logs
   `src/app.ts` builds the app (no listen) for supertest; pino + pino-http with request id
   (safe client id or generated) and redaction of `authorization`, `cookie`, `x-internal-key`;
   one error middleware giving `{ code }`; 404 for unknown routes; `GET /internal/ping` with a
