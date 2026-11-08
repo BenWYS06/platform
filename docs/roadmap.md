@@ -5,7 +5,7 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 ## Phase 0: Foundation (Sprint 1)
 
 - [x] 0.1 Repo and harness (3)
-- [ ] 0.2 Contracts folder (2)
+- [x] 0.2 Contracts folder (2)
 - [ ] 0.3 Local infra with Caddy (3)
 - [ ] 0.4 Service skeletons: auth, chat, ai (5)
 - [ ] 0.5 platform-common-java library (2)
