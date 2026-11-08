@@ -25,3 +25,8 @@ Instead of: one URL per service.
 Decision: every name in `contracts/` (error codes, capabilities, messaging and event names) is UPPER_SNAKE; RabbitMQ names keep the real broker name in a separate lower-dotted `value`. Each error code fixes its HTTP status in `error-codes.json`.
 Why: UPPER_SNAKE maps straight to Java enums and TS constants; a fixed status means every service answers the same code with the same status, and clients can rely on it.
 Instead of: dotted lower names (`auth.invalid_credentials`), and letting each service pick the status.
+
+## D-004 Local dev: services on the host behind Caddy; /internal blocked by segment (2026-11-08)
+Decision: locally, only the data stores and Caddy run in Docker (`infra/compose.yml`); services run on the host and Caddy forwards to `host.docker.internal`, keeping the `/api/<service>` prefix. Caddy blocks any path segment that starts with `internal` followed by a non-word character or the end, in any case, before routing. Every published port is bound to `127.0.0.1`.
+Why: services restart fast from the IDE with a debugger; one gateway config is tested from day one; blocking by segment means a stripped prefix, `;params` or encoding tricks cannot open an internal route; nothing is reachable from the LAN while MongoDB, Redis and Qdrant have no auth locally.
+Instead of: services in compose for local dev (later, issue 3.6), blocking only `/internal` at the root, ports on `0.0.0.0`.

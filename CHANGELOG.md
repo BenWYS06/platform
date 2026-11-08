@@ -11,3 +11,6 @@ versions follow [Semantic Versioning](https://semver.org/).
   docs skeleton (issue 0.1).
 - Contracts folder: shared error codes, capabilities, messaging and event names, with a
   check (`cd contracts && npm test`) (issue 0.2).
+- Local infra: MongoDB replica set, Redis, RabbitMQ, Qdrant and a Caddy gateway on
+  `localhost:8080` that blocks `/internal` and answers errors as contract JSON; smoke check
+  `node infra/smoke.mjs` (issue 0.3).

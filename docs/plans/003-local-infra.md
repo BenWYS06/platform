@@ -68,7 +68,7 @@ Status: in progress.
   and repeat the `/internal` requests -> still 404 and no `HIT` line, while
   `/api/auth/health` -> 200 `ok` (Done when 3, 4).
 
-- [ ] Task 6. Docs
+- [x] Task 6. Docs
   Write `infra/README.md` (start, stop, reset with `down -v`, connection strings, port in use
   on Windows: `netstat -ano | findstr :8080`, how to change a port). Update
   `docs/environments.md` (local row real: ports, URLs, reset command), CLAUDE.md (folder map:
