@@ -6,24 +6,28 @@ Last updated: 2026-11-08
 
 ## Now
 
-- Issue 0.2 Contracts folder: done. PR #11 merged; plan 002 marked done; 0.2 ticked in the roadmap.
-- Branch: `docs/one-pr-per-issue`: one PR per issue; the last plan task closes the plan,
-  index, roadmap and handoff on the feature branch (rule in `.claude/rules/git-and-docs.md`).
-- Next issue: 0.3 Local infra with Caddy (Sprint 1, Phase 0, 3 points).
+- Issue: 0.3 Local infra with Caddy (Sprint 1, Phase 0, 3 points).
+- Branch: `feature/local-infra` (from up-to-date `main`; no commits yet).
+- Spec: [specs/003-local-infra.md](specs/003-local-infra.md) (written, agreed, not committed yet).
+- Plan: [plans/003-local-infra.md](plans/003-local-infra.md) (agreed; tasks run one commit each).
 
 ## Done
 
-- Plan 002, tasks 1 to 5: done. `cd contracts && npm ci && npm test`: 23 tests pass, all four
-  contract files valid, 0 vulnerabilities.
+- Spec 003 written with the user's answers: services run on the host behind Caddy
+  (`host.docker.internal`), ports on `127.0.0.1` only, Caddy on 8080, RabbitMQ password from
+  `.env`, Caddy errors as contract JSON with a new `SERVICE_UNAVAILABLE` code. It has the new
+  "Must not happen" and "Decisions" sections.
+- Working rules on `main`: one PR per issue, scope and 200-line rules, clean-code rules,
+  git safety denies, `git push` asks first, Global Constraints in the plan template.
 
-## Next step: issue 0.3 Local infra with Caddy (3 points)
+## Next step: `/write-plan` for spec 003
 
-1. Merge this PR (`docs/one-pr-per-issue`).
-2. Branch `feature/local-infra` from an updated `main`.
-3. 3 points, so a spec is required: run `/write-spec` for issue 0.3, then `/write-plan`.
-   Its last task is "Close the issue" (new rule); no separate closing PR.
-   Scope from the docs: `infra/compose.yml` with MongoDB (replica set), Redis, RabbitMQ,
-   Qdrant and Caddy; Caddy routes `/api/<service>` and `/ws`, and blocks `/internal` (D-002).
+1. Run `/write-plan` on `docs/specs/003-local-infra.md`. Use the new template: Global
+   Constraints block, last task "Close the issue".
+2. Task 1 of the plan commits spec 003, the plan and the index line on `feature/local-infra`.
+3. Before the infra tasks: the user copies `.env.example` to `.env` by hand and fills in
+   `RABBITMQ_USER` and `RABBITMQ_PASSWORD` (Claude cannot read or write `.env`).
+   Check: plan 003 exists, each spec "Done when" item maps to a task check.
 
 ## Known gaps
 
@@ -34,7 +38,8 @@ Last updated: 2026-11-08
 
 ## Open questions for the user
 
-- None.
+- Did `git push` show a confirmation prompt (ask rule)? If not, the ask rule has no effect
+  in auto mode.
 
 ## Notes for later issues
 
@@ -50,3 +55,5 @@ Last updated: 2026-11-08
 - No LICENSE for now; easy to add later.
 - Express rules: argon2 only for passwords; the log library is chosen in issue 0.4.
 - Contract names are UPPER_SNAKE; error codes carry their HTTP status (D-003).
+- One PR per issue: the last plan task marks plan, index and roadmap `done` and points the
+  handoff to the next issue, on the feature branch, before the PR opens.
