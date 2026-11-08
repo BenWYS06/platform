@@ -40,7 +40,7 @@ Status: in progress.
   insert a test document, `down` (no `-v`), `up -d --wait` again -> healthy, `rs.status().ok`
   is 1 and the document is still found (Done when 5).
 
-- [ ] Task 4. Redis, RabbitMQ, Qdrant and the store smoke check
+- [x] Task 4. Redis, RabbitMQ, Qdrant and the store smoke check
   Add Redis, RabbitMQ with management, Qdrant to compose: pinned tags, `127.0.0.1` ports
   (6379, 5672, 15672, 6333), named volumes, healthchecks. RabbitMQ user and password via
   `${RABBITMQ_PASSWORD:?...}` so a missing value names the variable. Add `infra/smoke.mjs`
