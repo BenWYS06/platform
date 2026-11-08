@@ -16,11 +16,17 @@ Last updated: 2026-11-08
 - Task 1. Basics: .gitignore, .editorconfig, .env.example
 - Task 1b. Line endings: .gitattributes forces LF
 - Task 2. Docs skeleton: this folder
+- Task 3. Settings: `.claude/settings.json` denies `.env` reads, force push (also `git -C <path> push --force` and `+refspec`), `rm -rf`. Each tested live.
 
-## Next step: task 3
+## Next step: task 4
 
-Task 3. Settings: write `.claude/settings.json` with the allow and deny lists from the spec.
-Check: `/permissions` shows a read of `.env` denied and `git push --force` denied.
+Task 4. Hook `protect-files.sh`: read stdin JSON with node, take `tool_input.file_path`, exit 2 for `.env` (not `.env.example`) and key files, exit 0 otherwise. Register as PreToolUse for Edit and Write.
+Check: fake input for `.env` exits 2, for `README.md` exits 0; then a real edit of `.env` is blocked.
+
+## Known gaps
+
+- Permission rules match command text only: `cat .env` through Bash is not blocked. The protect hook (task 4) is the second layer for edits.
+- README.md is UTF-16 (not seen as text by git); rewritten in task 10.
 
 ## Open questions for the user
 

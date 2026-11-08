@@ -16,7 +16,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Create docs/handoff.md, roadmap.md, decisions.md, architecture.md, environments.md, and the folders specs/, plans/ with plans/README.md. Copy spec 001 and plan 001 into specs/ and plans/. Roadmap lists phases 0 to 6 from the planning notes the user gives.
   Check: every file opens, handoff.md says "next step: task 3".
 
-- [ ] Task 3. Settings
+- [x] Task 3. Settings
   Write .claude/settings.json with allow and deny lists from the spec.
   Check: run `/permissions`; a read of `.env` is denied; `git push --force` is denied.
 
