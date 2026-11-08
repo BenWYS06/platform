@@ -1,0 +1,37 @@
+[
+  {
+    "code": "VALIDATION_FAILED",
+    "status": 400,
+    "description": "The request body, query or path failed validation."
+  },
+  {
+    "code": "UNAUTHENTICATED",
+    "status": 401,
+    "description": "No valid access token was sent."
+  },
+  {
+    "code": "FORBIDDEN",
+    "status": 403,
+    "description": "The caller is known but may not act on this resource."
+  },
+  {
+    "code": "NOT_FOUND",
+    "status": 404,
+    "description": "The resource does not exist or the caller may not see it."
+  },
+  {
+    "code": "CONFLICT",
+    "status": 409,
+    "description": "The request conflicts with the current state of the resource."
+  },
+  {
+    "code": "RATE_LIMITED",
+    "status": 429,
+    "description": "Too many requests; try again later."
+  },
+  {
+    "code": "INTERNAL",
+    "status": 500,
+    "description": "Unexpected server error; no detail is returned."
+  }
+]
