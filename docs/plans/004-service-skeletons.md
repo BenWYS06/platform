@@ -90,7 +90,7 @@ Status: not started.
   codes and statuses match `contracts/error-codes.json`.
   Check: `npm run build && npm run lint && npm test` -> all pass (Done when 5, 6, 8 for auth).
 
-- [ ] Task 9. auth-service: health with MongoDB and Redis pings
+- [x] Task 9. auth-service: health with MongoDB and Redis pings
   `GET /api/auth/health`: Mongo `ping` and Redis `PING`, each with a timeout, total under 3 s;
   200 / 503 as in the spec. Starts with stores down and recovers without a restart. Tests
   with the pings faked (up, Mongo down, Redis hangs -> 503 in time). Add

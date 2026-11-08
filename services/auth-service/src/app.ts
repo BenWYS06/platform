@@ -6,16 +6,19 @@ import { pinoHttp } from 'pino-http';
 import type { Config } from './config.js';
 import { errorHandler, notFound } from './middleware/errors.js';
 import { requireInternalKey } from './middleware/internalKey.js';
+import { healthRouter } from './routes/health.js';
 import { internalRouter } from './routes/internal.js';
+import type { Health } from './services/health.js';
 
 const SAFE_REQUEST_ID = /^[A-Za-z0-9._-]{1,64}$/;
 
 export interface AppDeps {
   config: Pick<Config, 'internalApiKey'>;
   logger: Logger;
+  health: Health;
 }
 
-export function createApp({ config, logger }: AppDeps): Express {
+export function createApp({ config, logger, health }: AppDeps): Express {
   const app = express();
   app.disable('x-powered-by');
 
@@ -33,6 +36,7 @@ export function createApp({ config, logger }: AppDeps): Express {
   );
   app.use(express.json({ limit: '100kb' }));
 
+  app.use('/api/auth', healthRouter(health));
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);
