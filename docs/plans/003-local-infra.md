@@ -3,7 +3,7 @@
 Spec: docs/specs/003-local-infra.md
 Branch: feature/local-infra
 Rule: one task, one commit, one check. Stop after each task and show the check output.
-Status: in progress.
+Status: done.
 
 ## Global Constraints
 
@@ -79,7 +79,7 @@ Status: in progress.
   passes; `git diff main --stat` lists `.env.example`, environments.md, architecture.md,
   CLAUDE.md, decisions.md, CHANGELOG.md and `infra/README.md` (Done when 8).
 
-- [ ] Task 7. Close the issue
+- [x] Task 7. Close the issue
   Run the full checks: `cd contracts && npm test`, `down` then `up -d --wait`,
   `node infra/smoke.mjs`. Tick this plan and set `Status: done`; set its line in
   docs/plans/README.md to `done`; tick 0.3 in docs/roadmap.md; point docs/handoff.md to issue

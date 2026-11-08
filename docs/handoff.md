@@ -6,35 +6,38 @@ Last updated: 2026-11-08
 
 ## Now
 
-- Issue: 0.3 Local infra with Caddy (Sprint 1, Phase 0, 3 points).
-- Branch: `feature/local-infra` (from up-to-date `main`; no commits yet).
-- Spec: [specs/003-local-infra.md](specs/003-local-infra.md) (written, agreed, not committed yet).
-- Plan: [plans/003-local-infra.md](plans/003-local-infra.md) (agreed; tasks run one commit each).
+- Issue 0.3 Local infra with Caddy: done. Plan 003 tasks 1 to 7 done; 0.3 ticked in the roadmap.
+- Branch: `feature/local-infra`, PR open for the user to read and merge.
+- Spec: [specs/003-local-infra.md](specs/003-local-infra.md)
+- Plan: [plans/003-local-infra.md](plans/003-local-infra.md)
 
 ## Done
 
-- Spec 003 written with the user's answers: services run on the host behind Caddy
-  (`host.docker.internal`), ports on `127.0.0.1` only, Caddy on 8080, RabbitMQ password from
-  `.env`, Caddy errors as contract JSON with a new `SERVICE_UNAVAILABLE` code. It has the new
-  "Must not happen" and "Decisions" sections.
-- Working rules on `main`: one PR per issue, scope and 200-line rules, clean-code rules,
-  git safety denies, `git push` asks first, Global Constraints in the plan template.
+- `infra/compose.yml`: MongoDB 8 replica set `rs0`, Redis, RabbitMQ, Qdrant, Caddy; pinned
+  tags, ports on `127.0.0.1`, healthchecks, named volumes. Missing RabbitMQ variables stop
+  compose with a message naming them.
+- `infra/Caddyfile`: `/api/auth|chat|ai/*` to the host on 3001/8081/8082; any `internal`
+  segment (any case, encoded, `;x`, `%09`) gives 404 and is never forwarded; service down 503.
+- `infra/smoke.mjs`: 17 checks, all pass. `contracts` 23 tests pass (`SERVICE_UNAVAILABLE`).
+- Data and replica set survive `down` / `up`; host clients connect with `replicaSet=rs0`.
+- Docs: `infra/README.md`, environments, architecture, CLAUDE.md, CHANGELOG, D-004.
 
-## Next step: `/write-plan` for spec 003
+## Next step: issue 0.4 Service skeletons: auth, chat, ai (5 points)
 
-1. Run `/write-plan` on `docs/specs/003-local-infra.md`. Use the new template: Global
-   Constraints block, last task "Close the issue".
-2. Task 1 of the plan commits spec 003, the plan and the index line on `feature/local-infra`.
-3. Before the infra tasks: the user copies `.env.example` to `.env` by hand and fills in
-   `RABBITMQ_USER` and `RABBITMQ_PASSWORD` (Claude cannot read or write `.env`).
-   Check: plan 003 exists, each spec "Done when" item maps to a task check.
+1. The user adds `RABBITMQ_USER` and `RABBITMQ_PASSWORD` to `.env` by hand (still missing),
+   then `docker compose --env-file .env -f infra/compose.yml up -d --wait` and
+   `node infra/smoke.mjs`.
+2. Merge the 0.3 PR, branch `feature/service-skeletons` from an updated `main`.
+3. 5 points: `/write-spec` for issue 0.4, then `/write-plan`.
 
 ## Known gaps
 
 - Permission rules match command text only: `cat .env` through Bash is not blocked. The
   protect hook is the second layer for edits.
-- The contracts check is not in CI yet: issue 0.6.
+- The contracts and smoke checks are not in CI yet: issue 0.6.
 - Services do not read `contracts/` yet: issues 0.4 and 0.5.
+- `smoke.mjs` expects no service running (`/api/auth/health` must be 503); adjust it when
+  services exist.
 
 ## Open questions for the user
 
@@ -43,6 +46,9 @@ Last updated: 2026-11-08
 
 ## Notes for later issues
 
+- 0.4: services listen on 3001 (auth), 8081 (chat), 8082 (ai) on the host; Caddy keeps the
+  prefix, so routes live under `/api/<service>/...`. Mongo URI
+  `mongodb://localhost:27017/?replicaSet=rs0`. `/internal` routes still check `X-Internal-Key`.
 - 0.6: on GitHub Free, branch protection applies only to public repos. This repo is public,
   so protect `main` once CI exists. CI runs `cd contracts && npm ci && npm test`.
 
@@ -55,5 +61,6 @@ Last updated: 2026-11-08
 - No LICENSE for now; easy to add later.
 - Express rules: argon2 only for passwords; the log library is chosen in issue 0.4.
 - Contract names are UPPER_SNAKE; error codes carry their HTTP status (D-003).
+- Local dev: services on the host behind Caddy, `/internal` blocked by segment (D-004).
 - One PR per issue: the last plan task marks plan, index and roadmap `done` and points the
   handoff to the next issue, on the feature branch, before the PR opens.
