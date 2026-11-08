@@ -18,7 +18,7 @@ Job: conventions for auth-service (Express + TypeScript).
 - Passwords: argon2 only. Tokens: short-lived access JWT plus refresh token; signing key
   from env.
 - Rate limit login, sign-up and password reset.
-- Logs: JSON with request id (library chosen in issue 0.4); never log passwords, tokens or
-  full bodies.
+- Logs: pino + pino-http, JSON with request id; `Authorization`, `Cookie` and
+  `X-Internal-Key` redacted. Never log passwords, tokens or full bodies.
 - No `any` without a comment saying why.
 - Tests: Vitest + supertest against the app, see `testing.md`.

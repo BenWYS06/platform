@@ -24,9 +24,9 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `.github/` | PR and issue templates, CODEOWNERS (CI from issue 0.6) | exists |
 | `contracts/` | shared error codes, capabilities, messaging, events | exists |
 | `infra/` | `compose.yml`: MongoDB, Redis, RabbitMQ, Qdrant, Caddy; `Caddyfile`; `smoke.mjs` | exists |
-| `services/auth-service/` | Express + TypeScript | issue 0.4 |
-| `services/chat-service/` | Spring Boot, Java 21 | issue 0.4 |
-| `services/ai-service/` | Spring Boot, Java 21 | issue 0.4 |
+| `services/auth-service/` | Express + TypeScript | exists |
+| `services/chat-service/` | Spring Boot, Java 21 | exists |
+| `services/ai-service/` | Spring Boot, Java 21 | exists |
 | `libs/platform-common-java/` | shared Java: errors, config guard, JWT filter | issue 0.5 |
 | `clients/web/` | Vue 3 | issue 0.7 |
 | `clients/android/` | Kotlin, Compose, Hilt | issue 0.7 |
@@ -41,10 +41,11 @@ Placeholders until the code exists; update this table in the PR that adds each p
 |---|---|
 | Contracts check | `cd contracts && npm ci && npm test` |
 | Local infra up | `docker compose --env-file .env -f infra/compose.yml up -d --wait` |
-| Local infra check | `node infra/smoke.mjs` |
+| Local infra check | `node infra/smoke.mjs` (`--services`: all three must answer 200) |
 | Local infra reset (deletes data) | `docker compose --env-file .env -f infra/compose.yml down -v` |
-| auth-service | `cd services/auth-service && npm ci && npm test` (issue 0.4) |
-| chat / ai service | `cd services/<name> && ./mvnw verify` (issue 0.4) |
+| auth-service | `cd services/auth-service && npm ci && npm run build && npm run lint && npm test` |
+| chat / ai service (Docker running) | `cd services/<name> && ./mvnw verify` |
+| Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw spring-boot:run` |
 | Web | `cd clients/web && npm ci && npm run build && npm test` (issue 0.7) |
 | Android | `cd clients/android && ./gradlew testDevDebugUnitTest` (issue 0.7) |
 | Test a hook | `echo '{"tool_input":{"file_path":".env"}}' \| bash .claude/hooks/protect-files.sh; echo $?` |
@@ -87,6 +88,10 @@ Details: `.claude/rules/security.md`. Stack rules load by path from `.claude/rul
 - Permission rules match command text only; they are a guard, not a sandbox.
 - The format hook does nothing until formatters (prettier etc.) are installed per project.
 - Keep text files UTF-8. PowerShell `echo >>` writes UTF-16; use the editor or Git Bash.
+- Java services on Windows need `-XX:-UseThreadPriorities` (set for `spring-boot:run`),
+  or the JVM stalls for seconds on a busy machine. See the service CLAUDE.md.
+- Services read the repo `.env` at startup (Spring `spring.config.import`, Node
+  `--env-file-if-exists`); Claude still never reads or edits it.
 
 ## Where things are written down
 

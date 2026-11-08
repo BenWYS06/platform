@@ -113,7 +113,7 @@ Status: not started.
   - a request with `Authorization` and `X-Internal-Key` to chat and ai: their log lines are
     JSON with a request id and show neither value (Done when 8).
 
-- [ ] Task 11. Docs
+- [x] Task 11. Docs
   Root `CLAUDE.md` (folder map status, real commands for the three services),
   `docs/architecture.md` (services exist, health and internal routes, `APP_ENV`),
   `docs/environments.md` (new variables, health URLs), `docs/decisions.md` D-005 (pino;

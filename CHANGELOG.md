@@ -14,3 +14,6 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Local infra: MongoDB replica set, Redis, RabbitMQ, Qdrant and a Caddy gateway on
   `localhost:8080` that blocks `/internal` and answers errors as contract JSON; smoke check
   `node infra/smoke.mjs` (issue 0.3).
+- Service skeletons: auth-service (Express), chat-service and ai-service (Spring Boot), each
+  with `/api/<service>/health`, `/internal/ping` behind `X-Internal-Key`, contract errors,
+  JSON logs with a request id and a production guard; smoke check `--services` (issue 0.4).

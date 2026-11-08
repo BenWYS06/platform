@@ -2,7 +2,8 @@
 
 Job: how the system fits together. Update in the same PR that changes it.
 
-Status: planned. Nothing below exists in code yet; it comes from the Phase 0 issues.
+Status: Caddy, contracts and the three service skeletons exist (issues 0.2 to 0.4); the rest
+comes from the later Phase 0 issues.
 
 ## Parts
 
@@ -38,6 +39,24 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
   character (`internal;x`, `internal%09`), before routing. Services still check `X-Internal-Key`.
 - Caddy answers its own errors as contract JSON: service down -> 503 `SERVICE_UNAVAILABLE`,
   unknown path or `/internal` -> 404 `NOT_FOUND`, anything else -> 500 `INTERNAL`.
+
+## Service skeleton (every service)
+
+- `GET /api/<service>/health`, public: pings the stores the service uses (auth: MongoDB,
+  Redis; chat and ai: MongoDB, RabbitMQ) in parallel, at most 2.5 s. 200 `{"status":"UP"}`
+  or 503 `{"code":"SERVICE_UNAVAILABLE"}` with no detail. A service starts with its stores
+  down and recovers without a restart.
+- `GET /internal/ping` on the service port: `X-Internal-Key` compared in constant time with
+  `INTERNAL_API_KEY`; 401 `UNAUTHENTICATED` otherwise. Caddy answers 404 from outside.
+- `APP_ENV` (`local`, `dev`, `prod`, default `local`). The production guard stops startup
+  in `prod` on a missing, short (< 32) or default internal key or a missing store setting;
+  messages name the variable, never the value. Startup failures exit with code 1.
+- Errors: unknown route 404 `NOT_FOUND`, bad input 400 `VALIDATION_FAILED`, anything else
+  500 `INTERNAL`; never a stack trace. JSON logs with a request id (`X-Request-Id` kept if
+  safe, otherwise generated); no headers or bodies logged, secret headers redacted.
+- One MongoDB database per service: `openbox_auth`, `openbox_chat`, `openbox_ai`.
+- The Java error handler, guard and filters live in each service's `platform` package
+  until issue 0.5 moves them to `libs/platform-common-java`.
 
 ## Rules that cross services
 
