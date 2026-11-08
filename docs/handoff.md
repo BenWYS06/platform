@@ -30,16 +30,22 @@ Last updated: 2026-11-08
 
 - Task 9 (files only). `.github/` PR template, bug and feature issue templates, CODEOWNERS (`@BenWYS06`). Committed; the check (push, open PR, see templates) waits for the user's go-ahead.
 
-## Next step: task 10
+- Task 10. README (rewritten in UTF-8, 5 start steps), CONTRIBUTING (loop, rules, file map of all 32 harness files), CHANGELOG, SECURITY, .gitleaksignore.
 
-Task 10. Human docs: README, CONTRIBUTING (loop, branch and commit rules, file map), CHANGELOG, SECURITY, .gitleaksignore.
-Check: README explains how to start in 5 lines.
+## Next step: task 9 check, then task 11
+
+1. Task 9 check: push `feature/repo-harness`, open a PR, see the template; "New issue" shows the bug and feature templates. Waits for the user's go-ahead.
+2. Task 11. Run /session-summary: tick plan and roadmap, set this file to "next step: issue 0.2".
+   Check: new session, ask "what is the next step?", answer matches this file. User reads the full diff and merges the PR.
+
+## Checks the user still has to run
+
+- `/memory`: 7 rules listed, stack rules path-scoped (task 6).
+- `/`: write-spec, write-plan, session-summary listed; try write-spec on a dummy idea (task 8).
 
 ## Known gaps
 
 - Permission rules match command text only: `cat .env` through Bash is not blocked. The protect hook (task 4) is the second layer for edits.
-- README.md is UTF-16 (not seen as text by git); rewritten in task 10.
-
 ## Open questions for the user
 
 - LICENSE: which license, or none?

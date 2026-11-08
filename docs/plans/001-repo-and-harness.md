@@ -47,7 +47,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Add PR template, two issue templates, CODEOWNERS (the user as owner).
   Check: push the branch, open a PR, and see the template in the description; open "New issue" and see both templates.
 
-- [ ] Task 10. Human docs
+- [x] Task 10. Human docs
   Write README.md, CONTRIBUTING.md (loop, branch and commit rules, file map with one-line jobs), CHANGELOG.md (Unreleased), SECURITY.md, .gitleaksignore (empty with a comment).
   Check: README explains how to start in 5 lines even though services are not there yet.
 
