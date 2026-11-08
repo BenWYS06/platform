@@ -1,0 +1,61 @@
+# Job: keep build output, local tooling files and secrets out of git.
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+!debug.keystore
+
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+*.swp
+*~
+
+# --- Node / Express / Vue ---
+node_modules/
+dist/
+coverage/
+.npm/
+.vite/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Java / Spring (Maven, Gradle) ---
+target/
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+*.class
+hs_err_pid*
+
+# --- Android ---
+local.properties
+.externalNativeBuild/
+.cxx/
+captures/
+*.apk
+*.aab
+google-services.json
+
+# --- Logs / temp ---
+logs/
+*.log
+tmp/
+
+# --- Claude Code (personal, not shared) ---
+.claude/settings.local.json
+CLAUDE.local.md

@@ -1,0 +1,3 @@
+# Job: known false positives for the gitleaks secret scan (CI from issue 0.6).
+# One fingerprint per line, as printed by gitleaks, with a comment saying why it is safe.
+# A real secret is never ignored here: rotate it instead.
