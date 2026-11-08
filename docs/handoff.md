@@ -40,11 +40,15 @@ Last updated: 2026-11-08
 
 - Permission rules match command text only: `cat .env` through Bash is not blocked. The protect hook (task 4) is the second layer for edits.
 
-## Open questions for the user
+## Notes for later issues
 
-- Phases 1 to 6 in [roadmap.md](roadmap.md) are still "TBD": their names and issues are needed from the Build plan.
+- 0.6: on a GitHub Free plan, branch protection applies only to public repos. This repo is public, so branch protection on main can be turned on after CI exists.
 
 ## Settled
+
+- The repo is public (user's decision). Before every push: scan for the forbidden names (list kept outside the repo) and for `.env` files and keys; push only if the scan finds nothing.
+- The old README title in commit `de681e5` on main stays: harmless, and rewriting main is riskier.
+- Roadmap phases 1 to 6 filled from the user's Build plan.
 
 - No LICENSE for now: the blueprint has not decided; easy to add later.
 - Express rules: argon2 only for passwords; the log library is chosen in issue 0.4.
