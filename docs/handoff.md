@@ -28,10 +28,12 @@ Last updated: 2026-11-08
 
 - Task 8. Skills `write-spec`, `write-plan`, `session-summary` in `.claude/skills/<name>/SKILL.md`. User still to check `/` shows them and to try write-spec on a dummy idea.
 
-## Next step: task 9
+- Task 9 (files only). `.github/` PR template, bug and feature issue templates, CODEOWNERS (`@BenWYS06`). Committed; the check (push, open PR, see templates) waits for the user's go-ahead.
 
-Task 9. GitHub files: PR template, bug and feature issue templates, CODEOWNERS (`@BenWYS06`).
-Check: push the branch, open a PR, see the template; "New issue" shows both templates.
+## Next step: task 10
+
+Task 10. Human docs: README, CONTRIBUTING (loop, branch and commit rules, file map), CHANGELOG, SECURITY, .gitleaksignore.
+Check: README explains how to start in 5 lines.
 
 ## Known gaps
 
