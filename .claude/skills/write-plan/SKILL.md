@@ -19,8 +19,11 @@ Job: split a spec into tasks small enough that each one is built, checked and co
    - Order: things others depend on first; risky or unknown parts early.
    - Tests go in the same task as the code they test.
    - Docs updates go in the task that changes the behavior.
-   - The last task is always "Final check and handoff" (run `/session-summary`, user reads
-     the diff, PR merged).
+   - The last task is always "Close the issue": on the feature branch, before the PR opens,
+     run the full checks, tick the plan and mark it `done`, set the plans index line to
+     `done`, tick the issue in `docs/roadmap.md`, and point `docs/handoff.md` to the next
+     issue. Write `done`, never "merged" or a PR number. Merging is not a task: the user
+     merges after reading the diff. One PR per issue; no follow-up PR to close the plan.
 4. Every "Done when" item of the spec must be covered by at least one task's check. Say which.
 5. **Write** the plan with the template below and add a line to `docs/plans/README.md`.
 6. **Show** the plan and ask for changes. Do not start Task 1 until the user says so.
@@ -38,9 +41,12 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   <what to do, in one to three lines>
   Check: <command or action> -> <expected result>.
 
-- [ ] Task N. Final check and handoff
-  Run /session-summary. User reads the full diff and merges the PR.
-  Check: new session, ask "what is the next step?", answer matches docs/handoff.md.
+- [ ] Task N. Close the issue
+  Run the full checks. Tick this plan and set `Status: done`; set its line in
+  docs/plans/README.md to `done`; tick the issue in docs/roadmap.md; point docs/handoff.md
+  to the next issue (/session-summary). Scan, push, open the PR.
+  Check: `git diff main --stat` lists the plan, plans/README.md, roadmap.md and handoff.md;
+  none of them says "merged" or a PR number; handoff "Next step" names the next issue.
 ```
 
 ## Index line

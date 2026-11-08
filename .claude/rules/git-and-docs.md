@@ -25,9 +25,14 @@ Job: how work moves from a branch to main, and how docs stay true. Loaded every 
 
 1. Spec (`docs/specs/NNN-*.md`) and plan (`docs/plans/NNN-*.md`) exist for work of 3+ points.
 2. Work task by task; stop after each task and show the check output.
-3. Push the branch and open a PR with the template filled in: spec link, Done when, tests,
-   docs, handoff.
-4. CI green (from issue 0.6), the user reads the full diff, the user merges.
+3. The last plan task closes the issue on the feature branch, before the PR opens: tick the
+   plan and mark it `done`, set its line in `docs/plans/README.md` to `done`, tick the issue
+   in `docs/roadmap.md`, and point `docs/handoff.md` to the next issue. Write `done`, never
+   "merged" or a PR number. Merging is not a plan task.
+4. Scan before every push, then push the branch and open a PR with the template filled in:
+   spec link, Done when, tests, docs, handoff.
+5. CI green (from issue 0.6), the user reads the full diff, the user merges.
+6. One PR per issue. No follow-up PR just to close the plan or tick the roadmap.
 
 ## Docs in the same PR
 
