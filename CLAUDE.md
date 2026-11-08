@@ -22,7 +22,7 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `docs/specs/`, `docs/plans/` | one spec and one plan per issue, same number | exists |
 | `.claude/` | settings, hooks, rules, skills | exists |
 | `.github/` | PR and issue templates, CODEOWNERS (CI from issue 0.6) | exists |
-| `contracts/` | shared error codes, capabilities, messaging, events | issue 0.2 |
+| `contracts/` | shared error codes, capabilities, messaging, events | exists |
 | `infra/` | `compose.yml`: MongoDB, Redis, RabbitMQ, Qdrant, Caddy | issue 0.3 |
 | `services/auth-service/` | Express + TypeScript | issue 0.4 |
 | `services/chat-service/` | Spring Boot, Java 21 | issue 0.4 |
@@ -39,6 +39,7 @@ Placeholders until the code exists; update this table in the PR that adds each p
 
 | Task | Command |
 |---|---|
+| Contracts check | `cd contracts && npm ci && npm test` |
 | Local infra up | `docker compose -f infra/compose.yml up -d` (issue 0.3) |
 | auth-service | `cd services/auth-service && npm ci && npm test` (issue 0.4) |
 | chat / ai service | `cd services/<name> && ./mvnw verify` (issue 0.4) |

@@ -20,3 +20,8 @@ Instead of: `jq`.
 Decision: every client calls one address; Caddy routes `/api/<service>` and `/ws`, and blocks `/internal`.
 Why: clients never need to know service ports, and internal endpoints are never reachable from outside.
 Instead of: one URL per service.
+
+## D-003 Contract names are UPPER_SNAKE; error codes carry their HTTP status (2026-11-08)
+Decision: every name in `contracts/` (error codes, capabilities, messaging and event names) is UPPER_SNAKE; RabbitMQ names keep the real broker name in a separate lower-dotted `value`. Each error code fixes its HTTP status in `error-codes.json`.
+Why: UPPER_SNAKE maps straight to Java enums and TS constants; a fixed status means every service answers the same code with the same status, and clients can rely on it.
+Instead of: dotted lower names (`auth.invalid_credentials`), and letting each service pick the status.

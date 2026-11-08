@@ -16,7 +16,7 @@ Job: which tests each layer needs, and when a change is tested enough. Loaded ev
 | Spring controllers | slice test with MockMvc | `@WebMvcTest` |
 | Spring + MongoDB/Redis/RabbitMQ | integration with real containers | Testcontainers |
 | Express routes | HTTP test against the app | Vitest + supertest |
-| Shared names | contract test against `contracts/*.json` | helper from issue 0.2 |
+| Shared names | contract test against `contracts/*.json` | `cd contracts && npm test`; services read the JSON in their tests |
 | Vue components | component test | Vitest + Vue Test Utils |
 | Vue flows | end-to-end (later) | Playwright |
 | Android view models | unit | JUnit + Turbine |
