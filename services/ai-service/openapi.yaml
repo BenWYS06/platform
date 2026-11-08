@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: ai-service
+  version: 0.1.0
+  description: AI service. Clients reach /api/ai through Caddy; /internal only from other services.
+paths:
+  /api/ai/health:
+    get:
+      summary: Health check (public)
+      description: Pings MongoDB and RabbitMQ. Public so the gateway and operators can check it.
+      security: []
+      responses:
+        "200":
+          description: Every store answered.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: UP }
+        "503":
+          $ref: "#/components/responses/Error"
+  /internal/ping:
+    get:
+      summary: Internal reachability check
+      description: Only for other services, directly on the service port. Caddy answers 404 from outside.
+      security:
+        - internalKey: []
+      responses:
+        "200":
+          description: Key accepted.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: OK }
+        "401":
+          $ref: "#/components/responses/Error"
+components:
+  securitySchemes:
+    internalKey:
+      type: apiKey
+      in: header
+      name: X-Internal-Key
+  responses:
+    Error:
+      description: Contract error; code from contracts/error-codes.json.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Error:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string }
+        message: { type: string }

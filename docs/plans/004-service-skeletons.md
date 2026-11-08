@@ -66,7 +66,7 @@ Status: not started.
   Check: `cd services/ai-service && ./mvnw verify` -> BUILD SUCCESS with guard, error, ping
   and contract tests; `mvnw` mode 100755 (Done when 5, 6, 7 for ai).
 
-- [ ] Task 6. ai-service: health with MongoDB and RabbitMQ pings
+- [x] Task 6. ai-service: health with MongoDB and RabbitMQ pings
   Same as Task 4 for ai-service, including `CLAUDE.md`, `openapi.yaml` and the
   Testcontainers test.
   Check: `./mvnw verify` -> BUILD SUCCESS, Testcontainers test passes (Done when 2 for ai).
