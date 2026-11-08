@@ -13,6 +13,8 @@ Job: how work moves from a branch to main, and how docs stay true. Loaded every 
 - Conventional Commits: `type: summary` in the imperative, under 72 characters.
   Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`.
 - One plan task, one commit. The body says which task: `Task 3 of plan 001.`
+- When a task's check passes, tick it (`- [x]`) in the plan and put that change in the same
+  commit as the task. No separate commit for ticks.
 - Commit only when the user asks or the plan says so. Never commit `.env` files or keys.
 
 ## Never
