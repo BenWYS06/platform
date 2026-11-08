@@ -20,12 +20,14 @@ the RabbitMQ variables for any command (`ps`, `logs`, `down` too).
 | Start and wait until all healthy | `docker compose --env-file .env -f infra/compose.yml up -d --wait` |
 | Status | `docker compose --env-file .env -f infra/compose.yml ps` |
 | Check everything answers | `node infra/smoke.mjs` |
+| Check with all three services running | `node infra/smoke.mjs --services` |
 | Logs of one container | `docker compose --env-file .env -f infra/compose.yml logs caddy` |
 | Stop (data kept) | `docker compose --env-file .env -f infra/compose.yml down` |
 | Reset (deletes all local data) | `docker compose --env-file .env -f infra/compose.yml down -v` |
 
-`node infra/smoke.mjs` prints one line per check and exits 1 if any fails. It expects no
-service running: `/api/auth/health` must answer 503 `SERVICE_UNAVAILABLE`.
+`node infra/smoke.mjs` prints one line per check and exits 1 if any fails. Each
+`/api/<service>/health` passes on 200 `UP` or 503 `SERVICE_UNAVAILABLE` (service or a store
+down) and the line says which; with `--services`, 200 is required.
 
 ## Addresses
 
