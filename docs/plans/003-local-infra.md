@@ -30,13 +30,13 @@ Status: in progress.
   Check: `cd contracts && npm ci && npm test` -> all tests pass, four files checked
   (Done when 7).
 
-- [ ] Task 3. MongoDB replica set in compose (riskiest part first)
+- [x] Task 3. MongoDB replica set in compose (riskiest part first)
   Create `infra/compose.yml` with MongoDB 8 only: pinned tag, `127.0.0.1:27017`, named
   volume, `--replSet rs0`, healthcheck that runs `rs.initiate` with member
   `localhost:27017` only when `rs.status()` fails. Add the RabbitMQ and service-port names
   to `.env.example` (no real values) so the user can fill `.env`.
   Check: `docker compose -f infra/compose.yml up -d --wait` -> exits 0;
-  `mongosh "mongodb://localhost:27017/?replicaSet=rs0" --eval "rs.status().ok"` -> `1`;
+  `docker compose -f infra/compose.yml exec mongo mongosh "mongodb://localhost:27017/?replicaSet=rs0" --eval "rs.status().ok"` -> `1`;
   insert a test document, `down` (no `-v`), `up -d --wait` again -> healthy, `rs.status().ok`
   is 1 and the document is still found (Done when 5).
 
