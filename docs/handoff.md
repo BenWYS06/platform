@@ -20,10 +20,12 @@ Last updated: 2026-11-08
 
 - Task 4. Hook `.claude/hooks/protect-files.sh` (PreToolUse, Edit|Write|MultiEdit): blocks `.env`/`.env.*` (not `.env.example`) and key files. Fake inputs: `.env` exits 2, `README.md` exits 0. Live: a Write to `hook-test.pem` was blocked.
 
-## Next step: task 5
+- Task 5. Hook `.claude/hooks/format-on-edit.sh` (PostToolUse): prettier / google-java-format / ktlint / shfmt by extension, only if installed; always exits 0. No formatter is installed yet.
 
-Task 5. Hook `format-on-edit.sh` (PostToolUse, Edit and Write): pick a formatter by file extension, run it only if installed, otherwise exit 0 silently.
-Check: fake input for a `.md` file exits 0; fake input for a missing file exits 0 with no crash.
+## Next step: task 6
+
+Task 6. Rules: the 7 files in `.claude/rules/`, stack rules with `paths:` front matter, each under 60 lines.
+Check: `/memory` lists them; stack rules show as path-scoped.
 
 ## Known gaps
 

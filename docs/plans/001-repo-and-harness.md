@@ -27,7 +27,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `echo '{"tool_input":{"file_path":"README.md"}}' | bash .claude/hooks/protect-files.sh; echo $?` must print 0.
   Then ask Claude to edit .env in a real session and see it blocked.
 
-- [ ] Task 5. Hook: format-on-edit.sh
+- [x] Task 5. Hook: format-on-edit.sh
   PostToolUse for Edit and Write. Picks a formatter by file extension and runs it only if installed; otherwise exits 0 silently.
   Check: fake input for a .md file exits 0; a fake input for a missing file exits 0 with no crash.
 
