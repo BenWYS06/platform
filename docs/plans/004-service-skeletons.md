@@ -3,7 +3,7 @@
 Spec: docs/specs/004-service-skeletons.md
 Branch: feature/service-skeletons
 Rule: one task, one commit, one check. Stop after each task and show the check output.
-Status: not started.
+Status: done.
 
 ## Global Constraints
 
@@ -123,7 +123,7 @@ Status: not started.
   files, the three `openapi.yaml`, architecture.md, environments.md, decisions.md,
   express.md and CHANGELOG.md (Done when 10).
 
-- [ ] Task 12. Close the issue
+- [x] Task 12. Close the issue
   Run the full checks: `cd contracts && npm test`, the three service builds and tests,
   `node infra/smoke.mjs --services` with services running. Tick this plan and set
   `Status: done`; set its line in docs/plans/README.md to `done`; tick 0.4 in

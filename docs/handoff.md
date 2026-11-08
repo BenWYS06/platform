@@ -6,61 +6,53 @@ Last updated: 2026-11-08
 
 ## Now
 
-- Issue 0.3 Local infra with Caddy: done. Plan 003 tasks 1 to 7 done; 0.3 ticked in the roadmap.
-- Branch: `feature/local-infra`, PR open for the user to read and merge.
-- Spec: [specs/003-local-infra.md](specs/003-local-infra.md)
-- Plan: [plans/003-local-infra.md](plans/003-local-infra.md)
+- Issue 0.4 Service skeletons: auth, chat, ai: done. Plan 004 tasks 1 to 12 done; 0.4 ticked.
+- Branch: `feature/service-skeletons`, PR open for the user to read and merge.
+- Spec: [specs/004-service-skeletons.md](specs/004-service-skeletons.md)
+- Plan: [plans/004-service-skeletons.md](plans/004-service-skeletons.md)
 
 ## Done
 
-- `infra/compose.yml`: MongoDB 8 replica set `rs0`, Redis, RabbitMQ, Qdrant, Caddy; pinned
-  tags, ports on `127.0.0.1`, healthchecks, named volumes. Missing RabbitMQ variables stop
-  compose with a message naming them.
-- `infra/Caddyfile`: `/api/auth|chat|ai/*` to the host on 3001/8081/8082; any `internal`
-  segment (any case, encoded, `;x`, `%09`) gives 404 and is never forwarded; service down 503.
-- `infra/smoke.mjs`: 17 checks, all pass. `contracts` 23 tests pass (`SERVICE_UNAVAILABLE`).
-- Data and replica set survive `down` / `up`; host clients connect with `replicaSet=rs0`.
-- Docs: `infra/README.md`, environments, architecture, CLAUDE.md, CHANGELOG, D-004.
+- auth-service (Express 5, TS 6.0, Node 24): config guard, pino logs, health (MongoDB,
+  Redis), `/internal/ping`; 24 tests pass, build and lint clean.
+- chat-service and ai-service (Spring Boot 3.5.16, Java 21): same skeleton in a `platform`
+  package, health (MongoDB, RabbitMQ); 25 tests each incl. Testcontainers; `./mvnw verify` OK.
+- `node infra/smoke.mjs` and `--services`: 23 checks pass, services stopped and running.
+- Mongo stopped: every health 503 in about 2.2 s; Mongo started: 200 again, no restart.
+- Docs: root and service CLAUDE.md, openapi.yaml x3, architecture, environments, D-005,
+  express rules (pino), infra README, CHANGELOG, `.env.example`.
 
-## Next step: issue 0.4 Service skeletons: auth, chat, ai (5 points)
+## Next step: issue 0.5 platform-common-java library (2 points)
 
-1. The user adds `RABBITMQ_USER` and `RABBITMQ_PASSWORD` to `.env` by hand (still missing),
-   then `docker compose --env-file .env -f infra/compose.yml up -d --wait` and
-   `node infra/smoke.mjs`.
-2. Merge the 0.3 PR, branch `feature/service-skeletons` from an updated `main`.
-3. 5 points: `/write-spec` for issue 0.4, then `/write-plan`.
+1. The user reads the full 0.4 diff and merges the PR.
+2. Branch `feature/platform-common-java` from an updated `main`.
+3. 2 points: no spec needed by the rules, but the Maven consumption question (below) needs
+   an answer first; then move each service's `platform` package into the library and delete
+   the copies.
 
 ## Known gaps
 
-- Permission rules match command text only: `cat .env` through Bash is not blocked. The
-  protect hook is the second layer for edits.
-- The contracts and smoke checks are not in CI yet: issue 0.6.
-- Services do not read `contracts/` yet: issues 0.4 and 0.5.
-- `smoke.mjs` expects no service running (`/api/auth/health` must be 503); adjust it when
-  services exist.
+- Java on Windows needs `-XX:-UseThreadPriorities` (set for `spring-boot:run`; IDE run
+  configs must add it). Without it Tomcat's low-priority threads stall the JVM for seconds.
+- Permission rules match command text only: `cat .env` through Bash is not blocked.
+- Contracts, service builds and smoke check are not in CI yet: issue 0.6.
+- chat and ai `platform` packages are copies; issue 0.5 removes the duplication.
 
 ## Open questions for the user
 
+- Spring Boot 3.5 is past open-source support and Initializr only offers 4.x. Stay on 3.5
+  (rules say Boot 3) or move to Boot 4 in 0.5? Moving changes `.claude/rules/spring.md`.
+- 0.5: how do chat and ai consume the library: `mvnw install` locally, a root aggregator
+  pom, or a GitHub Packages repo?
 - Did `git push` show a confirmation prompt (ask rule)? If not, the ask rule has no effect
   in auto mode.
 
-## Notes for later issues
-
-- 0.4: services listen on 3001 (auth), 8081 (chat), 8082 (ai) on the host; Caddy keeps the
-  prefix, so routes live under `/api/<service>/...`. Mongo URI
-  `mongodb://localhost:27017/?replicaSet=rs0`. `/internal` routes still check `X-Internal-Key`.
-- 0.6: on GitHub Free, branch protection applies only to public repos. This repo is public,
-  so protect `main` once CI exists. CI runs `cd contracts && npm ci && npm test`.
-
 ## Settled
 
-- Repo is public (user's decision). Before every push: scan for the forbidden names (list
-  kept outside the repo) and for `.env` files and keys; push only if the scan is empty.
-- The old README title in commit `de681e5` on main stays: rewriting main is riskier.
-- Roadmap phases 1 to 6 filled from the user's Build plan.
-- No LICENSE for now; easy to add later.
-- Express rules: argon2 only for passwords; the log library is chosen in issue 0.4.
-- Contract names are UPPER_SNAKE; error codes carry their HTTP status (D-003).
-- Local dev: services on the host behind Caddy, `/internal` blocked by segment (D-004).
+- Repo is public. Before every push: scan for the forbidden names (list kept outside the
+  repo) and for `.env` files and keys; push only if the scan is empty.
+- Contract names UPPER_SNAKE, codes carry their status (D-003). Local dev: services on the
+  host behind Caddy, `/internal` blocked by segment (D-004). Service skeleton choices: D-005.
 - One PR per issue: the last plan task marks plan, index and roadmap `done` and points the
   handoff to the next issue, on the feature branch, before the PR opens.
+- 0.6: protect `main` once CI exists (public repo, GitHub Free).
