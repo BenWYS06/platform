@@ -33,5 +33,10 @@
     "code": "INTERNAL",
     "status": 500,
     "description": "Unexpected server error; no detail is returned."
+  },
+  {
+    "code": "SERVICE_UNAVAILABLE",
+    "status": 503,
+    "description": "The service behind the gateway is not running or not reachable; try again later."
   }
 ]
