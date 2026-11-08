@@ -71,6 +71,11 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <!-- Windows: Tomcat's lowest-priority utility threads get starved and stall every
+               safepoint for seconds. Linux ignores thread priorities by default. -->
+          <jvmArguments>-XX:-UseThreadPriorities</jvmArguments>
+        </configuration>
       </plugin>
     </plugins>
   </build>

@@ -18,7 +18,10 @@ public class HealthService {
 
   static final Duration DEFAULT_TIMEOUT = Duration.ofMillis(2500);
   private static final Logger log = LoggerFactory.getLogger(HealthService.class);
-  private static final ExecutorService POOL = Executors.newVirtualThreadPerTaskExecutor();
+  // Daemon threads: a hung store call keeps its thread until the driver timeout, but never
+  // holds the caller or blocks shutdown.
+  private static final ExecutorService POOL =
+      Executors.newCachedThreadPool(Thread.ofPlatform().daemon().name("health-", 0).factory());
 
   private final List<StoreCheck> checks;
   private final Duration timeout;
@@ -44,7 +47,14 @@ public class HealthService {
       Thread.currentThread().interrupt();
       return false;
     } catch (Exception timeoutOrFailure) {
-      log.atWarn().addKeyValue("timeoutMs", timeout.toMillis()).log("store check timed out");
+      for (int i = 0; i < checks.size(); i++) {
+        if (!results.get(i).isDone()) {
+          log.atWarn()
+              .addKeyValue("store", checks.get(i).name())
+              .addKeyValue("timeoutMs", timeout.toMillis())
+              .log("store check timed out");
+        }
+      }
       return false;
     }
   }

@@ -97,7 +97,7 @@ Status: not started.
   `services/auth-service/CLAUDE.md` and `openapi.yaml`.
   Check: `npm run build && npm run lint && npm test` -> all pass (Done when 1).
 
-- [ ] Task 10. Smoke check and end-to-end run
+- [x] Task 10. Smoke check and end-to-end run
   `infra/smoke.mjs`: health per service passes on 200 UP or 503 SERVICE_UNAVAILABLE and
   prints which; `--services` requires 200; `/api/<service>/internal/ping` through Caddy with
   a key -> 404.

@@ -11,13 +11,15 @@ forwards `/api/ai/*` here with the prefix kept.
 |---|---|
 | Build and all tests (Docker running) | `./mvnw verify` |
 | Run locally (infra up first) | `./mvnw spring-boot:run` |
+| Run the built jar | `java -XX:-UseThreadPriorities -jar target/ai-service-0.1.0-SNAPSHOT.jar` |
 
 ## Layout
 
 - `platform/`: config record, production guard, error codes and handler, request id and
   internal key filters. Moves to `libs/platform-common-java` in issue 0.5; keep it free of
   AI logic.
-- `health/`: `GET /api/ai/health`, pings MongoDB and RabbitMQ (2.5 s timeout).
+- `health/`: `GET /api/ai/health`, pings MongoDB and RabbitMQ (2.5 s timeout; driver
+  connect and server selection bounded at 2 s in `StoreTimeoutConfig`).
 - `internal/`: `GET /internal/ping`, behind `X-Internal-Key`.
 - API: `openapi.yaml`. Update it with every route change.
 
@@ -29,6 +31,10 @@ forwards `/api/ai/*` here with the prefix kept.
   `MONGODB_URI` or `RABBITMQ_PASSWORD`. A failed start exits with code 1.
 
 ## Gotchas
+
+- Windows: always run with `-XX:-UseThreadPriorities` (set for `spring-boot:run`; add it to
+  IDE run configs). Without it, Tomcat's lowest-priority threads get starved on a busy
+  machine and stall the whole JVM for seconds (health answered in 10 to 30 s).
 
 - Tests set `app.env` and `app.internal-api-key` themselves so a local `.env` cannot change
   them.
