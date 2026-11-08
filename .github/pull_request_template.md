@@ -2,7 +2,7 @@
 
 ## What and why
 
-Issue: #
+Closes #
 Spec: docs/specs/NNN-name.md
 Plan: docs/plans/NNN-name.md
 
