@@ -35,7 +35,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Write the 7 rule files. Stack rules have `paths:` front matter. Keep each under 60 lines.
   Check: `/memory` lists them; stack rules show as path-scoped.
 
-- [ ] Task 7. CLAUDE.md
+- [x] Task 7. CLAUDE.md
   Write the root CLAUDE.md: what the project is, folder map, commands (placeholders until services exist), the rules that matter every session, and pointers to docs/handoff.md and the plans index.
   Check: `wc -l CLAUDE.md` is under 200.
 

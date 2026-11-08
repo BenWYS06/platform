@@ -24,10 +24,12 @@ Last updated: 2026-11-08
 
 - Task 6. Rules: 7 files in `.claude/rules/` (20 to 44 lines). security, git-and-docs, testing always load; spring, express, vue, android are scoped with `paths:`. User still to confirm with `/memory`.
 
-## Next step: task 7
+- Task 7. Root `CLAUDE.md`: project, folder map, placeholder commands, every-session rules, gotchas, pointers.
 
-Task 7. Root CLAUDE.md: what the project is, folder map, commands (placeholders), every-session rules, pointers to handoff and the plans index.
-Check: `wc -l CLAUDE.md` is under 200.
+## Next step: task 8
+
+Task 8. Skills `write-spec`, `write-plan`, `session-summary` in `.claude/skills/`, each with front matter (name, description).
+Check: typing `/` shows all three; run write-spec on a tiny dummy idea and delete the output.
 
 ## Known gaps
 
