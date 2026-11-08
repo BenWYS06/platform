@@ -51,7 +51,7 @@ Status: not started.
   `../../contracts/error-codes.json` and checks each code and status the service uses.
   Check: `./mvnw verify` -> BUILD SUCCESS with those tests listed (Done when 5, 6 for chat).
 
-- [ ] Task 4. chat-service: health with MongoDB and RabbitMQ pings
+- [x] Task 4. chat-service: health with MongoDB and RabbitMQ pings
   `GET /api/chat/health`: Mongo `ping` and a RabbitMQ connection check, each with a timeout,
   total under 3 s; 200 `{"status":"UP"}` or 503 `{"code":"SERVICE_UNAVAILABLE"}` with no
   detail. Service starts with stores down. Slice tests with the pings faked (up, Mongo down,
