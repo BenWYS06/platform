@@ -3,7 +3,7 @@
 Spec: docs/specs/002-contracts-folder.md
 Branch: feature/contracts
 Rule: one task, one commit, one check. Stop after each task and show the check output.
-Status: tasks 1 to 4 done; task 5 waits for the PR to merge.
+Status: done (PR #11 merged).
 
 - [x] Task 1. Branch, spec and plan
   Branch `feature/contracts` from an updated `main`. Commit spec 002, this plan and the
@@ -39,7 +39,7 @@ Status: tasks 1 to 4 done; task 5 waits for the PR to merge.
   locally, `npm test` passes, then revert it; `git diff main --stat` shows CLAUDE.md,
   testing.md and decisions.md changed (Done when 6, 7).
 
-- [ ] Task 5. Final check and handoff
+- [x] Task 5. Final check and handoff
   Run `cd contracts && npm ci && npm test` once more. Run /session-summary. Before pushing, run
   the forbidden-names and `.env`/key scan; push only if it is empty. Open the PR with the
   template filled in. User reads the full diff and merges the PR.

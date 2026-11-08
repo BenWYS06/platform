@@ -6,28 +6,22 @@ Last updated: 2026-11-08
 
 ## Now
 
-- Issue: 0.2 Contracts folder (Sprint 1, Phase 0).
-- Branch: `feature/contracts` (PR open, waiting for the user's review).
-- Spec: [specs/002-contracts-folder.md](specs/002-contracts-folder.md)
-- Plan: [plans/002-contracts-folder.md](plans/002-contracts-folder.md)
+- Issue 0.2 Contracts folder: done. PR #11 merged; plan 002 marked done; 0.2 ticked in the roadmap.
+- Branch: `docs/close-plan-002` (this closing PR).
+- Next issue: 0.3 Local infra with Caddy (Sprint 1, Phase 0, 3 points).
 
 ## Done
 
-- Task 1. Branch, spec and plan: committed on `feature/contracts`.
-- Task 2. Check tool and error codes: `cd contracts && npm ci && npm test` passes; status 200,
-  BOM and bad JSON each fail with a one-line message. ajv pinned to 8.20.0 (8.17.1 had a
-  moderate advisory); `npm audit` finds 0 vulnerabilities.
-- Task 3. Other contract files and duplicate checks: 23 tests pass; the output lists all four
-  files as valid; duplicate and lower-case names fail naming the entry.
-- Task 4. Docs: `contracts/README.md`; CLAUDE.md, testing.md, architecture.md, CHANGELOG.md
-  updated; D-003 added. A dummy code added by following the README passed, then was reverted.
+- Plan 002, tasks 1 to 5: done. `cd contracts && npm ci && npm test`: 23 tests pass, all four
+  contract files valid, 0 vulnerabilities.
 
-## Next step: finish task 5 of plan 002, then issue 0.3
+## Next step: issue 0.3 Local infra with Caddy (3 points)
 
-1. User reads the full diff of the PR from `feature/contracts` and merges it.
-2. Then: tick task 5 in plan 002, mark plan 002 `done` in the index, tick 0.2 in the roadmap.
-3. Next issue: 0.3 Local infra with Caddy (3 points), so start with `/write-spec`.
-   Check for task 5: new session, ask "what is the next step?", answer matches this file.
+1. Merge this PR (`docs/close-plan-002`).
+2. Branch `feature/local-infra` from an updated `main`.
+3. 3 points, so a spec is required: run `/write-spec` for issue 0.3, then `/write-plan`.
+   Scope from the docs: `infra/compose.yml` with MongoDB (replica set), Redis, RabbitMQ,
+   Qdrant and Caddy; Caddy routes `/api/<service>` and `/ws`, and blocks `/internal` (D-002).
 
 ## Known gaps
 
