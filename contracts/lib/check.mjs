@@ -8,9 +8,13 @@ import Ajv from 'ajv';
 
 export const CONTRACTS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-// One entry per contract file: its schema and the field that names an entry.
+// One entry per contract file: its schema, the field that names an entry, and the fields
+// that must be unique across the file (the key always is).
 export const CONTRACTS = {
-  'error-codes': { file: 'error-codes.json', schema: 'error-codes.schema.json', key: 'code' },
+  'error-codes': { file: 'error-codes.json', schema: 'error-codes.schema.json', key: 'code', unique: [] },
+  capabilities: { file: 'capabilities.json', schema: 'capabilities.schema.json', key: 'name', unique: [] },
+  messaging: { file: 'messaging.json', schema: 'messaging.schema.json', key: 'name', unique: ['value'] },
+  events: { file: 'events.json', schema: 'events.schema.json', key: 'name', unique: [] },
 };
 
 const ajv = new Ajv({ allErrors: true });
@@ -72,6 +76,27 @@ export function checkContract(name, filePath) {
   if (problem) return [problem];
 
   const validate = validatorFor(name);
-  if (!validate(data)) return schemaProblems(label, data, validate.errors, contract.key);
-  return [];
+  const problems = validate(data) ? [] : schemaProblems(label, data, validate.errors, contract.key);
+  if (Array.isArray(data)) {
+    for (const field of [contract.key, ...contract.unique]) {
+      problems.push(...duplicateProblems(label, data, field));
+    }
+  }
+  return problems;
+}
+
+// A schema cannot say "unique by this field", so duplicates are checked here.
+function duplicateProblems(label, data, field) {
+  const firstIndex = new Map();
+  const problems = [];
+  data.forEach((entry, index) => {
+    const value = entry?.[field];
+    if (typeof value !== 'string') return;
+    if (firstIndex.has(value)) {
+      problems.push(`${label}: entries ${firstIndex.get(value)} and ${index} share ${field} "${value}"`);
+    } else {
+      firstIndex.set(value, index);
+    }
+  });
+  return problems;
 }

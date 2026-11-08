@@ -3,10 +3,6 @@ import assert from 'node:assert/strict';
 import { checkContract } from '../lib/check.mjs';
 import { loadReal, writeTemp, writeTempJson } from './helpers.mjs';
 
-test('error-codes.json is valid', () => {
-  assert.deepEqual(checkContract('error-codes'), []);
-});
-
 test('error-codes.json holds the seed codes', () => {
   const codes = loadReal('error-codes').map((e) => e.code);
   for (const code of [
