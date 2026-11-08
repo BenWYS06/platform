@@ -22,10 +22,12 @@ Last updated: 2026-11-08
 
 - Task 5. Hook `.claude/hooks/format-on-edit.sh` (PostToolUse): prettier / google-java-format / ktlint / shfmt by extension, only if installed; always exits 0. No formatter is installed yet.
 
-## Next step: task 6
+- Task 6. Rules: 7 files in `.claude/rules/` (20 to 44 lines). security, git-and-docs, testing always load; spring, express, vue, android are scoped with `paths:`. User still to confirm with `/memory`.
 
-Task 6. Rules: the 7 files in `.claude/rules/`, stack rules with `paths:` front matter, each under 60 lines.
-Check: `/memory` lists them; stack rules show as path-scoped.
+## Next step: task 7
+
+Task 7. Root CLAUDE.md: what the project is, folder map, commands (placeholders), every-session rules, pointers to handoff and the plans index.
+Check: `wc -l CLAUDE.md` is under 200.
 
 ## Known gaps
 

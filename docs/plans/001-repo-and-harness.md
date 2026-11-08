@@ -31,7 +31,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   PostToolUse for Edit and Write. Picks a formatter by file extension and runs it only if installed; otherwise exits 0 silently.
   Check: fake input for a .md file exits 0; a fake input for a missing file exits 0 with no crash.
 
-- [ ] Task 6. Rules
+- [x] Task 6. Rules
   Write the 7 rule files. Stack rules have `paths:` front matter. Keep each under 60 lines.
   Check: `/memory` lists them; stack rules show as path-scoped.
 
