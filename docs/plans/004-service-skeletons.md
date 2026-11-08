@@ -60,7 +60,7 @@ Status: not started.
   Check: `./mvnw verify` (Docker running) -> BUILD SUCCESS, Testcontainers test passes
   (Done when 2 for chat).
 
-- [ ] Task 5. ai-service: project, config, guard, errors, internal ping, logs
+- [x] Task 5. ai-service: project, config, guard, errors, internal ping, logs
   Same as Tasks 2 and 3 for `services/ai-service` (db `openbox_ai`, port `AI_SERVICE_PORT`,
   base path `/api/ai`), with the same `platform` package and tests.
   Check: `cd services/ai-service && ./mvnw verify` -> BUILD SUCCESS with guard, error, ping
