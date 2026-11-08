@@ -13,6 +13,7 @@ test('error-codes.json holds the seed codes', () => {
     'CONFLICT',
     'RATE_LIMITED',
     'INTERNAL',
+    'SERVICE_UNAVAILABLE',
   ]) {
     assert.ok(codes.includes(code), `missing ${code}`);
   }

@@ -24,7 +24,7 @@ Status: in progress.
   Check: `git log --oneline -1` shows the docs commit on `feature/local-infra`;
   `git status` is clean.
 
-- [ ] Task 2. `SERVICE_UNAVAILABLE` contract code
+- [x] Task 2. `SERVICE_UNAVAILABLE` contract code
   Add `SERVICE_UNAVAILABLE` (503) with a description to `contracts/error-codes.json`; add it
   to the seed-code list in `contracts/test/error-codes.test.mjs`.
   Check: `cd contracts && npm ci && npm test` -> all tests pass, four files checked
