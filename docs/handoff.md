@@ -42,5 +42,9 @@ Last updated: 2026-11-08
 
 ## Open questions for the user
 
-- LICENSE: which license, or none?
-- Phases 1 to 6 in [roadmap.md](roadmap.md) are empty until the planning notes are added.
+- Phases 1 to 6 in [roadmap.md](roadmap.md) are still "TBD": their names and issues are needed from the Build plan.
+
+## Settled
+
+- No LICENSE for now: the blueprint has not decided; easy to add later.
+- Express rules: argon2 only for passwords; the log library is chosen in issue 0.4.
