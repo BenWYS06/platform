@@ -31,7 +31,7 @@ Status: not started.
   Check: `git log --oneline -1` shows the docs commit on `feature/service-skeletons`;
   `git status` shows only `grep.exe.stackdump` untracked.
 
-- [ ] Task 2. chat-service: Maven project, config and production guard (riskiest first)
+- [x] Task 2. chat-service: Maven project, config and production guard (riskiest first)
   Generate a Spring Boot 3.5 project in `services/chat-service` (web, data-mongodb, amqp,
   validation, test, Testcontainers) with `./mvnw`. Add `@ConfigurationProperties` records for
   `APP_ENV`, `INTERNAL_API_KEY`, `MONGODB_URI` (db `openbox_chat`), port `CHAT_SERVICE_PORT`;
