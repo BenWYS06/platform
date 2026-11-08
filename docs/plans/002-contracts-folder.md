@@ -3,14 +3,15 @@
 Spec: docs/specs/002-contracts-folder.md
 Branch: feature/contracts
 Rule: one task, one commit, one check. Stop after each task and show the check output.
+Status: tasks 1 to 4 done; task 5 waits for the PR to merge.
 
-- [ ] Task 1. Branch, spec and plan
+- [x] Task 1. Branch, spec and plan
   Branch `feature/contracts` from an updated `main`. Commit spec 002, this plan and the
   plans index line.
   Check: `git log --oneline -1` shows the docs commit on `feature/contracts`;
   `git status` is clean.
 
-- [ ] Task 2. Check tool and error codes
+- [x] Task 2. Check tool and error codes
   Add `contracts/package.json` (`ajv` as the only dev dependency, `npm test` runs `node --test`)
   and `package-lock.json`. Add a check module that reads a contract file, fails on a BOM or bad
   JSON with the file name and no stack trace, and validates it against its schema.
@@ -20,7 +21,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `cd contracts && npm ci && npm test` -> passes; tests for status 200, a BOM file and
   bad JSON each fail the check with a readable message (Done when 4, 5).
 
-- [ ] Task 3. Other contract files and duplicate checks
+- [x] Task 3. Other contract files and duplicate checks
   Add schemas and empty-list files for `capabilities.json`, `messaging.json` (kind enum, lower
   dotted `value`) and `events.json` (integer `version` from 1). Add the duplicate rules: no
   repeated `code`/`name` in a file, no repeated `value` in messaging.json; the error names both
@@ -28,7 +29,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `cd contracts && npm test` -> passes, output lists all four files; tests for a
   duplicate code and a lower-case name fail the check naming the entry (Done when 1, 2, 3).
 
-- [ ] Task 4. Docs
+- [x] Task 4. Docs
   Write `contracts/README.md` (purpose of each file, entry shapes, how to add a name in the PR
   that first uses it, how to run the check). Update CLAUDE.md (folder map: `contracts/`
   exists; commands: contracts check), testing.md (helper row points to `contracts/`),
