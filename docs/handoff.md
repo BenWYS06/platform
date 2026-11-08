@@ -7,29 +7,25 @@ Last updated: 2026-11-08
 ## Now
 
 - Issue: 0.1 Repo and harness (Sprint 1, Phase 0)
-- Branch: `feature/repo-harness`
+- Branch: `feature/repo-harness`, pushed; PR #9 open (https://github.com/BenWYS06/platform/pull/9)
 - Spec: [specs/001-repo-and-harness.md](specs/001-repo-and-harness.md)
 - Plan: [plans/001-repo-and-harness.md](plans/001-repo-and-harness.md)
 
 ## Done
 
-- Task 1. Basics: .gitignore, .editorconfig, .env.example
-- Task 1b. Line endings: .gitattributes forces LF
-- Task 2. Docs skeleton: this folder
-- Task 3. Settings: `.claude/settings.json` denies `.env` reads, force push (also `git -C <path> push --force` and `+refspec`), `rm -rf`. Each tested live.
-- Task 4. Hook `.claude/hooks/protect-files.sh` (PreToolUse, Edit|Write|MultiEdit): blocks `.env`/`.env.*` (not `.env.example`) and key files. Fake inputs: `.env` exits 2, `README.md` exits 0. Live: a Write to `hook-test.pem` was blocked.
-- Task 5. Hook `.claude/hooks/format-on-edit.sh` (PostToolUse): prettier / google-java-format / ktlint / shfmt by extension, only if installed; always exits 0. No formatter is installed yet.
-- Task 6. Rules: 7 files in `.claude/rules/` (20 to 44 lines). security, git-and-docs, testing always load; spring, express, vue, android are scoped with `paths:`. User still to confirm with `/memory`.
-- Task 7. Root `CLAUDE.md`: project, folder map, placeholder commands, every-session rules, gotchas, pointers.
-- Task 8. Skills `write-spec`, `write-plan`, `session-summary` in `.claude/skills/<name>/SKILL.md`. User still to check `/` shows them and to try write-spec on a dummy idea.
-- Task 9 (files only). `.github/` PR template, bug and feature issue templates, CODEOWNERS (`@BenWYS06`). Committed; the check (push, open PR, see templates) waits for the user's go-ahead.
-- Task 10. README (rewritten in UTF-8, 5 start steps), CONTRIBUTING (loop, rules, file map of all 32 harness files), CHANGELOG, SECURITY, .gitleaksignore.
+- Tasks 1 to 8 and 10: done, each check passed (details in the plan and in the PR #9 body).
+- Task 9 (files and PR). `.github/` templates and CODEOWNERS committed; branch pushed, PR #9
+  opened with the template filled in by hand. Templates only show on GitHub after merge.
+- Task 11 (summary part). `/session-summary` run: plan, plans index and this file updated.
 
-## Next step: task 9 check, then task 11
+## Next step: finish issue 0.1, then issue 0.2
 
-1. Task 9 check: push `feature/repo-harness`, open a PR, see the template; "New issue" shows the bug and feature templates. Waits for the user's go-ahead.
-2. Task 11. Run /session-summary: tick plan and roadmap, set this file to "next step: issue 0.2".
-   Check: new session, ask "what is the next step?", answer matches this file. User reads the full diff and merges the PR.
+1. Task 11 check: in a new session ask "what is the next step?"; the answer matches this file.
+2. User reads the full diff of PR #9 and merges it.
+3. Task 9 check, after merge: new PR shows the template; "New issue" shows bug and feature.
+4. Then tick tasks 9 and 11 in the plan, mark plan 001 `done`, tick 0.1 in `docs/roadmap.md`.
+5. Issue 0.2 Contracts folder (2 points): branch `feature/contracts` from an updated `main`.
+   Under 3 points, so no spec or plan is required; ask the user whether they want one anyway.
 
 ## Checks the user still has to run
 
@@ -38,17 +34,23 @@ Last updated: 2026-11-08
 
 ## Known gaps
 
-- Permission rules match command text only: `cat .env` through Bash is not blocked. The protect hook (task 4) is the second layer for edits.
+- Permission rules match command text only: `cat .env` through Bash is not blocked. The
+  protect hook (task 4) is the second layer for edits.
+
+## Open questions for the user
+
+- None.
 
 ## Notes for later issues
 
-- 0.6: on a GitHub Free plan, branch protection applies only to public repos. This repo is public, so branch protection on main can be turned on after CI exists.
+- 0.6: on GitHub Free, branch protection applies only to public repos. This repo is public,
+  so protect `main` once CI exists.
 
 ## Settled
 
-- The repo is public (user's decision). Before every push: scan for the forbidden names (list kept outside the repo) and for `.env` files and keys; push only if the scan finds nothing.
-- The old README title in commit `de681e5` on main stays: harmless, and rewriting main is riskier.
+- Repo is public (user's decision). Before every push: scan for the forbidden names (list
+  kept outside the repo) and for `.env` files and keys; push only if the scan is empty.
+- The old README title in commit `de681e5` on main stays: rewriting main is riskier.
 - Roadmap phases 1 to 6 filled from the user's Build plan.
-
-- No LICENSE for now: the blueprint has not decided; easy to add later.
+- No LICENSE for now; easy to add later.
 - Express rules: argon2 only for passwords; the log library is chosen in issue 0.4.
