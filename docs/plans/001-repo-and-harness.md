@@ -3,6 +3,7 @@
 Spec: docs/specs/001-repo-and-harness.md
 Branch: feature/repo-harness
 Rule: one task, one commit, one check. Stop after each task and show the check output.
+Status: done (PR #9 merged; user checks passed: `/memory` for task 6 and `/write-spec` for task 8).
 
 - [x] Task 1. Basics
   Add .gitignore (node, java, android, .env and .env.*, except .env.example), .editorconfig, .env.example (empty with a comment), LICENSE decision left to the user.
@@ -43,7 +44,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Write write-spec, write-plan, session-summary, each with front matter (name, description).
   Check: type `/` in Claude Code and see all three; run write-spec on a tiny dummy idea and delete the output.
 
-- [ ] Task 9. GitHub files
+- [x] Task 9. GitHub files
   Add PR template, two issue templates, CODEOWNERS (the user as owner).
   Check: push the branch, open a PR, and see the template in the description; open "New issue" and see both templates.
 
@@ -51,6 +52,6 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Write README.md, CONTRIBUTING.md (loop, branch and commit rules, file map with one-line jobs), CHANGELOG.md (Unreleased), SECURITY.md, .gitleaksignore (empty with a comment).
   Check: README explains how to start in 5 lines even though services are not there yet.
 
-- [ ] Task 11. Final check and handoff
+- [x] Task 11. Final check and handoff
   Run /session-summary: tick this plan and the roadmap, set handoff.md to "next step: issue 0.2".
   Check: new session, ask "what is the next step?", answer matches handoff.md. User reads the full diff and merges the PR.

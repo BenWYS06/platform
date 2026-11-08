@@ -6,31 +6,21 @@ Last updated: 2026-11-08
 
 ## Now
 
-- Issue: 0.1 Repo and harness (Sprint 1, Phase 0)
-- Branch: `feature/repo-harness`, pushed; PR #9 open (https://github.com/BenWYS06/platform/pull/9)
-- Spec: [specs/001-repo-and-harness.md](specs/001-repo-and-harness.md)
-- Plan: [plans/001-repo-and-harness.md](plans/001-repo-and-harness.md)
+- Issue 0.1 Repo and harness: done. PR #9 merged; plan 001 marked done; 0.1 ticked in the roadmap.
+- Branch: `docs/close-plan-001` (this closing PR).
+- Next issue: 0.2 Contracts folder (Sprint 1, Phase 0).
 
 ## Done
 
-- Tasks 1 to 8 and 10: done, each check passed (details in the plan and in the PR #9 body).
-- Task 9 (files and PR). `.github/` templates and CODEOWNERS committed; branch pushed, PR #9
-  opened with the template filled in by hand. Templates only show on GitHub after merge.
-- Task 11 (summary part). `/session-summary` run: plan, plans index and this file updated.
+- Plan 001, tasks 1 to 11: done. Tasks 9 and 11 closed by the user after PR #9 merged.
+- User checks: `/memory` lists the 7 rules with stack rules path-scoped (task 6);
+  `/write-spec` ran on a dummy idea (task 8).
 
-## Next step: finish issue 0.1, then issue 0.2
+## Next step: issue 0.2 Contracts folder (2 points)
 
-1. Task 11 check: in a new session ask "what is the next step?"; the answer matches this file.
-2. User reads the full diff of PR #9 and merges it.
-3. Task 9 check, after merge: new PR shows the template; "New issue" shows bug and feature.
-4. Then tick tasks 9 and 11 in the plan, mark plan 001 `done`, tick 0.1 in `docs/roadmap.md`.
-5. Issue 0.2 Contracts folder (2 points): branch `feature/contracts` from an updated `main`.
-   Under 3 points, so no spec or plan is required; ask the user whether they want one anyway.
-
-## Checks the user still has to run
-
-- `/memory`: 7 rules listed, stack rules path-scoped (task 6).
-- `/`: write-spec, write-plan, session-summary listed; try write-spec on a dummy idea (task 8).
+1. Merge this PR (`docs/close-plan-001`).
+2. Branch `feature/contracts` from an updated `main`.
+3. Under 3 points, so no spec or plan is required; ask the user whether they want one anyway.
 
 ## Known gaps
 
