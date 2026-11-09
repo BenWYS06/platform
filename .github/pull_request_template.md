@@ -3,7 +3,7 @@
 ## What and why
 
 Closes #
-Spec: docs/specs/NNN-name.md
+Spec: docs/specs/NNN-name.md (if there is one)
 Plan: docs/plans/NNN-name.md
 
 <one or two sentences: what changes and why>

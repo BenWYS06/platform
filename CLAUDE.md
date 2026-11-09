@@ -53,7 +53,13 @@ Placeholders until the code exists; update this table in the PR that adds each p
 
 ## How we work
 
-- Work of 3+ points: spec first (`/write-spec`), then plan (`/write-plan`), then code.
+- 5+ points, or a change to an API, a contract or security: spec (`/write-spec`), then plan
+  (`/write-plan`), then code. Security means login, permissions, data access or secrets
+  handling in code. CI and repo settings do not count.
+- 2 to 3 points with no contract change: the "Done when" list lives in the issue; short plan
+  only (`/write-plan` from the issue).
+- Tiny fix (one file or one rule): no spec, no plan; just the issue and a PR.
+- Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5.
 - One plan task at a time. After each task: run its check, show the output, stop.
 - When a task's check passes, tick it in the plan and put that change in the same commit
   as the task.
