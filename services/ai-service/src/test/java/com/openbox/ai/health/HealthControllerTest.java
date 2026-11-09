@@ -37,4 +37,11 @@ class HealthControllerTest {
         .andExpect(status().isServiceUnavailable())
         .andExpect(content().string("{\"code\":\"SERVICE_UNAVAILABLE\"}"));
   }
+
+  @Test
+  void a_closed_api_route_needs_authentication() throws Exception {
+    mvc.perform(get("/api/ai/anything").header("Authorization", "Bearer x"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().string("{\"code\":\"UNAUTHENTICATED\"}"));
+  }
 }

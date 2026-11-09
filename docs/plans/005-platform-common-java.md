@@ -57,7 +57,7 @@ Status: not started.
   `git grep -l "class ProductionGuard"` -> only `libs/...`; no `platform` folder under
   `services/*/src` (Done when 1, 2, 3).
 
-- [ ] Task 5. Spring Security filter chain with deny-by-default JWT stub
+- [x] Task 5. Spring Security filter chain with deny-by-default JWT stub
   In the library: one stateless `SecurityFilterChain` (no session, CSRF, form, basic, logout;
   no `UserDetailsService` auto-config); public `GET /api/*/health` and `/error`;
   `/internal/**` behind the internal key filter; other `/api/**` through a JWT stub filter

@@ -20,6 +20,7 @@ public class ErrorFallbackController implements ErrorController {
         switch (code) {
           case 400 -> ErrorCode.VALIDATION_FAILED;
           case 401 -> ErrorCode.UNAUTHENTICATED;
+          case 403 -> ErrorCode.FORBIDDEN;
           case 404, 405 -> ErrorCode.NOT_FOUND;
           case 503 -> ErrorCode.SERVICE_UNAVAILABLE;
           default -> ErrorCode.INTERNAL;

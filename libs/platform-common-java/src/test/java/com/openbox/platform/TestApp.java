@@ -18,6 +18,16 @@ class TestApp {
       return new Status("OK");
     }
 
+    @GetMapping("/api/test/health")
+    Status health() {
+      return new Status("UP");
+    }
+
+    @GetMapping("/api/test/hello")
+    Status hello() {
+      return new Status("HELLO");
+    }
+
     @GetMapping("/test/fail")
     String fail() {
       throw new IllegalStateException("secret detail mongodb://user:pass@db");
