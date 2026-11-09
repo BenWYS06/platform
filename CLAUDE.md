@@ -24,6 +24,7 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `.github/` | PR and issue templates, CODEOWNERS, CI (`workflows/ci.yml`) | exists |
 | `contracts/` | shared error codes, capabilities, messaging, events | exists |
 | `infra/` | `compose.yml`: MongoDB, Redis, RabbitMQ, Qdrant, Caddy; `Caddyfile`; `smoke.mjs` | exists |
+| `scripts/ci/` | repo checks run by CI (env names and hosts, file sizes, tests per service) | exists |
 | `services/auth-service/` | Express + TypeScript | exists |
 | `services/chat-service/` | Spring Boot, Java 21 | exists |
 | `services/ai-service/` | Spring Boot, Java 21 | exists |

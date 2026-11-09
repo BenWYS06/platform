@@ -52,6 +52,24 @@ jobs:
       - run: npm run lint
       - run: npm test
 
+  repo-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Tests for the check scripts
+        run: node --test "scripts/ci/test/*.test.mjs"
+      - name: Env names and allowed hosts
+        run: node scripts/ci/check-env.mjs
+      - name: File-size limits
+        run: node scripts/ci/check-file-size.mjs
+      - name: Every service has tests
+        run: node scripts/ci/check-tests-exist.mjs
+
   env-leak:
     runs-on: ubuntu-latest
     steps:

@@ -1,0 +1,14 @@
+# Job: URL hosts allowed in source and config under services/, libs/, clients/, infra/.
+# Read by check-env.mjs. One host per line; a production hostname never goes here.
+localhost
+127.0.0.1
+# Android emulator's address for the host machine.
+10.0.2.2
+# Reserved for examples and tests.
+example.com
+# XML namespace and schema hosts in pom.xml (identifiers, never called).
+maven.apache.org
+www.w3.org
+# Placeholder hosts in tests (single names, never resolvable on the internet).
+db
+cache

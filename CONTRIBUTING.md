@@ -26,6 +26,7 @@ Each CI job, and the command that does the same on your machine (repo root, Git 
 | `contracts` | `cd contracts && npm ci && npm test` |
 | `auth-service` | `cd services/auth-service && npm ci && npm run build && npm run lint && npm test` |
 | `env-leak` | `git ls-files \| grep -E '(^\|/)\.env(\..*)?$\|\.(pem\|key\|p12\|jks\|keystore)$' \| grep -vE '(^\|/)\.env\.example$'` prints nothing |
+| `repo-checks` | `node --test "scripts/ci/test/*.test.mjs"`, then `node scripts/ci/check-env.mjs`, `node scripts/ci/check-file-size.mjs`, `node scripts/ci/check-tests-exist.mjs` |
 | workflow lint | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo rhysd/actionlint:1.7.7` prints nothing |
 
 ## Branches
@@ -78,6 +79,8 @@ The body names the plan task, e.g. `Task 3 of plan 001.`
 | `.github/ISSUE_TEMPLATE/feature_request.md` | Form for a user story with acceptance criteria |
 | `.github/CODEOWNERS` | Who must review changes |
 | `.github/workflows/ci.yml` | CI: the checks every PR to `main` must pass |
+| `scripts/ci/` | Repo checks run by CI: env names and allowed hosts, file sizes, tests per service |
+| `scripts/ci/allowed-hosts.txt` | URL hosts allowed in source and config; never a production host |
 | `docs/handoff.md` | Where the last session stopped and the next step |
 | `docs/roadmap.md` | Phases 0 to 6 and the issues in each |
 | `docs/decisions.md` | Log of hard-to-reverse decisions and why |

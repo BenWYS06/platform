@@ -28,7 +28,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   contracts and auth commands locally -> green; the env-leak command on the real file list
   -> pass, and on a list with `.env` and `a.pem` added (piped, no file created) -> fail.
 
-- [ ] Task 2. Repo check scripts and their tests
+- [x] Task 2. Repo check scripts and their tests
   Add Node scripts under `scripts/ci` (no dependencies), run by a new job `repo-checks`:
   (a) env: every variable read in code (`process.env.X` in auth-service, `${X}` in Java
   `application*.yml`) is a name in `.env.example`; no production hostname: every URL host
@@ -41,7 +41,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   500. (c) every folder in `services/` has at least one test file. Tests with `node --test`
   under `scripts/ci/test/`, bad samples in fixture folders. Docs: CONTRIBUTING local
   command.
-  Check: `node --test scripts/ci/test/` -> each script fails on its bad sample and passes on
+  Check: `node --test "scripts/ci/test/*.test.mjs"` -> each script fails on its bad sample and passes on
   the real repo; actionlint -> no output.
 
 - [ ] Task 3. Java job
