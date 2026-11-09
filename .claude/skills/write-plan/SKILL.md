@@ -19,6 +19,8 @@ built, checked and committed alone. A tiny fix (one file or one rule) needs no p
      Write a short plan with the next free `NNN`.
    - Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5.
    Name: `docs/plans/NNN-short-name.md`.
+   NNN is the next free number across docs/specs and docs/plans, so a spec and its plan
+   share a number and a short plan never reuses one.
 2. **Read** the spec or issue, `CLAUDE.md`, the matching `.claude/rules/` files and the code
    it touches.
 3. **Split** "What we build" (or the issue's "Done when") into tasks:
