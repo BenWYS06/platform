@@ -25,8 +25,10 @@ Last updated: 2026-11-09
 
 1. The user reads the full 0.5 diff and merges the PR.
 2. Branch `feature/ci-pipeline` from an updated `main`.
-3. 3 points: `/write-spec` for 0.6 (workflow: contracts, root `./mvnw verify` with Docker for
-   Testcontainers, auth build/lint/test, gitleaks, env-leak check), then `/write-plan`.
+3. 3 points, CI and repo settings only (not security by the rule in "Settled"): "Done when"
+   in issue #7 and a short plan (`/write-plan` from the issue). Workflow: contracts, root
+   `./mvnw verify` with Docker for Testcontainers, auth build/lint/test, gitleaks, env-leak
+   check.
 
 ## Known gaps
 
@@ -53,3 +55,8 @@ Last updated: 2026-11-09
 - One PR per issue: the last plan task marks plan, index and roadmap `done` and points the
   handoff to the next issue, on the feature branch, before the PR opens. PR body: `Closes #n`.
 - 0.6: protect `main` once CI exists (public repo, GitHub Free).
+- What a story needs: 5+ points, or an API, contract or security change: spec and plan.
+  Security means login, permissions, data access or secrets handling in code. CI and repo
+  settings do not count. 2 to 3 points, no contract change: "Done when" in the issue, short
+  plan only. Tiny fix (one file or one rule): no spec, no plan; the issue and a PR.
+  Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5.

@@ -1,11 +1,18 @@
 ---
 name: write-spec
-description: Interview the user about a feature or issue and write docs/specs/NNN-name.md with Why, What we build, Out of scope, Edge cases and Done when. Use before planning any work of 3+ points, or when the user says "write a spec".
+description: Interview the user about a feature or issue and write docs/specs/NNN-name.md with Why, What we build, Out of scope, Edge cases and Done when. Use for a story of 5+ points or one that changes an API, a contract or security, or when the user says "write a spec".
 ---
 
 # write-spec
 
 Job: turn an idea or issue into a spec the user agrees with, before any plan or code.
+
+When: a story of 5+ points, or one that changes an API, a contract or security. Security
+means login, permissions, data access or secrets handling in code. CI and repo settings do
+not count. A 2 to 3 point story with no contract change keeps its "Done when" in the issue
+and gets only a short plan (`/write-plan`). A tiny fix (one file or one rule) needs neither.
+Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5. If the story does not need a spec,
+say so and stop.
 
 ## Steps
 
