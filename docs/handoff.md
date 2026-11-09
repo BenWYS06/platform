@@ -51,7 +51,8 @@ Last updated: 2026-11-09
   build, Java APIs closed by default, stay on Boot 3.5: D-006.
 - One PR per issue: the last plan task marks plan, index and roadmap `done` and points the
   handoff to the next issue, on the feature branch, before the PR opens. PR body: `Closes #n`.
-- 0.6: protect `main` once CI exists (public repo, GitHub Free).
+- `main` is protected: PR plus the six CI jobs required, admins included, no force push or
+  deletion (D-007). A renamed or new required job updates the rule in the same PR.
 - What a story needs: 5+ points, or an API, contract or security change: spec and plan.
   Security means login, permissions, data access or secrets handling in code. CI and repo
   settings do not count. 2 to 3 points, no contract change: "Done when" in the issue, short

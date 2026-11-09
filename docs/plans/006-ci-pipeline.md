@@ -58,13 +58,13 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   full history -> "no leaks found", or each hit judged false positive and listed in
   `.gitleaksignore` with a reason (a real secret: stop and tell the user).
 
-- [ ] Task 5. Open the PR, confirm all six checks green
+- [x] Task 5. Open the PR, confirm all six checks green
   Pre-push scan, push the branch, open the PR (`Closes #7`, template filled in). A job
   that fails on GitHub gets a fix commit on the branch (its own commit, same task trailer).
   Check: `gh pr checks` -> contracts, auth-service, env-leak, repo-checks, java, secrets
   all green.
 
-- [ ] Task 6. Protect main
+- [x] Task 6. Protect main
   Only on the user's go-ahead: set protection with `gh api`: PR required (0 approvals:
   single owner), required checks = the six job names, no force push, no deletion. Note it
   in `docs/decisions.md` (hard to reverse) and the handoff "Settled" line; push.
