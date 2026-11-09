@@ -1,7 +1,7 @@
 package com.openbox.chat.health;
 
-import com.openbox.chat.platform.ApiException;
-import com.openbox.chat.platform.ErrorCode;
+import com.openbox.platform.ApiException;
+import com.openbox.platform.ErrorCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 

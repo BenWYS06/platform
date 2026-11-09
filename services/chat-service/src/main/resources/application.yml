@@ -30,9 +30,11 @@ server:
     whitelabel:
       enabled: false
 
-# Raw values for the production guard (blank = not set).
+# Raw values for the production guard in platform-common-java (blank = not set).
 app:
   env: ${APP_ENV:local}
   internal-api-key: ${INTERNAL_API_KEY:}
-  mongodb-uri: ${MONGODB_URI:}
-  rabbitmq-password: ${RABBITMQ_PASSWORD:}
+  # Env variables this service needs in prod; the guard names the missing one.
+  required-in-prod:
+    "[MONGODB_URI]": ${MONGODB_URI:}
+    "[RABBITMQ_PASSWORD]": ${RABBITMQ_PASSWORD:}

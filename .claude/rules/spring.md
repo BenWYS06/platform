@@ -9,7 +9,8 @@ paths:
 
 Job: conventions for the Java 21 Spring Boot services and the shared Java library.
 
-- Java 21, Spring Boot 3, Maven wrapper (`./mvnw`). Build: `./mvnw verify`.
+- Java 21, Spring Boot 3, one Maven build at the repo root (`pom.xml`, `./mvnw`). Build all:
+  `./mvnw verify`; one service: `./mvnw -pl services/<name> -am verify`.
 - Package by feature (`chat/message`, `chat/room`), not by layer.
 - Constructor injection only; no field `@Autowired`.
 - DTOs are `record`s. Never return a Mongo document class from a controller.
