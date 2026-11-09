@@ -1,7 +1,7 @@
 package com.openbox.ai.health;
 
-import com.openbox.ai.platform.ApiException;
-import com.openbox.ai.platform.ErrorCode;
+import com.openbox.platform.ApiException;
+import com.openbox.platform.ErrorCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 

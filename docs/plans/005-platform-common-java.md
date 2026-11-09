@@ -48,7 +48,7 @@ Status: not started.
   `APP_ENV`, prod without key, short key, default key, a missing required variable named in
   the message, and local default with warning (Done when 7, library test).
 
-- [ ] Task 4. Services use the library
+- [x] Task 4. Services use the library
   chat-service and ai-service depend on `platform-common-java`, delete their `platform`
   package and its tests, import from `com.openbox.platform`, and list their prod variables
   (`MONGODB_URI`, `RABBITMQ_PASSWORD`) in `application.yml`.

@@ -17,9 +17,8 @@ Run from the repo root (one `./mvnw` for all Java parts):
 
 ## Layout
 
-- `platform/`: config record, production guard, error codes and handler, request id and
-  internal key filters. Moves to `libs/platform-common-java` in issue 0.5; keep it free of
-  chat logic.
+- Errors, production guard, request id and internal key come from
+  `libs/platform-common-java` (package `com.openbox.platform`); throw `ApiException`.
 - `health/`: `GET /api/chat/health`, pings MongoDB and RabbitMQ (2.5 s timeout; driver
   connect and server selection bounded at 2 s in `StoreTimeoutConfig`).
 - `internal/`: `GET /internal/ping`, behind `X-Internal-Key`.
