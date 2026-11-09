@@ -38,7 +38,7 @@ Status: not started.
   builds; `git ls-files services | grep mvnw` -> empty; `git ls-files -s mvnw` -> 100755
   (Done when 2 in part, 3 in part).
 
-- [ ] Task 3. Library module with the moved platform code
+- [x] Task 3. Library module with the moved platform code
   Create `libs/platform-common-java` (module in the root pom): the `platform` classes from
   chat-service in `com.openbox.platform`, Spring Boot auto-configuration
   (`AutoConfiguration.imports`), the guard reading a per-service map of variables required in

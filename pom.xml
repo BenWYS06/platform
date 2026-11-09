@@ -20,6 +20,7 @@
   <name>openbox-platform</name>
 
   <modules>
+    <module>libs/platform-common-java</module>
     <module>services/chat-service</module>
     <module>services/ai-service</module>
   </modules>
