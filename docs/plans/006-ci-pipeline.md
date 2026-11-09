@@ -44,7 +44,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `node --test "scripts/ci/test/*.test.mjs"` -> each script fails on its bad sample and passes on
   the real repo; actionlint -> no output.
 
-- [ ] Task 3. Java job
+- [x] Task 3. Java job
   Add job `java`: Temurin 21 with Maven cache, `./mvnw -B verify` (Testcontainers uses the
   runner's Docker). The job runs only that: Spotless is #22 and the coverage ratchet
   is #23, both out of scope.
