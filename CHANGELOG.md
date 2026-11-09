@@ -17,3 +17,6 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Service skeletons: auth-service (Express), chat-service and ai-service (Spring Boot), each
   with `/api/<service>/health`, `/internal/ping` behind `X-Internal-Key`, contract errors,
   JSON logs with a request id and a production guard; smoke check `--services` (issue 0.4).
+- platform-common-java: shared Java errors, production guard, request id and a Spring Security
+  chain that closes every chat and ai `/api` route except health (401 until real tokens);
+  one Maven build at the repo root (`./mvnw verify`) (issue 0.5).

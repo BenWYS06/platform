@@ -27,7 +27,7 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `services/auth-service/` | Express + TypeScript | exists |
 | `services/chat-service/` | Spring Boot, Java 21 | exists |
 | `services/ai-service/` | Spring Boot, Java 21 | exists |
-| `libs/platform-common-java/` | shared Java: errors, config guard, JWT filter | issue 0.5 |
+| `libs/platform-common-java/` | shared Java: errors, config guard, security chain, JWT stub | exists |
 | `clients/web/` | Vue 3 | issue 0.7 |
 | `clients/android/` | Kotlin, Compose, Hilt | issue 0.7 |
 

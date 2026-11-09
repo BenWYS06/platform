@@ -2,8 +2,8 @@
 
 Job: how the system fits together. Update in the same PR that changes it.
 
-Status: Caddy, contracts and the three service skeletons exist (issues 0.2 to 0.4); the rest
-comes from the later Phase 0 issues.
+Status: Caddy, contracts, the three service skeletons and platform-common-java exist (issues
+0.2 to 0.5); the rest comes from the later Phase 0 issues.
 
 ## Parts
 
@@ -55,8 +55,19 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
   500 `INTERNAL`; never a stack trace. JSON logs with a request id (`X-Request-Id` kept if
   safe, otherwise generated); no headers or bodies logged, secret headers redacted.
 - One MongoDB database per service: `openbox_auth`, `openbox_chat`, `openbox_ai`.
-- The Java error handler, guard and filters live in each service's `platform` package
-  until issue 0.5 moves them to `libs/platform-common-java`.
+- Java services get the error handler, guard, request id and security chain from
+  `libs/platform-common-java` (auto-configuration); auth-service has its own in TypeScript.
+
+## Java security chain (platform-common-java)
+
+- Stateless Spring Security: no session, cookie, CSRF, form or basic login, no default user.
+- `GET /api/<service>/health` and `/error`: public. `/internal/**`: right `X-Internal-Key`.
+- Every other `/api/<service>/**` route is closed: a JWT stub accepts no token yet, so it
+  answers 401 `UNAUTHENTICATED`, also for routes that do not exist. Issues 1.2 and 1.4 add
+  real token verification; identity is then read from the security context.
+- Refusals are contract JSON: 401 `UNAUTHENTICATED`, 403 `FORBIDDEN`, firewall 400
+  `VALIDATION_FAILED`; never a `WWW-Authenticate` header.
+- Build: one Maven reactor at the repo root (`pom.xml`, `./mvnw`): library, then services.
 
 ## Rules that cross services
 

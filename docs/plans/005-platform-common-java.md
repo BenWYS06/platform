@@ -69,7 +69,7 @@ Status: not started.
   Check: `./mvnw verify` at the root -> BUILD SUCCESS with the new tests listed
   (Done when 1).
 
-- [ ] Task 6. Docs and end-to-end run
+- [x] Task 6. Docs and end-to-end run
   Update `docs/architecture.md` (library, security chain, 401 for closed routes),
   `docs/decisions.md` D-006 (root aggregator replaces the standalone part of D-005; Spring
   Security deny by default; stay on Boot 3.5 with the risk), `CHANGELOG.md`. Then run
