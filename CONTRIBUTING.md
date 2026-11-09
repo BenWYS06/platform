@@ -26,6 +26,7 @@ Each CI job, and the command that does the same on your machine (repo root, Git 
 | `contracts` | `cd contracts && npm ci && npm test` |
 | `auth-service` | `cd services/auth-service && npm ci && npm run build && npm run lint && npm test` |
 | `java` | `./mvnw -B verify` (Docker running, for Testcontainers) |
+| `secrets` | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 git --redact --exit-code 1 .` says "no leaks found" |
 | `env-leak` | `git ls-files \| grep -E '(^\|/)\.env(\..*)?$\|\.(pem\|key\|p12\|jks\|keystore)$' \| grep -vE '(^\|/)\.env\.example$'` prints nothing |
 | `repo-checks` | `node --test "scripts/ci/test/*.test.mjs"`, then `node scripts/ci/check-env.mjs`, `node scripts/ci/check-file-size.mjs`, `node scripts/ci/check-tests-exist.mjs` |
 | workflow lint | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo rhysd/actionlint:1.7.7` prints nothing |

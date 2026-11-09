@@ -51,7 +51,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: actionlint -> no output; `./mvnw -B verify` locally -> BUILD SUCCESS, library 30,
   chat 7, ai 7 tests.
 
-- [ ] Task 4. Secrets job (gitleaks)
+- [x] Task 4. Secrets job (gitleaks)
   Add job `secrets`: checkout with full history, gitleaks CLI at a pinned version with its
   checksum verified, `gitleaks git --redact` over all commits, `.gitleaksignore` honored.
   Check: actionlint -> no output; the same gitleaks version locally (Docker image) over the
