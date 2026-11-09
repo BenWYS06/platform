@@ -34,6 +34,7 @@ Details and Windows problems: `infra/README.md`.
 | `MONGODB_URI` | all | default `mongodb://localhost:27017/?replicaSet=rs0` | required |
 | `REDIS_URL` | auth | default `redis://localhost:6379` | required |
 | `RABBITMQ_USER`, `RABBITMQ_PASSWORD` | chat, ai | from `.env` (also used by compose) | password required |
+| `RABBITMQ_HOST`, `RABBITMQ_PORT` | chat, ai | default `localhost`, `5672` | set to the prod broker |
 
 Services read the repo `.env` at startup; real env variables win. Leave `MONGODB_URI` and
 `REDIS_URL` out of `.env` locally: an empty value is not the same as a missing one for Spring.

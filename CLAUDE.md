@@ -21,9 +21,10 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `docs/` | handoff, roadmap, decisions, architecture, environments | exists |
 | `docs/specs/`, `docs/plans/` | one spec and one plan per issue, same number | exists |
 | `.claude/` | settings, hooks, rules, skills | exists |
-| `.github/` | PR and issue templates, CODEOWNERS (CI from issue 0.6) | exists |
+| `.github/` | PR and issue templates, CODEOWNERS, CI (`workflows/ci.yml`) | exists |
 | `contracts/` | shared error codes, capabilities, messaging, events | exists |
 | `infra/` | `compose.yml`: MongoDB, Redis, RabbitMQ, Qdrant, Caddy; `Caddyfile`; `smoke.mjs` | exists |
+| `scripts/ci/` | repo checks run by CI (env names and hosts, file sizes, tests per service) | exists |
 | `services/auth-service/` | Express + TypeScript | exists |
 | `services/chat-service/` | Spring Boot, Java 21 | exists |
 | `services/ai-service/` | Spring Boot, Java 21 | exists |
@@ -49,6 +50,7 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl services/<name> -am spring-boot:run` |
 | Web | `cd clients/web && npm ci && npm run build && npm test` (issue 0.7) |
 | Android | `cd clients/android && ./gradlew testDevDebugUnitTest` (issue 0.7) |
+| CI checks locally | see "Run the CI checks locally" in `CONTRIBUTING.md` |
 | Test a hook | `echo '{"tool_input":{"file_path":".env"}}' \| bash .claude/hooks/protect-files.sh; echo $?` |
 
 ## How we work
