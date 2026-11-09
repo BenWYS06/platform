@@ -1,0 +1,69 @@
+# Job: check every PR to main and every push to main. Read-only; no secrets used.
+# Actions are pinned by commit SHA; the version is in the comment next to each one.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: contracts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: contracts/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  auth-service:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/auth-service
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: services/auth-service/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+      - run: npm test
+
+  env-leak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: No .env or key file tracked
+        run: |
+          leaks=$(git ls-files | grep -E '(^|/)\.env(\..*)?$|\.(pem|key|p12|jks|keystore)$' | grep -vE '(^|/)\.env\.example$' || true)
+          if [ -n "$leaks" ]; then
+            echo "Tracked files that must not be in git:"
+            echo "$leaks"
+            exit 1
+          fi
+          echo "No .env or key file tracked."

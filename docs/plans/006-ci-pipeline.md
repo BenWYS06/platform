@@ -19,7 +19,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 
 ## Tasks
 
-- [ ] Task 1. Workflow with contracts, auth-service and env-leak jobs
+- [x] Task 1. Workflow with contracts, auth-service and env-leak jobs
   Add `.github/workflows/ci.yml`: job `contracts` (Node 24, `npm ci && npm test`), job
   `auth-service` (`npm ci`, build, lint, test), job `env-leak` (fails if `git ls-files`
   lists a `.env*` other than `.env.example`, or a key file). Docs: `CLAUDE.md` `.github/`
