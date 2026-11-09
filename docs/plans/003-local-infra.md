@@ -1,6 +1,6 @@
 # Plan 003: Local infra with Caddy
 
-Spec: docs/specs/003-local-infra.md
+Spec: spec removed, small story; see its issue
 Branch: feature/local-infra
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 Status: done.

@@ -1,6 +1,6 @@
 # Plan 001: Repo and harness
 
-Spec: docs/specs/001-repo-and-harness.md
+Spec: spec removed, small story; see its issue
 Branch: feature/repo-harness
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 Status: done (PR #9 merged; user checks passed: `/memory` for task 6 and `/write-spec` for task 8).
