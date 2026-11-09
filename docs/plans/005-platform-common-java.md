@@ -3,7 +3,7 @@
 Spec: docs/specs/005-platform-common-java.md
 Branch: feature/platform-common-java
 Rule: one task, one commit, one check. Stop after each task and show the check output.
-Status: not started.
+Status: done.
 
 ## Global Constraints
 
@@ -88,7 +88,7 @@ Status: not started.
   - `git diff main --stat` lists root and service `CLAUDE.md`, the library `CLAUDE.md`,
     `spring.md`, architecture.md, decisions.md, CHANGELOG.md (Done when 8).
 
-- [ ] Task 7. Close the issue
+- [x] Task 7. Close the issue
   Run the full checks: `cd contracts && npm test`, root `./mvnw verify`, auth-service build
   and tests, `node infra/smoke.mjs --services` with services running. Tick this plan and set
   `Status: done`; set its line in docs/plans/README.md to `done`; tick 0.5 in

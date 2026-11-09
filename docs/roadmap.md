@@ -8,7 +8,7 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 - [x] 0.2 Contracts folder (2)
 - [x] 0.3 Local infra with Caddy (3)
 - [x] 0.4 Service skeletons: auth, chat, ai (5)
-- [ ] 0.5 platform-common-java library (2)
+- [x] 0.5 platform-common-java library (2)
 - [ ] 0.6 CI pipeline (3)
 - [ ] 0.7 Web and Android skeletons (5)
 
