@@ -44,8 +44,9 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | Local infra check | `node infra/smoke.mjs` (`--services`: all three must answer 200) |
 | Local infra reset (deletes data) | `docker compose --env-file .env -f infra/compose.yml down -v` |
 | auth-service | `cd services/auth-service && npm ci && npm run build && npm run lint && npm test` |
-| chat / ai service (Docker running) | `cd services/<name> && ./mvnw verify` |
-| Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw spring-boot:run` |
+| Java build, all parts (Docker running) | `./mvnw verify` (repo root) |
+| One Java service | `./mvnw -pl services/<name> -am verify` |
+| Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl services/<name> -am spring-boot:run` |
 | Web | `cd clients/web && npm ci && npm run build && npm test` (issue 0.7) |
 | Android | `cd clients/android && ./gradlew testDevDebugUnitTest` (issue 0.7) |
 | Test a hook | `echo '{"tool_input":{"file_path":".env"}}' \| bash .claude/hooks/protect-files.sh; echo $?` |

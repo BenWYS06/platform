@@ -2,16 +2,18 @@
 
 Job: what Claude needs when working in `services/ai-service`. Rules: `.claude/rules/spring.md`.
 
-Spring Boot 3.5, Java 21, standalone Maven project. Port 8082 (`AI_SERVICE_PORT`); Caddy
-forwards `/api/ai/*` here with the prefix kept.
+Spring Boot 3.5, Java 21, a module of the root Maven build (`pom.xml` at the repo root).
+Port 8082 (`AI_SERVICE_PORT`); Caddy forwards `/api/ai/*` here with the prefix kept.
 
 ## Commands
 
+Run from the repo root (one `./mvnw` for all Java parts):
+
 | Task | Command |
 |---|---|
-| Build and all tests (Docker running) | `./mvnw verify` |
-| Run locally (infra up first) | `./mvnw spring-boot:run` |
-| Run the built jar | `java -XX:-UseThreadPriorities -jar target/ai-service-0.1.0-SNAPSHOT.jar` |
+| Build and all tests (Docker running) | `./mvnw -pl services/ai-service -am verify` |
+| Run locally (infra up first) | `./mvnw -pl services/ai-service -am spring-boot:run` |
+| Run the built jar | `java -XX:-UseThreadPriorities -jar services/ai-service/target/ai-service-0.1.0-SNAPSHOT.jar` |
 
 ## Layout
 
@@ -38,6 +40,6 @@ forwards `/api/ai/*` here with the prefix kept.
 
 - Tests set `app.env` and `app.internal-api-key` themselves so a local `.env` cannot change
   them.
-- If `mvnw` loses its executable bit: `git update-index --chmod=+x mvnw`.
+- If the root `mvnw` loses its executable bit: `git update-index --chmod=+x mvnw`.
 - The VS Code Java extension also writes to `target/`; if a build shows odd "cannot find
-  symbol" errors, run `./mvnw clean verify`.
+  symbol" errors, run `./mvnw -pl services/ai-service -am clean verify`.

@@ -27,7 +27,7 @@ Status: not started.
   Check: `git log --oneline -1` shows the docs commit on `feature/platform-common-java`;
   `git status` shows only `grep.exe.stackdump` untracked.
 
-- [ ] Task 2. Root aggregator pom and one wrapper
+- [x] Task 2. Root aggregator pom and one wrapper
   Root `pom.xml` (packaging `pom`, parent Boot 3.5.16, modules chat and ai for now, shared
   `spring-boot-maven-plugin` config with `-XX:-UseThreadPriorities`); root `mvnw`,
   `mvnw.cmd`, `.mvn/wrapper`; services take the root pom as parent and lose their wrappers.
