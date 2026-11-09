@@ -2,7 +2,7 @@
 
 Issue: #7 (0.6), its "Done when" list. Short plan: 3 points, CI and repo settings only, no spec.
 Branch: feature/ci-pipeline
-Status: not started
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -71,7 +71,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `gh api repos/BenWYS06/platform/branches/main/protection` -> the six checks
   listed, `allow_force_pushes` false, `allow_deletions` false; `gh pr checks` -> green.
 
-- [ ] Task 7. Close the issue (with the merge)
+- [x] Task 7. Close the issue (with the merge)
   Last commit on the branch, pushed to the same PR just before the user merges. Run the
   full checks. Tick this plan and set `Status: done`; set its line in docs/plans/README.md
   to `done`; tick 0.6 in docs/roadmap.md; drop the "not in CI" gap and point
