@@ -42,6 +42,10 @@ Job: how work moves from a branch to main, and how docs stay true. Loaded every 
 5. CI green (from issue 0.6), the user reads the full diff, the user merges.
 6. One PR per issue. No follow-up PR just to close the plan or tick the roadmap.
 
+Exception for now: web first. The Android skeleton is issue #25, built later. Until
+then a client PR says 'Android: later, issue #25'. Remove this line when issue
+#25 is done.
+
 ## Docs in the same PR
 
 - A change to behavior, API, env variables, setup or architecture updates the matching doc
