@@ -47,7 +47,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   same keys; every contract code has `errors.<CODE>` in both (read from
   `contracts/error-codes.json`); `vi-VN` -> `vi`, `fr` -> `en`. `npm run build` -> green.
 
-- [ ] Task 3. Api layer and dev proxy
+- [x] Task 3. Api layer and dev proxy
   `src/api/http.ts`: `fetch` on the relative `/api`, 5 s timeout (AbortController), result
   is the JSON body or `{ code }`; a contract error body gives its `code`, anything else
   (no answer, timeout, HTML, empty body) gives `NETWORK`. `src/api/health.ts`:

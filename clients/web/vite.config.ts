@@ -5,6 +5,10 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
+  server: {
+    // Dev only: the app calls the relative /api; Vite forwards it to Caddy (infra/compose.yml).
+    proxy: { '/api': 'http://localhost:8080' },
+  },
   define: {
     // vue-i18n build flags: Composition API only, no devtools in production.
     __VUE_I18N_FULL_INSTALL__: true,
