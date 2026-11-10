@@ -15,7 +15,7 @@ Status: Caddy, contracts, the three service skeletons and platform-common-java e
 | ai-service | Spring Boot, Java 21 | 0.4 |
 | libs/platform-common-java | shared errors, config guards, JWT filter | 0.5 |
 | contracts/ | shared error codes, capabilities, messaging, events | 0.2 |
-| web | Vue 3 | 0.7a |
+| web | Vue 3, Vite, Tailwind v4 | 0.7a |
 | android | Kotlin, Compose, Hilt (planned, issue #25) | 0.7b |
 
 ## Data stack
@@ -68,6 +68,19 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 - Refusals are contract JSON: 401 `UNAUTHENTICATED`, 403 `FORBIDDEN`, firewall 400
   `VALIDATION_FAILED`; never a `WWW-Authenticate` header.
 - Build: one Maven reactor at the repo root (`pom.xml`, `./mvnw`): library, then services.
+
+## Web client (clients/web)
+
+- Vue 3, Vite, vue-router, Pinia, vue-i18n (`en`, `vi`; the browser language picks).
+- `src/api/` is the only code that calls the server: relative `/api`, 5 s timeout. A
+  result is the JSON body, the contract error `code`, or `NETWORK` when there is no usable
+  answer. Screens map a code to the message `errors.<CODE>` (`errors.UNKNOWN` for a code
+  they do not know); the server's own `message` is never shown.
+- Dev: Vite serves the app and forwards `/api` to Caddy on `localhost:8080`. Serving the
+  built app through Caddy comes with deploy.
+- Styling: Tailwind CSS v4; the design tokens in `src/styles/tokens.css` are its theme and
+  the default color palette is removed. Dark mode follows the system.
+- Health screen at `/`: auth, chat and ai, checked in parallel.
 
 ## Rules that cross services
 

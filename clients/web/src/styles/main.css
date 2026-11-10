@@ -1,0 +1,9 @@
+/* Job: the app's one stylesheet: Tailwind, then our token theme. */
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface;
+  }
+}

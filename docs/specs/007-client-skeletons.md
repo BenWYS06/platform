@@ -22,7 +22,8 @@ messages, en and vi, design tokens) are only on paper.
      shows `errors.UNKNOWN`; no answer or a non-contract answer shows `errors.NETWORK`.
    - i18n: `en` and `vi`; the browser language picks `vi` for `vi*`, else `en`.
    - Design tokens: CSS variables for colors (light and dark, following the system),
-     spacing, radius and type scale, in one file. Components use only the variables.
+     spacing, radius and type scale, in one file; Tailwind CSS v4 reads them as its theme.
+     Components use only the token classes.
    - One route `/`: the health screen (part 2).
 
 2. Health screen, web
@@ -45,6 +46,7 @@ messages, en and vi, design tokens) are only on paper.
 - A shared design-token file for web and Android: not planned yet.
 - End-to-end tests (Playwright): later.
 - Coverage ratchet: #23. Spotless: #22.
+- Component library: shadcn-vue, decided at step 1.6.
 
 ## Edge cases
 
@@ -78,6 +80,8 @@ messages, en and vi, design tokens) are only on paper.
 - Error key per contract code, checked by a test against `contracts/error-codes.json`:
   Claude.
 - Pinia store for health state; the component only renders it: Claude.
+- Styling: Tailwind CSS v4 with the design tokens as its theme: Owner. A component library
+  (shadcn-vue) is decided at step 1.6, not now.
 
 ## Done when
 

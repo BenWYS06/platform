@@ -24,6 +24,7 @@ Details and Windows problems: `infra/README.md`.
 | Qdrant | `http://localhost:6333` |
 | auth / chat / ai service | listen on the host at 3001 / 8081 / 8082 (`*_SERVICE_PORT` in `.env`) |
 | Service health | `http://localhost:8080/api/{auth,chat,ai}/health` |
+| Web client (dev) | `http://localhost:5173` (`npm run dev` in `clients/web`); `/api` forwarded to the gateway |
 
 ### Service variables (issue 0.4)
 

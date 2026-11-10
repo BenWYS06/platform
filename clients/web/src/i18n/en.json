@@ -1,0 +1,31 @@
+{
+  "app": {
+    "title": "OpenBox"
+  },
+  "health": {
+    "title": "Server status",
+    "services": {
+      "auth": "Sign-in (auth)",
+      "chat": "Chat",
+      "ai": "AI"
+    },
+    "status": {
+      "checking": "Checking…",
+      "up": "Up",
+      "down": "Down"
+    },
+    "checkAgain": "Check again"
+  },
+  "errors": {
+    "VALIDATION_FAILED": "Some details are not valid. Check them and try again.",
+    "UNAUTHENTICATED": "Please sign in to continue.",
+    "FORBIDDEN": "You do not have permission to do this.",
+    "NOT_FOUND": "This could not be found.",
+    "CONFLICT": "This changed in the meantime. Reload and try again.",
+    "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
+    "INTERNAL": "Something went wrong on the server.",
+    "SERVICE_UNAVAILABLE": "This service is not available right now.",
+    "UNKNOWN": "Something unexpected happened.",
+    "NETWORK": "Cannot reach the server. Check your connection."
+  }
+}
