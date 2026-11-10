@@ -55,7 +55,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `npm test` -> api tests pass for 200 `{"status":"UP"}`, 503 `SERVICE_UNAVAILABLE`,
   unknown code (passed through), timeout (fake timers), HTML answer, network error.
 
-- [ ] Task 4. Health store and screen
+- [x] Task 4. Health store and screen
   Pinia store `health`: three services checked in parallel, one round at a time, states
   Checking / Up / Down with a code. The screen uses Tailwind classes from the tokens only.
   `HealthView.vue` renders three rows with the message
@@ -70,6 +70,10 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   infra and the three services up, `npm run dev`, `curl` each `/api/<service>/health`
   through the Vite port -> 200, page shows three Up rows (the user opens it to confirm);
   chat-service stopped -> chat Down, the others Up.
+  Result: tests, greps and checks pass. Live: auth Up through Vite and Caddy; chat stopped
+  -> 503 `SERVICE_UNAVAILABLE`. chat and ai stay Down here because the local RabbitMQ
+  refuses the login from `.env` (local data, not code; the user fixes `.env` or resets
+  infra), so "three Up" is still open.
 
 - [ ] Task 5. CI job `web` and docs
   Add job `web` to `ci.yml` (Node 24, `npm ci`, lint, build, test in `clients/web`).

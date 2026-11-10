@@ -2,6 +2,20 @@
   "app": {
     "title": "OpenBox"
   },
+  "health": {
+    "title": "Trạng thái máy chủ",
+    "services": {
+      "auth": "Đăng nhập (auth)",
+      "chat": "Trò chuyện",
+      "ai": "AI"
+    },
+    "status": {
+      "checking": "Đang kiểm tra…",
+      "up": "Hoạt động",
+      "down": "Không hoạt động"
+    },
+    "checkAgain": "Kiểm tra lại"
+  },
   "errors": {
     "VALIDATION_FAILED": "Một số thông tin không hợp lệ. Vui lòng kiểm tra và thử lại.",
     "UNAUTHENTICATED": "Vui lòng đăng nhập để tiếp tục.",

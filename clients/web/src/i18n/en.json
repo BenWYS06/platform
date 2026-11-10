@@ -2,6 +2,20 @@
   "app": {
     "title": "OpenBox"
   },
+  "health": {
+    "title": "Server status",
+    "services": {
+      "auth": "Sign-in (auth)",
+      "chat": "Chat",
+      "ai": "AI"
+    },
+    "status": {
+      "checking": "Checking…",
+      "up": "Up",
+      "down": "Down"
+    },
+    "checkAgain": "Check again"
+  },
   "errors": {
     "VALIDATION_FAILED": "Some details are not valid. Check them and try again.",
     "UNAUTHENTICATED": "Please sign in to continue.",
