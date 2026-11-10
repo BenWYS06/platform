@@ -1,8 +1,8 @@
 ---
 paths:
-  - "services/chat-service/**"
-  - "services/ai-service/**"
-  - "libs/platform-common-java/**"
+  - "apps/server/chat-service/**"
+  - "apps/server/ai-service/**"
+  - "packages/platform-common-java/**"
 ---
 
 # Spring Boot rules
@@ -10,7 +10,7 @@ paths:
 Job: conventions for the Java 21 Spring Boot services and the shared Java library.
 
 - Java 21, Spring Boot 3, one Maven build at the repo root (`pom.xml`, `./mvnw`). Build all:
-  `./mvnw verify`; one service: `./mvnw -pl services/<name> -am verify`.
+  `./mvnw verify`; one service: `./mvnw -pl apps/server/<name> -am verify`.
 - Package by feature (`chat/message`, `chat/room`), not by layer.
 - Constructor injection only; no field `@Autowired`.
 - DTOs are `record`s. Never return a Mongo document class from a controller.

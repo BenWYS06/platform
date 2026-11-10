@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Job: build every Java part in order: the shared library first, then the services.
-     Run from the repo root: ./mvnw verify   One service: ./mvnw -pl services/chat-service -am verify -->
+     Run from the repo root: ./mvnw verify   One service: ./mvnw -pl apps/server/chat-service -am verify -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -20,15 +20,15 @@
   <name>openbox-platform</name>
 
   <modules>
-    <module>libs/platform-common-java</module>
-    <module>services/chat-service</module>
-    <module>services/ai-service</module>
+    <module>packages/platform-common-java</module>
+    <module>apps/server/chat-service</module>
+    <module>apps/server/ai-service</module>
   </modules>
 
   <properties>
     <java.version>21</java.version>
     <!-- spring-boot:run only in services (they set it to false), so
-         ./mvnw -pl services/<name> -am spring-boot:run works from the root. -->
+         ./mvnw -pl apps/server/<name> -am spring-boot:run works from the root. -->
     <spring-boot.run.skip>true</spring-boot.run.skip>
   </properties>
 

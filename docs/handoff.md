@@ -12,7 +12,7 @@ Last updated: 2026-11-10
 
 ## Done
 
-- `clients/web`: Vue 3, Vite 8.3.5, Pinia, vue-i18n (en, vi), Tailwind 4.3.3 with the token
+- `apps/web`: Vue 3, Vite 8.3.5, Pinia, vue-i18n (en, vi), Tailwind 4.3.3 with the token
   theme (default palette removed). `src/api/` on relative `/api`; health screen at `/`.
   22 tests. CI job `web`; 7 required checks (D-007).
 

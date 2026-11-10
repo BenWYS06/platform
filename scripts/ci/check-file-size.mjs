@@ -11,12 +11,12 @@ function limitFor(path) {
   if (/\.vue$/.test(path) || /Screen\.kt$/.test(path)) return 400;
   if (/(Service|Controller)\.(java|kt|ts)$/.test(path)) return 500;
   // Express: route and service modules live in src/routes/ and src/services/.
-  if (/^services\/[^/]+\/src\/(routes|services)\/.+\.ts$/.test(path)) return 500;
+  if (/^apps\/server\/[^/]+\/src\/(routes|services)\/.+\.ts$/.test(path)) return 500;
   return undefined;
 }
 
 const problems = [];
-for (const path of listFiles(root, ['services', 'libs', 'clients'])) {
+for (const path of listFiles(root, ['apps', 'packages'])) {
   const limit = limitFor(path);
   if (limit === undefined || isTestFile(path)) continue;
   const text = readFileSync(join(root, path), 'utf8');

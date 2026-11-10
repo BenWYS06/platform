@@ -1,4 +1,4 @@
-# Job: URL hosts allowed in source and config under services/, libs/, clients/, infra/.
+# Job: URL hosts allowed in source and config under apps/, packages/, infra/.
 # Read by check-env.mjs. One host per line; a production hostname never goes here.
 localhost
 127.0.0.1

@@ -1,6 +1,6 @@
 ---
 paths:
-  - "clients/web/**"
+  - "apps/web/**"
 ---
 
 # Vue rules

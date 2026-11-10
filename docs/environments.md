@@ -4,15 +4,15 @@ Job: each environment, how to reach it, and where its config lives. No secret va
 
 | Environment | Where | Config | Status |
 |---|---|---|---|
-| local | developer machine: stores and Caddy in Docker (`infra/compose.yml`), services on the host | `.env` copied from `.env.example` | ready (issue 0.3) |
+| local | developer machine: stores and Caddy in Docker (`infra/docker-compose/compose.yml`), services on the host | `.env` copied from `.env.example` | ready (issue 0.3) |
 | dev | TBD | TBD | not set up |
 | prod | TBD | TBD | not set up |
 
 ## Local
 
-Start: `docker compose --env-file .env -f infra/compose.yml up -d --wait`. Check: `node infra/smoke.mjs`.
-Reset (deletes all local data): `docker compose --env-file .env -f infra/compose.yml down -v`.
-Details and Windows problems: `infra/README.md`.
+Start: `docker compose --env-file .env -f infra/docker-compose/compose.yml up -d --wait`. Check: `node infra/docker-compose/smoke.mjs`.
+Reset (deletes all local data): `docker compose --env-file .env -f infra/docker-compose/compose.yml down -v`.
+Details and Windows problems: `infra/docker-compose/README.md`.
 
 | What | Address (host, `127.0.0.1` only) |
 |---|---|
@@ -24,7 +24,7 @@ Details and Windows problems: `infra/README.md`.
 | Qdrant | `http://localhost:6333` |
 | auth / chat / ai service | listen on the host at 3001 / 8081 / 8082 (`*_SERVICE_PORT` in `.env`) |
 | Service health | `http://localhost:8080/api/{auth,chat,ai}/health` |
-| Web client (dev) | `http://localhost:5173` (`npm run dev` in `clients/web`); `/api` forwarded to the gateway |
+| Web client (dev) | `http://localhost:5173` (`npm run dev` in `apps/web`); `/api` forwarded to the gateway |
 
 ### Service variables (issue 0.4)
 

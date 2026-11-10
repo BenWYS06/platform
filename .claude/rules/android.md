@@ -1,6 +1,6 @@
 ---
 paths:
-  - "clients/android/**"
+  - "apps/client/**"
 ---
 
 # Android rules

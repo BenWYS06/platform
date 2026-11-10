@@ -1,6 +1,6 @@
 ---
 paths:
-  - "services/auth-service/**"
+  - "apps/server/auth-service/**"
 ---
 
 # Express rules
