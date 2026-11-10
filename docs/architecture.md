@@ -15,8 +15,8 @@ Status: Caddy, contracts, the three service skeletons and platform-common-java e
 | ai-service | Spring Boot, Java 21 | 0.4 |
 | libs/platform-common-java | shared errors, config guards, JWT filter | 0.5 |
 | contracts/ | shared error codes, capabilities, messaging, events | 0.2 |
-| web | Vue 3 | 0.7 |
-| android | Kotlin, Compose, Hilt | 0.7 |
+| web | Vue 3 | 0.7a |
+| android | Kotlin, Compose, Hilt (planned, issue #25) | 0.7b |
 
 ## Data stack
 

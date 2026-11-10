@@ -10,7 +10,8 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 - [x] 0.4 Service skeletons: auth, chat, ai (5)
 - [x] 0.5 platform-common-java library (2)
 - [x] 0.6 CI pipeline (3)
-- [ ] 0.7 Web and Android skeletons (5)
+- [ ] 0.7a Web skeleton (5)
+- [ ] 0.7b Android skeleton (5): later, no date (#25)
 
 ## Phase 1: Identity
 

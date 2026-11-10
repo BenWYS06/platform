@@ -41,6 +41,7 @@ Services read the repo `.env` at startup; real env variables win. Leave `MONGODB
 
 ## Notes
 
-- Android has `dev` and `prod` flavors; the server URL sits behind `ServerConfig` (issue 0.7).
+- Android (planned, issue #25, 0.7b): `dev` and `prod` flavors, with the server URL behind
+  `ServerConfig`.
 - Services refuse to start in production with unsafe config (production guard, see above).
 - Variable names are listed in `.env.example`; real values never go into git.
