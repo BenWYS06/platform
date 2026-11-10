@@ -32,7 +32,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `cd clients/web && npm ci && npm run lint && npm run build && npm test` -> all
   green; a test file with `fetch(` outside `src/api/` -> lint fails (then removed).
 
-- [ ] Task 2. Design tokens (Tailwind v4 theme) and i18n
+- [x] Task 2. Design tokens (Tailwind v4 theme) and i18n
   Install `tailwindcss` and `@tailwindcss/vite` 4.3.3 (latest v4 at least two weeks old;
   works with Vite 8.3.5), plus `@tailwindcss/node` 4.3.3 for the theme test. Add
   `tailwindcss()` to the Vite plugins and `@import "tailwindcss";` to the main CSS.

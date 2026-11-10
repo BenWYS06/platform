@@ -1,0 +1,43 @@
+/* Job: the design tokens. Tailwind reads them as its theme, so only these colors exist as
+   classes (bg-surface, text-on-surface, ...). Dark mode follows the system. */
+@theme {
+  --color-*: initial;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3f4f6;
+  --color-on-surface: #1a1d23;
+  --color-on-surface-muted: #5b6270;
+  --color-border: #d8dce3;
+  --color-primary: #2f5bd3;
+  --color-on-primary: #ffffff;
+  --color-success: #1d7a4b;
+  --color-danger: #b42318;
+
+  --spacing: 0.25rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-surface: #121418;
+    --color-surface-muted: #1c1f26;
+    --color-on-surface: #e7e9ee;
+    --color-on-surface-muted: #a3aab8;
+    --color-border: #2e333d;
+    --color-primary: #7c9cf5;
+    --color-on-primary: #0d1220;
+    --color-success: #4cc38a;
+    --color-danger: #f97066;
+  }
+}
