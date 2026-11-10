@@ -3,7 +3,7 @@
 Spec: docs/specs/007-client-skeletons.md
 Issue: #8 (0.7a)
 Branch: feature/web-skeleton
-Status: not started
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -84,7 +84,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo rhysd/actionlint:1.7.7`
   -> no output; the `web` job's commands locally -> green.
 
-- [ ] Task 6. Close the issue
+- [x] Task 6. Close the issue
   Run the full checks. Tick this plan and set `Status: done`; set its line in
   docs/plans/README.md to `done`; tick 0.7a in docs/roadmap.md; point docs/handoff.md to the
   next issue, #22 Spotless (/session-summary). On the user's go-ahead, add `web` to the

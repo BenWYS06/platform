@@ -6,31 +6,28 @@ Last updated: 2026-11-10
 
 ## Now
 
-- Issue 0.6 CI pipeline (#7): done. Plan 006 tasks 1 to 7 done; 0.6 ticked.
-- Plan: [plans/006-ci-pipeline.md](plans/006-ci-pipeline.md)
+- Issue 0.7a Web skeleton (#8): done. Plan 007 tasks 1 to 6 done; 0.7a ticked.
+- Spec: [specs/007-client-skeletons.md](specs/007-client-skeletons.md)
+- Plan: [plans/007-client-skeletons.md](plans/007-client-skeletons.md)
 
 ## Done
 
-- `.github/workflows/ci.yml` on every PR to `main` and push to `main`: jobs `contracts`,
-  `auth-service`, `java` (`./mvnw -B verify`, Testcontainers), `repo-checks`, `secrets`
-  (gitleaks 8.30.1, full history), `env-leak`. Read-only, actions pinned by SHA.
-- `scripts/ci/`: env names in `.env.example` and allowed hosts only, file-size limits,
-  every service has tests; 7 script tests. Found and added `RABBITMQ_HOST`/`RABBITMQ_PORT`.
-- `main` protected (D-007). `CONTRIBUTING.md` lists how to run each check locally.
-- Follow-ups: #22 Spotless (Phase 0, before phase 1), #23 coverage ratchet.
+- `clients/web`: Vue 3, Vite 8.3.5, Pinia, vue-i18n (en, vi), Tailwind 4.3.3 with the token
+  theme (default palette removed). `src/api/` on relative `/api`; health screen at `/`.
+  22 tests. CI job `web`; 7 required checks (D-007).
 
-## Next step: issue 0.7a Web skeleton (5 points, #8)
+## Next step: #22 Add Spotless to the Java build and CI (2 points, Phase 0)
 
-1. Merge the `chore/web-first` PR, then branch `feature/web-skeleton` from `main`.
-2. Spec 007 (web only) is written: `/write-plan`, then code. The plan adds the `web` job
-   to `ci.yml` and to the required checks (D-007), 7 in total. Then #22 Spotless.
+1. Merge the 0.7a PR, then branch `chore/spotless` from `main`.
+2. 2 points, no contract change: "Done when" is in #22; short plan (`/write-plan`).
+   Then Phase 1, issue 1.1.
 
 ## Known gaps
 
-- Java on Windows needs `-XX:-UseThreadPriorities` (set for `spring-boot:run`; IDE run
-  configs must add it).
-- `MONGODB_URI` set to an empty string fails in the MongoDB driver before the guard runs
-  (still exit 1, but the message is the driver's). Unset works as designed.
+- Local RabbitMQ refuses the login from `.env`, so chat and ai health say Down locally. Fix
+  `.env` or reset infra (`down -v`), then confirm three Up rows at `localhost:5173`.
+- Java on Windows needs `-XX:-UseThreadPriorities` (set for `spring-boot:run`).
+- `MONGODB_URI` set to an empty string fails in the MongoDB driver before the guard runs.
 - Permission rules match command text only: `cat .env` through Bash is not blocked.
 - Spring Boot 3.5 gets no free security fixes (owner decision, D-006).
 - `CONTRIBUTING.md` loop step 2 still says "3+ points: spec" (rule is now 5+; tiny fix).
