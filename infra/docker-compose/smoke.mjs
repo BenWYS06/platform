@@ -1,6 +1,6 @@
 // Job: check that the local infra answers. Node only, no dependencies.
-// Run: node infra/smoke.mjs              (services may be up or down)
-//      node infra/smoke.mjs --services   (every service must answer 200 UP)
+// Run: node infra/docker-compose/smoke.mjs              (services may be up or down)
+//      node infra/docker-compose/smoke.mjs --services   (every service must answer 200 UP)
 // Prints one line per check; exits 1 if any check fails.
 import net from 'node:net';
 import http from 'node:http';

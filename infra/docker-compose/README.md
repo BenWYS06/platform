@@ -17,15 +17,15 @@ the RabbitMQ variables for any command (`ps`, `logs`, `down` too).
 
 | Task | Command |
 |---|---|
-| Start and wait until all healthy | `docker compose --env-file .env -f infra/compose.yml up -d --wait` |
-| Status | `docker compose --env-file .env -f infra/compose.yml ps` |
-| Check everything answers | `node infra/smoke.mjs` |
-| Check with all three services running | `node infra/smoke.mjs --services` |
-| Logs of one container | `docker compose --env-file .env -f infra/compose.yml logs caddy` |
-| Stop (data kept) | `docker compose --env-file .env -f infra/compose.yml down` |
-| Reset (deletes all local data) | `docker compose --env-file .env -f infra/compose.yml down -v` |
+| Start and wait until all healthy | `docker compose --env-file .env -f infra/docker-compose/compose.yml up -d --wait` |
+| Status | `docker compose --env-file .env -f infra/docker-compose/compose.yml ps` |
+| Check everything answers | `node infra/docker-compose/smoke.mjs` |
+| Check with all three services running | `node infra/docker-compose/smoke.mjs --services` |
+| Logs of one container | `docker compose --env-file .env -f infra/docker-compose/compose.yml logs caddy` |
+| Stop (data kept) | `docker compose --env-file .env -f infra/docker-compose/compose.yml down` |
+| Reset (deletes all local data) | `docker compose --env-file .env -f infra/docker-compose/compose.yml down -v` |
 
-`node infra/smoke.mjs` prints one line per check and exits 1 if any fails. Each
+`node infra/docker-compose/smoke.mjs` prints one line per check and exits 1 if any fails. Each
 `/api/<service>/health` passes on 200 `UP` or 503 `SERVICE_UNAVAILABLE` (service or a store
 down) and the line says which; with `--services`, 200 is required.
 
@@ -58,7 +58,7 @@ clients can pass `replicaSet=rs0`.
 
 The prefix is kept: a request to `/api/auth/login` reaches the service as `/api/auth/login`.
 When the service is not running, Caddy answers 503 `{"code":"SERVICE_UNAVAILABLE"}`.
-After editing the `Caddyfile`: `docker compose --env-file .env -f infra/compose.yml restart caddy`.
+After editing the `Caddyfile`: `docker compose --env-file .env -f infra/docker-compose/compose.yml restart caddy`.
 
 ## Common problems
 
@@ -66,7 +66,7 @@ After editing the `Caddyfile`: `docker compose --env-file .env -f infra/compose.
   variable is empty, or `--env-file .env` was left out.
 - **RabbitMQ login fails after changing the password in `.env`**: RabbitMQ creates the user
   only on first start. Reset its data:
-  `docker compose --env-file .env -f infra/compose.yml down` then
+  `docker compose --env-file .env -f infra/docker-compose/compose.yml down` then
   `docker volume rm openbox_rabbitmq-data`, then start again.
 - **Port already in use** (for example 8080 or 27017): find the process.
   Windows: `netstat -ano | findstr :8080`, then `tasklist /fi "PID eq <pid>"`.

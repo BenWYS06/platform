@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Job: build the shared Java library (errors, production guard, request id, security chain).
-     Run from the repo root: ./mvnw -pl libs/platform-common-java verify -->
+     Run from the repo root: ./mvnw -pl packages/platform-common-java verify -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">

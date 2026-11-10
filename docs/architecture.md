@@ -13,14 +13,14 @@ Status: Caddy, contracts, the three service skeletons and platform-common-java e
 | auth-service | Express + TypeScript | 0.4 |
 | chat-service | Spring Boot, Java 21 | 0.4 |
 | ai-service | Spring Boot, Java 21 | 0.4 |
-| libs/platform-common-java | shared errors, config guards, JWT filter | 0.5 |
+| packages/platform-common-java | shared errors, config guards, JWT filter | 0.5 |
 | contracts/ | shared error codes, capabilities, messaging, events | 0.2 |
 | web | Vue 3, Vite, Tailwind v4 | 0.7a |
 | android | Kotlin, Compose, Hilt (planned, issue #25) | 0.7b |
 
 ## Data stack
 
-MongoDB (replica set), Redis, RabbitMQ, Qdrant. Runs locally with `infra/compose.yml` (issue 0.3).
+MongoDB (replica set), Redis, RabbitMQ, Qdrant. Runs locally with `infra/docker-compose/compose.yml` (issue 0.3).
 
 ## Routing
 
@@ -33,7 +33,7 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
                          any /internal segment -> 404, never forwarded
 ```
 
-- Config: `infra/Caddyfile`. Caddy keeps the `/api/<service>` prefix; locally it forwards to
+- Config: `infra/docker-compose/Caddyfile`. Caddy keeps the `/api/<service>` prefix; locally it forwards to
   services on the host via `host.docker.internal` (ports from `.env`, defaults above).
 - `/internal` is blocked in any case, encoded or not, and when followed by any non-word
   character (`internal;x`, `internal%09`), before routing. Services still check `X-Internal-Key`.
@@ -56,7 +56,7 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
   safe, otherwise generated); no headers or bodies logged, secret headers redacted.
 - One MongoDB database per service: `openbox_auth`, `openbox_chat`, `openbox_ai`.
 - Java services get the error handler, guard, request id and security chain from
-  `libs/platform-common-java` (auto-configuration); auth-service has its own in TypeScript.
+  `packages/platform-common-java` (auto-configuration); auth-service has its own in TypeScript.
 
 ## Java security chain (platform-common-java)
 
@@ -69,7 +69,7 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
   `VALIDATION_FAILED`; never a `WWW-Authenticate` header.
 - Build: one Maven reactor at the repo root (`pom.xml`, `./mvnw`): library, then services.
 
-## Web client (clients/web)
+## Web client (apps/web)
 
 - Vue 3, Vite, vue-router, Pinia, vue-i18n (`en`, `vi`; the browser language picks).
 - `src/api/` is the only code that calls the server: relative `/api`, 5 s timeout. A

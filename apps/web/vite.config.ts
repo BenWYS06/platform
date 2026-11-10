@@ -6,7 +6,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [vue(), tailwindcss()],
   server: {
-    // Dev only: the app calls the relative /api; Vite forwards it to Caddy (infra/compose.yml).
+    // Dev only: the app calls the relative /api; Vite forwards it to Caddy (infra/docker-compose/compose.yml).
     proxy: { '/api': 'http://localhost:8080' },
   },
   define: {

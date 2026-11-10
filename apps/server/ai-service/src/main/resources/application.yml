@@ -4,7 +4,7 @@ spring:
   application:
     name: ai-service
   config:
-    import: "optional:file:.env[.properties],optional:file:../../.env[.properties]"
+    import: "optional:file:.env[.properties],optional:file:../../../.env[.properties]"
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/?replicaSet=rs0}

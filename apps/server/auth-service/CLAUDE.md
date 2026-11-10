@@ -1,6 +1,6 @@
 # auth-service
 
-Job: what Claude needs when working in `services/auth-service`. Rules: `.claude/rules/express.md`.
+Job: what Claude needs when working in `apps/server/auth-service`. Rules: `.claude/rules/express.md`.
 
 Express 5 + TypeScript (strict, ES modules), Node 24. Port 3001 (`AUTH_SERVICE_PORT`); Caddy
 forwards `/api/auth/*` here with the prefix kept.

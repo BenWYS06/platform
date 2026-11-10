@@ -1,6 +1,6 @@
 # platform-common-java
 
-Job: what Claude needs when working in `libs/platform-common-java`. Rules: `.claude/rules/spring.md`.
+Job: what Claude needs when working in `packages/platform-common-java`. Rules: `.claude/rules/spring.md`.
 
 Shared Java code for chat-service and ai-service. A module of the root Maven build; services
 depend on `com.openbox:platform-common-java` and get everything through Spring Boot
@@ -13,7 +13,7 @@ Run from the repo root:
 
 | Task | Command |
 |---|---|
-| Library tests | `./mvnw -pl libs/platform-common-java verify` |
+| Library tests | `./mvnw -pl packages/platform-common-java verify` |
 | Library and every service (Docker running) | `./mvnw verify` |
 
 ## What is here (package `com.openbox.platform`)

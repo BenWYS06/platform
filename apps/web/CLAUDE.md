@@ -1,6 +1,6 @@
 # web client
 
-Job: what Claude needs when working in `clients/web`. Rules: `.claude/rules/vue.md`.
+Job: what Claude needs when working in `apps/web`. Rules: `.claude/rules/vue.md`.
 
 Vue 3 + TypeScript (`<script setup lang="ts">`), Vite, vue-router, Pinia, Node 24.
 Android: later, issue #25.

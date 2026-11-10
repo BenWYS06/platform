@@ -13,7 +13,7 @@ import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-// Starts the whole app against real MongoDB and RabbitMQ (same images as infra/compose.yml).
+// Starts the whole app against real MongoDB and RabbitMQ (same images as infra/docker-compose/compose.yml).
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
     properties = {"app.env=local", "app.internal-api-key=test-internal-key"})

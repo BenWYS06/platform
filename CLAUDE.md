@@ -23,14 +23,14 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `.claude/` | settings, hooks, rules, skills | exists |
 | `.github/` | PR and issue templates, CODEOWNERS, CI (`workflows/ci.yml`) | exists |
 | `contracts/` | shared error codes, capabilities, messaging, events | exists |
-| `infra/` | `compose.yml`: MongoDB, Redis, RabbitMQ, Qdrant, Caddy; `Caddyfile`; `smoke.mjs` | exists |
+| `infra/docker-compose/` | `compose.yml`: MongoDB, Redis, RabbitMQ, Qdrant, Caddy; `Caddyfile`; `smoke.mjs` | exists |
 | `scripts/ci/` | repo checks run by CI (env names and hosts, file sizes, tests per service) | exists |
-| `services/auth-service/` | Express + TypeScript | exists |
-| `services/chat-service/` | Spring Boot, Java 21 | exists |
-| `services/ai-service/` | Spring Boot, Java 21 | exists |
-| `libs/platform-common-java/` | shared Java: errors, config guard, security chain, JWT stub | exists |
-| `clients/web/` | Vue 3, Vite, Tailwind v4 (issue 0.7a) | exists |
-| `clients/android/` | Kotlin, Compose, Hilt | issue 0.7b (#25), later |
+| `apps/server/auth-service/` | Express + TypeScript | exists |
+| `apps/server/chat-service/` | Spring Boot, Java 21 | exists |
+| `apps/server/ai-service/` | Spring Boot, Java 21 | exists |
+| `packages/platform-common-java/` | shared Java: errors, config guard, security chain, JWT stub | exists |
+| `apps/web/` | Vue 3, Vite, Tailwind v4 (issue 0.7a) | exists |
+| `apps/client/` | Android: Kotlin, Compose, Hilt | issue 0.7b (#25), later |
 
 Each service and client gets its own short CLAUDE.md when its folder is created.
 
@@ -41,15 +41,15 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | Task | Command |
 |---|---|
 | Contracts check | `cd contracts && npm ci && npm test` |
-| Local infra up | `docker compose --env-file .env -f infra/compose.yml up -d --wait` |
-| Local infra check | `node infra/smoke.mjs` (`--services`: all three must answer 200) |
-| Local infra reset (deletes data) | `docker compose --env-file .env -f infra/compose.yml down -v` |
-| auth-service | `cd services/auth-service && npm ci && npm run build && npm run lint && npm test` |
+| Local infra up | `docker compose --env-file .env -f infra/docker-compose/compose.yml up -d --wait` |
+| Local infra check | `node infra/docker-compose/smoke.mjs` (`--services`: all three must answer 200) |
+| Local infra reset (deletes data) | `docker compose --env-file .env -f infra/docker-compose/compose.yml down -v` |
+| auth-service | `cd apps/server/auth-service && npm ci && npm run build && npm run lint && npm test` |
 | Java build, all parts (Docker running) | `./mvnw verify` (repo root) |
-| One Java service | `./mvnw -pl services/<name> -am verify` |
-| Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl services/<name> -am spring-boot:run` |
-| Web | `cd clients/web && npm ci && npm run lint && npm run build && npm test`; dev: `npm run dev` |
-| Android | `cd clients/android && ./gradlew testDevDebugUnitTest` (issue 0.7b, later) |
+| One Java service | `./mvnw -pl apps/server/<name> -am verify` |
+| Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl apps/server/<name> -am spring-boot:run` |
+| Web | `cd apps/web && npm ci && npm run lint && npm run build && npm test`; dev: `npm run dev` |
+| Android | `cd apps/client && ./gradlew testDevDebugUnitTest` (issue 0.7b, later) |
 | CI checks locally | see "Run the CI checks locally" in `CONTRIBUTING.md` |
 | Test a hook | `echo '{"tool_input":{"file_path":".env"}}' \| bash .claude/hooks/protect-files.sh; echo $?` |
 

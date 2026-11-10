@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { listFiles, isTestFile, report } from './files.mjs';
 
 const root = process.argv[2] ?? process.cwd();
-const SCANNED = ['services', 'libs', 'clients', 'infra'];
+const SCANNED = ['apps', 'packages', 'infra'];
 const NAME = '[A-Z][A-Z0-9_]*';
 
 // --- env variable names ---

@@ -1,5 +1,5 @@
 # Job: local data stores and the Caddy gateway for development (issue 0.3).
-# Start: docker compose --env-file .env -f infra/compose.yml up -d --wait
+# Start: docker compose --env-file .env -f infra/docker-compose/compose.yml up -d --wait
 # Every port is bound to 127.0.0.1 only; nothing is reachable from another machine.
 name: openbox
 
