@@ -21,7 +21,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 
 ## Tasks
 
-- [ ] Task 1. Scaffold `clients/web`
+- [x] Task 1. Scaffold `clients/web`
   Vite + Vue 3 + TypeScript, vue-router (one route `/`), Pinia, Vitest with jsdom and Vue
   Test Utils, ESLint (flat config: `eslint-plugin-vue`, `typescript-eslint`; `vue/no-v-html`
   on; `fetch` and `localStorage` banned outside `src/api/`) and `vue-tsc`. Scripts `dev`,
