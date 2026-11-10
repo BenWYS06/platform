@@ -49,7 +49,7 @@ Last updated: 2026-11-10
   build, Java APIs closed by default, stay on Boot 3.5: D-006.
 - One PR per issue: the last plan task marks plan, index and roadmap `done` and points the
   handoff to the next issue, on the feature branch, before the PR opens. PR body: `Closes #n`.
-- `main` is protected: PR plus the six CI jobs required, admins included, no force push or
+- `main` is protected: PR plus the seven CI jobs required, admins included, no force push or
   deletion (D-007). A renamed or new required job updates the rule in the same PR.
 - Web first: the Android skeleton is issue #25 (0.7b), built later. Until then a client
   PR says 'Android: later, issue #25'.

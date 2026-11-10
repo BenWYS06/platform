@@ -29,7 +29,7 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 | `services/chat-service/` | Spring Boot, Java 21 | exists |
 | `services/ai-service/` | Spring Boot, Java 21 | exists |
 | `libs/platform-common-java/` | shared Java: errors, config guard, security chain, JWT stub | exists |
-| `clients/web/` | Vue 3 | issue 0.7a |
+| `clients/web/` | Vue 3, Vite, Tailwind v4 (issue 0.7a) | exists |
 | `clients/android/` | Kotlin, Compose, Hilt | issue 0.7b (#25), later |
 
 Each service and client gets its own short CLAUDE.md when its folder is created.
@@ -48,7 +48,7 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | Java build, all parts (Docker running) | `./mvnw verify` (repo root) |
 | One Java service | `./mvnw -pl services/<name> -am verify` |
 | Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl services/<name> -am spring-boot:run` |
-| Web | `cd clients/web && npm ci && npm run build && npm test` (issue 0.7a) |
+| Web | `cd clients/web && npm ci && npm run lint && npm run build && npm test`; dev: `npm run dev` |
 | Android | `cd clients/android && ./gradlew testDevDebugUnitTest` (issue 0.7b, later) |
 | CI checks locally | see "Run the CI checks locally" in `CONTRIBUTING.md` |
 | Test a hook | `echo '{"tool_input":{"file_path":".env"}}' \| bash .claude/hooks/protect-files.sh; echo $?` |

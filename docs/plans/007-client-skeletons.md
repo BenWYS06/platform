@@ -75,7 +75,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   refuses the login from `.env` (local data, not code; the user fixes `.env` or resets
   infra), so "three Up" is still open.
 
-- [ ] Task 5. CI job `web` and docs
+- [x] Task 5. CI job `web` and docs
   Add job `web` to `ci.yml` (Node 24, `npm ci`, lint, build, test in `clients/web`).
   Docs: `CLAUDE.md` (folder map `clients/web/` exists, Web command), `CONTRIBUTING.md`
   (local command row, file map), `docs/architecture.md` (web part: Vite dev proxy, api

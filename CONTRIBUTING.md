@@ -25,6 +25,7 @@ Each CI job, and the command that does the same on your machine (repo root, Git 
 |---|---|
 | `contracts` | `cd contracts && npm ci && npm test` |
 | `auth-service` | `cd services/auth-service && npm ci && npm run build && npm run lint && npm test` |
+| `web` | `cd clients/web && npm ci && npm run lint && npm run build && npm test` |
 | `java` | `./mvnw -B verify` (Docker running, for Testcontainers) |
 | `secrets` | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 git --redact --exit-code 1 .` says "no leaks found" |
 | `env-leak` | `git ls-files \| grep -E '(^\|/)\.env(\..*)?$\|\.(pem\|key\|p12\|jks\|keystore)$' \| grep -vE '(^\|/)\.env\.example$'` prints nothing |
@@ -81,6 +82,7 @@ The body names the plan task, e.g. `Task 3 of plan 001.`
 | `.github/ISSUE_TEMPLATE/feature_request.md` | Form for a user story with acceptance criteria |
 | `.github/CODEOWNERS` | Who must review changes |
 | `.github/workflows/ci.yml` | CI: the checks every PR to `main` must pass |
+| `clients/web/` | Vue 3 web client; its own `CLAUDE.md` says how to run and test it |
 | `scripts/ci/` | Repo checks run by CI: env names and allowed hosts, file sizes, tests per service |
 | `scripts/ci/allowed-hosts.txt` | URL hosts allowed in source and config; never a production host |
 | `docs/handoff.md` | Where the last session stopped and the next step |
