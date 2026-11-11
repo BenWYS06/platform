@@ -59,6 +59,10 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 - Java services get the error handler, guard, request id and security chain from
   `packages/platform-common-java` (auto-configuration); auth-service has its own in TypeScript.
 
+## auth-service
+
+- Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
+
 ## Java security chain (platform-common-java)
 
 - Stateless Spring Security: no session, cookie, CSRF, form or basic login, no default user.
