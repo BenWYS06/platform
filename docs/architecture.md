@@ -54,7 +54,8 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 - Errors: unknown route 404 `NOT_FOUND`, bad input 400 `VALIDATION_FAILED`, anything else
   500 `INTERNAL`; never a stack trace. JSON logs with a request id (`X-Request-Id` kept if
   safe, otherwise generated); no headers or bodies logged, secret headers redacted.
-- One MongoDB database per service: `openbox_auth`, `openbox_chat`, `openbox_ai`.
+- One MongoDB database, `platform`, for all services. Each collection has one writer
+  service; the others only read it (D-008).
 - Java services get the error handler, guard, request id and security chain from
   `packages/platform-common-java` (auto-configuration); auth-service has its own in TypeScript.
 

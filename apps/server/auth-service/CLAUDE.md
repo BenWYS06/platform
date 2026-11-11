@@ -26,7 +26,7 @@ forwards `/api/auth/*` here with the prefix kept.
 ## Config
 
 - Env first; `npm start` and `npm run dev` also load the repo `.env`
-  (`--env-file-if-exists`). Names in `.env.example`. MongoDB database `openbox_auth`.
+  (`--env-file-if-exists`). Names in `.env.example`. MongoDB database `platform`.
 - `APP_ENV=prod` refuses a missing, short or default `INTERNAL_API_KEY`, and a missing
   `MONGODB_URI` or `REDIS_URL`. Bad config or a port in use exits with code 1.
 

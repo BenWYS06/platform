@@ -32,7 +32,7 @@ Details and Windows problems: `infra/docker-compose/README.md`.
 |---|---|---|---|
 | `APP_ENV` | all | `local` (default) | `prod` |
 | `INTERNAL_API_KEY` | all | empty: a fixed local default | required, at least 32 characters |
-| `MONGODB_URI` | all | default `mongodb://localhost:27017/?replicaSet=rs0` | required |
+| `MONGODB_URI` | all (database `platform`, set in code) | default `mongodb://localhost:27017/?replicaSet=rs0` | required |
 | `REDIS_URL` | auth | default `redis://localhost:6379` | required |
 | `RABBITMQ_USER`, `RABBITMQ_PASSWORD` | chat, ai | from `.env` (also used by compose) | password required |
 | `RABBITMQ_HOST`, `RABBITMQ_PORT` | chat, ai | default `localhost`, `5672` | set to the prod broker |

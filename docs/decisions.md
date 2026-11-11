@@ -45,3 +45,8 @@ Instead of: `mvn install` of the library before each service build, or GitHub Pa
 Decision: branch protection on `main` requires a pull request (0 approvals) and the CI jobs `contracts`, `auth-service`, `web`, `env-leak`, `repo-checks`, `java` and `secrets` to pass (`web` added with issue 0.7a); it applies to admins too; force push and deletion are blocked. The branch need not be up to date with `main` before merge. Renaming or adding a required job means updating this rule in the same PR.
 Why: the repo is public with a single owner, so nothing but this rule stops a broken or leaky commit from landing on `main`. Zero approvals because GitHub does not let an author approve their own PR. Including admins makes the rule apply to the only person who merges.
 Instead of: no protection and trusting the process; required reviews (impossible solo); requiring an up-to-date branch (extra rebases for little gain with one author).
+
+## D-008 One MongoDB database; one writer service per collection (2026-11-11)
+Decision: auth-, chat- and ai-service use one MongoDB database, `platform`; this replaces the "one database per service" choice in spec 004. Each collection has exactly one service that writes it; other services may read it but never write.
+Why: one database is simpler to run, back up and inspect, and lets a service read another's data (for example users) without an extra internal call. One writer per collection keeps ownership clear: rules and indexes for a collection live in one service.
+Instead of: one database per service (`openbox_auth`, `openbox_chat`, `openbox_ai`), or any service writing any collection.
