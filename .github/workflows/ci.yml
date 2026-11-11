@@ -82,6 +82,8 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
+      # One Java format (google-java-format via Spotless); fix with ./mvnw spotless:apply.
+      - run: ./mvnw -B spotless:check
       # Library, chat and ai in order; Testcontainers uses the runner's Docker.
       - run: ./mvnw -B verify
 

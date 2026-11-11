@@ -26,7 +26,7 @@ Each CI job, and the command that does the same on your machine (repo root, Git 
 | `contracts` | `cd contracts && npm ci && npm test` |
 | `auth-service` | `cd apps/server/auth-service && npm ci && npm run build && npm run lint && npm test` |
 | `web` | `cd apps/web && npm ci && npm run lint && npm run build && npm test` |
-| `java` | `./mvnw -B verify` (Docker running, for Testcontainers) |
+| `java` | `./mvnw -B spotless:check` (fix: `./mvnw spotless:apply`), then `./mvnw -B verify` (Docker running, for Testcontainers) |
 | `secrets` | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 git --redact --exit-code 1 .` says "no leaks found" |
 | `env-leak` | `git ls-files \| grep -E '(^\|/)\.env(\..*)?$\|\.(pem\|key\|p12\|jks\|keystore)$' \| grep -vE '(^\|/)\.env\.example$'` prints nothing |
 | `repo-checks` | `node --test "scripts/ci/test/*.test.mjs"`, then `node scripts/ci/check-env.mjs`, `node scripts/ci/check-file-size.mjs`, `node scripts/ci/check-tests-exist.mjs` |
@@ -62,6 +62,7 @@ The body names the plan task, e.g. `Task 3 of plan 001.`
 | `.gitattributes` | Store text files with LF whatever `core.autocrlf` says |
 | `.gitignore` | Keep build output, local tool files and secrets out of git |
 | `.gitleaksignore` | Known false positives for the gitleaks secret scan (CI, issue 0.6) |
+| `.git-blame-ignore-revs` | Format-only commits that `git blame` skips; run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once |
 | `.env.example` | Every env variable name, with no real values |
 | `.claude/settings.json` | Allowed and denied commands for Claude; registers the hooks |
 | `.claude/hooks/protect-files.sh` | Blocks Claude from editing `.env` files and private keys (exit 2) |

@@ -31,7 +31,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   ai-service and lists the files that are not formatted yet (fails); `./mvnw -B verify` ->
   BUILD SUCCESS, library 30, chat 7, ai 7.
 
-- [ ] Task 2. Format all Java code once
+- [x] Task 2. Format all Java code once
   `./mvnw spotless:apply`. The commit holds only the formatting changes, nothing else.
   After `spotless:apply`, show `git diff --stat`. If the change is large (more than about
   20% of the Java lines; today about 1,600 lines, so more than about 320 changed lines),
@@ -39,7 +39,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `./mvnw -B spotless:check` -> BUILD SUCCESS; `git diff --stat HEAD~1` lists only
   `*.java` files; `./mvnw -B clean verify` -> BUILD SUCCESS, library 30, chat 7, ai 7.
 
-- [ ] Task 3. CI runs the check; docs
+- [x] Task 3. CI runs the check; docs
   The `java` job runs `./mvnw -B spotless:check` before `./mvnw -B verify`. Docs: `CLAUDE.md`
   Commands and `CONTRIBUTING.md` (local command row) say how to check
   (`./mvnw spotless:check`) and how to fix (`./mvnw spotless:apply`). Add

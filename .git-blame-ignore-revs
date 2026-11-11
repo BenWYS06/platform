@@ -1,0 +1,5 @@
+# Job: commits that only reformat code, so git blame shows the real author of each line.
+# Use locally: git config blame.ignoreRevsFile .git-blame-ignore-revs (GitHub reads it itself).
+
+# chore: format Java code with google-java-format (issue #22)
+1b1059abb1b12152f974cad5c7711007921b0553
