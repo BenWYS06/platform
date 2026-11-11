@@ -47,6 +47,7 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | auth-service | `cd apps/server/auth-service && npm ci && npm run build && npm run lint && npm test` |
 | Java build, all parts (Docker running) | `./mvnw verify` (repo root) |
 | One Java service | `./mvnw -pl apps/server/<name> -am verify` |
+| Java format check / fix | `./mvnw spotless:check` / `./mvnw spotless:apply` (google-java-format) |
 | Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl apps/server/<name> -am spring-boot:run` |
 | Web | `cd apps/web && npm ci && npm run lint && npm run build && npm test`; dev: `npm run dev` |
 | Android | `cd apps/client && ./gradlew testDevDebugUnitTest` (issue 0.7b, later) |
