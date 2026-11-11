@@ -5,7 +5,7 @@ Job: how work is done in this repo, and what every file in the harness is for.
 ## The loop
 
 1. **Issue.** Every piece of work starts from a GitHub issue on the OpenBox board.
-2. **Spec.** 3+ points: `/write-spec` writes `docs/specs/NNN-name.md`. The user agrees to it.
+2. **Spec.** 5+ points: `/write-spec` writes `docs/specs/NNN-name.md`. The user agrees to it.
 3. **Plan.** `/write-plan` splits the spec into tasks in `docs/plans/NNN-name.md`, each with
    a check.
 4. **Branch.** One branch per issue from an up-to-date `main`.
