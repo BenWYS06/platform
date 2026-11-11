@@ -16,7 +16,8 @@ class StoreTimeoutConfig {
   MongoClientSettingsBuilderCustomizer mongoTimeouts() {
     return builder ->
         builder
-            .applyToClusterSettings(c -> c.serverSelectionTimeout(TIMEOUT_MS, TimeUnit.MILLISECONDS))
+            .applyToClusterSettings(
+                c -> c.serverSelectionTimeout(TIMEOUT_MS, TimeUnit.MILLISECONDS))
             .applyToSocketSettings(s -> s.connectTimeout(TIMEOUT_MS, TimeUnit.MILLISECONDS));
   }
 }

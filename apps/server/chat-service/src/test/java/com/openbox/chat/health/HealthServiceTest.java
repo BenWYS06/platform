@@ -45,7 +45,12 @@ class HealthServiceTest {
 
   @Test
   void a_failing_store_is_down() {
-    var down = check("mongodb", () -> { throw new IllegalStateException("refused"); });
+    var down =
+        check(
+            "mongodb",
+            () -> {
+              throw new IllegalStateException("refused");
+            });
     var service = new HealthService(List.of(down, up("rabbitmq")), Duration.ofSeconds(1));
     assertThat(service.allUp()).isFalse();
   }
