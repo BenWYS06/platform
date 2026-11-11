@@ -13,6 +13,7 @@ Phase 0 (Sprint 1) is in progress: most folders below do not exist yet.
 1. Read `docs/handoff.md`: where the last session stopped and the next step.
 2. Open the plan it points to (index: `docs/plans/README.md`) and do that step only.
 3. Asked "what is the next step?": answer from `docs/handoff.md`.
+4. Phase 1 identity work: read `docs/auth-design.md` first, then the spec of the issue.
 
 ## Folder map
 
