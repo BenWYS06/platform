@@ -11,3 +11,4 @@ Job: list every plan and its status. One line per plan; the spec has the same nu
 | 005 | [platform-common-java library](005-platform-common-java.md) | [spec](../specs/005-platform-common-java.md) | 0.5 | done |
 | 006 | [CI pipeline](006-ci-pipeline.md) | none, short plan; see issue #7 | 0.6 | done |
 | 007 | [Web skeleton](007-client-skeletons.md) | [spec](../specs/007-client-skeletons.md) | 0.7a | done |
+| 008 | [Spotless in the Java build and CI](008-spotless.md) | none, short plan; see issue #22 | #22 | not started |
