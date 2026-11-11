@@ -15,12 +15,14 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Exception: Task 2's commit holds formatting only, so its tick goes in Task 3's commit.
 - Every commit ends with the trailer `Task N of plan 008.` and the attribution line.
 - Versions pinned exactly, each at least two weeks old: Spotless Maven plugin 3.10.4 and
-  google-java-format 1.37.0 (owner decision).
+  google-java-format 1.36.1. The owner chose 1.37.0, but Spotless 3.10.4 cannot run it
+  (the formatter fails inside Spotless; it knows versions up to 1.36.1, and Spotless
+  3.11.0 is under two weeks old), so 1.36.1, the newest it supports.
 - Out of scope: TypeScript formatting (prettier).
 
 ## Tasks
 
-- [ ] Task 1. Spotless in the root pom
+- [x] Task 1. Spotless in the root pom
   Add `spotless-maven-plugin` to the root `pom.xml` so it applies to the library and both
   services: the chosen Java format, unused imports removed, trailing whitespace trimmed,
   files end with a newline. Not bound to a phase: `./mvnw verify` does not change; the check
