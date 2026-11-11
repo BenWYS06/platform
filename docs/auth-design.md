@@ -50,7 +50,7 @@ Logout, block or role change = change the session in Redis. The next call in eve
 | refresh answers 401 or 403 | log out; show the reason if the code is on the allow-list |
 | refresh answers 503 or the network fails | stay signed in; the call fails this time, the user can retry |
 | login or refresh answers 403 `ACCOUNT_BLOCKED` (a blocked user's other calls answer 401 `SESSION_REVOKED`) | log out, show "account blocked" on the login screen |
-| 401 on login, setup, invitation or refresh calls | never start a refresh (it is a real answer, a refresh would loop) |
+| 401 on login, invitation or refresh calls | never start a refresh (it is a real answer, a refresh would loop) |
 | 429 | show "try again later" with the wait time from `params` |
 
 Only codes on a fixed allow-list ever reach the login screen (`/login?reason=CODE`). Server text is never shown.
@@ -162,7 +162,6 @@ These decisions define 1.1; the spec is written from them.
 - Limits (all fail closed when Redis is down, 503):
   - per email: 5 failures in 15 minutes, then 429 until the window ends;
   - per client IP: 20 failures in 15 minutes. Count failures only, not all attempts, so an office behind one address can log in all morning;
-  - setup: 5 attempts per IP in 15 minutes;
   - burst: 5 requests per second per client on every auth route except refresh.
 - A counter gets its expiry on the first failure (fixed window) and is cleared by a success.
 - 429 carries a `Retry-After` header and `params.retryAfterSeconds`.
