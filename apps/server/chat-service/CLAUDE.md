@@ -27,7 +27,7 @@ Run from the repo root (one `./mvnw` for all Java parts):
 ## Config
 
 - Env first; locally the repo `.env` is also read (`spring.config.import`). Names in
-  `.env.example`. MongoDB database `openbox_chat`.
+  `.env.example`. MongoDB database `platform`.
 - `APP_ENV=prod` refuses a missing, short or default `INTERNAL_API_KEY`, and a missing
   `MONGODB_URI` or `RABBITMQ_PASSWORD`. A failed start exits with code 1.
 

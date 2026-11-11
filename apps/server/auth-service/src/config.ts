@@ -61,7 +61,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, warn: (message:
     port: AUTH_SERVICE_PORT,
     internalApiKey,
     mongodbUri: MONGODB_URI ?? LOCAL_MONGODB_URI,
-    mongodbDb: 'openbox_auth',
+    mongodbDb: 'platform',
     redisUrl: REDIS_URL ?? LOCAL_REDIS_URL,
   };
 }

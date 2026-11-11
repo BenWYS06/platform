@@ -38,7 +38,7 @@ describe('loadConfig', () => {
     const warnings: string[] = [];
     const config = loadConfig(PROD, (m) => warnings.push(m));
     expect(config.internalApiKey).toBe(GOOD_KEY);
-    expect(config.mongodbDb).toBe('openbox_auth');
+    expect(config.mongodbDb).toBe('platform');
     expect(warnings).toEqual([]);
   });
 
