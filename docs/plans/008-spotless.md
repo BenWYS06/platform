@@ -2,7 +2,7 @@
 
 Issue: #22, its "Done when" list. Short plan: 2 points, build and CI only, no spec.
 Branch: chore/spotless
-Status: not started
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -51,7 +51,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `spotless:check` passes locally on Windows and on the CI runner (Linux), so line endings
   follow `.gitattributes` (seen in Task 4's PR checks).
 
-- [ ] Task 4. Close the issue
+- [x] Task 4. Close the issue
   Run the full checks. Tick this plan and set `Status: done`; set its line in
   docs/plans/README.md to `done`; add #22 to docs/roadmap.md under Phase 0 and tick it;
   point docs/handoff.md to Phase 1 issue 1.1 (/session-summary). Scan, push, open the PR

@@ -2,25 +2,23 @@
 
 Job: where the last session stopped and what to do next. Read this first in every new session.
 
-Last updated: 2026-11-10
+Last updated: 2026-11-11
 
 ## Now
 
-- Issue 0.7a Web skeleton (#8): done. Plan 007 tasks 1 to 6 done; 0.7a ticked.
-- Spec: [specs/007-client-skeletons.md](specs/007-client-skeletons.md)
-- Plan: [plans/007-client-skeletons.md](plans/007-client-skeletons.md)
+- Issue #22 Spotless in the Java build and CI: done. Plan 008 tasks 1 to 4 done.
+- Plan: [plans/008-spotless.md](plans/008-spotless.md)
 
 ## Done
 
-- `apps/web`: Vue 3, Vite 8.3.5, Pinia, vue-i18n (en, vi), Tailwind 4.3.3 with the token
-  theme (default palette removed). `src/api/` on relative `/api`; health screen at `/`.
-  22 tests. CI job `web`; 7 required checks (D-007).
+- Spotless 3.10.4 with google-java-format 1.36.1 in the root `pom.xml` (1.37.0 does not run
+  in Spotless 3.10.4). Java formatted once (`.git-blame-ignore-revs`); CI `java` job runs
+  `spotless:check`. Phase 0 is done apart from 0.7b (Android, #25, later).
 
-## Next step: #22 Add Spotless to the Java build and CI (2 points, Phase 0)
+## Next step: Phase 1, issue 1.1 Users, first owner, password login
 
-1. Merge the 0.7a PR, then branch `chore/spotless` from `main`.
-2. 2 points, no contract change: "Done when" is in #22; short plan (`/write-plan`).
-   Then Phase 1, issue 1.1.
+1. Merge the #22 PR. 1.1 has no GitHub issue yet: create it (estimate, Sprint 2).
+2. Login is security, so spec first (`/write-spec 1.1`), then `/write-plan`.
 
 ## Known gaps
 
