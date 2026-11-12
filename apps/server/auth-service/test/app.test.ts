@@ -19,7 +19,7 @@ function setup() {
     },
   });
   const logger = createLogger(sink);
-  return { app: createApp({ config: { internalApiKey: KEY }, logger, health: { allUp: async () => true } }), lines, logger };
+  return { app: createApp({ config: { internalApiKey: KEY }, logger, health: { allUp: async () => true }, readiness: { isReady: () => true } }), lines, logger };
 }
 
 describe('errors', () => {

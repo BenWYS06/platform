@@ -6,9 +6,12 @@ import { pinoHttp } from 'pino-http';
 import type { Config } from './config.js';
 import { errorHandler, notFound } from './middleware/errors.js';
 import { requireInternalKey } from './middleware/internalKey.js';
+import { requireReady } from './middleware/ready.js';
 import { healthRouter } from './routes/health.js';
 import { internalRouter } from './routes/internal.js';
+import { invitationsRouter } from './routes/invitations.js';
 import type { Health } from './services/health.js';
+import type { Readiness } from './services/startup.js';
 
 const SAFE_REQUEST_ID = /^[A-Za-z0-9._-]{1,64}$/;
 
@@ -16,9 +19,11 @@ export interface AppDeps {
   config: Pick<Config, 'internalApiKey'>;
   logger: Logger;
   health: Health;
+  // Data routes answer 503 until this says the indexes exist.
+  readiness: Readiness;
 }
 
-export function createApp({ config, logger, health }: AppDeps): Express {
+export function createApp({ config, logger, health, readiness }: AppDeps): Express {
   const app = express();
   app.disable('x-powered-by');
 
@@ -37,6 +42,7 @@ export function createApp({ config, logger, health }: AppDeps): Express {
   app.use(express.json({ limit: '100kb' }));
 
   app.use('/api/auth', healthRouter(health));
+  app.use('/api/auth/invitations', requireReady(readiness), invitationsRouter());
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);

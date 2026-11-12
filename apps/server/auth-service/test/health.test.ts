@@ -33,7 +33,7 @@ describe('createHealth', () => {
 });
 
 describe('GET /api/auth/health', () => {
-  const app = (allUp: boolean) => createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp: async () => allUp } });
+  const app = (allUp: boolean) => createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp: async () => allUp }, readiness: { isReady: () => true } });
 
   it('returns UP when stores answer', async () => {
     const res = await request(app(true)).get('/api/auth/health');

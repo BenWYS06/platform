@@ -50,3 +50,8 @@ Instead of: no protection and trusting the process; required reviews (impossible
 Decision: auth-, chat- and ai-service use one MongoDB database, `platform`; this replaces the "one database per service" choice in spec 004. Each collection has exactly one service that writes it; other services may read it but never write.
 Why: one database is simpler to run, back up and inspect, and lets a service read another's data (for example users) without an extra internal call. One writer per collection keeps ownership clear: rules and indexes for a collection live in one service.
 Instead of: one database per service (`openbox_auth`, `openbox_chat`, `openbox_ai`), or any service writing any collection.
+
+## D-009 auth-service reads and writes MongoDB through Mongoose (2026-11-13)
+Decision: auth-service uses plain `mongoose` (not NestJS) for MongoDB. Models live in `src/models`; repositories keep their interfaces and wrap the models; routes and services never import Mongoose. Indexes come from the schemas through `syncIndexes` at startup (`autoIndex` off); the connection sets `bufferCommands: false` and a 2 s `serverSelectionTimeoutMS`, so a request fails fast (503) when MongoDB is down.
+Why: follows the reference design; schemas and models replace hand-written queries and index code. The repository interfaces keep Mongoose out of routes and keep tests simple.
+Instead of: the raw `mongodb` driver in repositories, or NestJS.

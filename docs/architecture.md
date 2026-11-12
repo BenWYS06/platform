@@ -61,6 +61,8 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 
 ## auth-service
 
+- MongoDB through Mongoose (D-009): models in `src/models`, wrapped by repositories;
+  routes never import Mongoose. Indexes come from the schemas (`syncIndexes` at startup).
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)

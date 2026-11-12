@@ -66,10 +66,15 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   it; `git grep -n "SETUP_" -- apps .env.example` prints nothing;
   `node scripts/ci/check-env.mjs` passes. (Done when 18, 20 part 1)
 
-- [ ] Task 4. Users and invitations repositories, indexes at startup
-  Testcontainers (MongoDB) for auth tests. `users` repository (lower-cases the email,
-  unique `email` index) and `invitations` repository (unique `tokenHash`, unique partial
-  `email` where `status` is `pending`). A30: the service starts and `/health` answers even
+- [x] Task 4. Users and invitations repositories, indexes at startup
+  Testcontainers (MongoDB) for auth tests. Mongoose (A31, D-009; exact version at least two
+  weeks old; the direct `mongodb` dependency goes if nothing else needs it): one connection
+  with `bufferCommands: false`, `serverSelectionTimeoutMS: 2000`, `autoIndex: false`;
+  health pings through it. Models in `src/models`; the `users` repository (lower-cases the
+  email, unique `email` index) and `invitations` repository (unique `tokenHash`, unique
+  partial `email` where `status` is `pending`) keep their interfaces and wrap the models;
+  duplicate key (11000) maps to `DuplicateError`; routes never import Mongoose. Indexes
+  are built with `syncIndexes` (A21). A30: the service starts and `/health` answers even
   with MongoDB down; every data route answers 503 `SERVICE_UNAVAILABLE` until the indexes
   exist; one retry loop every 30 s creates the indexes (the boot step of Task 5 runs in the
   same loop, after them). Auth `CLAUDE.md`: layout and the real-store test gotcha.
@@ -77,7 +82,8 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   fails as a duplicate; after startup both invitation indexes exist; a startup test shows
   no request to a data route is answered before index creation finishes; with MongoDB
   down at start, health answers 200 and a data route 503, and after MongoDB is back the
-  data route works with no restart. (Done when 3 part 1, 4)
+  data route works with no restart; with MongoDB stopped after startup, a data route
+  answers 503 within about 3 s, not 10. (Done when 3 part 1, 4)
 
 - [ ] Task 5. Boot link
   Boot step: while no user exists and the email is set, revoke pending owner invitations,

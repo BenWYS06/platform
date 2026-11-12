@@ -164,6 +164,8 @@ Both parts:
   `tokenHash`, `expiresAt`, `status`, `acceptedAt`, `acceptedUserId`, `createdAt`; unique
   index on `tokenHash`; unique partial index on `email` where `status` is `pending`. Claude
 - A21. Indexes are created at startup and awaited before any data route answers. Claude
+  Indexes are built with Mongoose `syncIndexes`, awaited at startup; `autoIndex` is off
+  (A31). Owner
 - A22. Replacing an invitation sets the old one to `revoked`, so its link answers 410
   `INVITATION_REVOKED`. Claude
 - A23. Accept check order: token shape (43 base64url characters, else 404 with no database
@@ -189,6 +191,10 @@ Both parts:
   data route (accept, later login) answers 503 SERVICE_UNAVAILABLE until the indexes exist.
   One retry loop every 30 s creates the indexes, then runs the boot step, so the boot step
   never runs before the indexes exist. Owner
+  The Mongoose connection sets `bufferCommands: false` and `serverSelectionTimeoutMS: 2000`,
+  so data routes answer 503 quickly when MongoDB is down, not after a 10 s buffer. Owner
+- A31. Data access: Mongoose models behind the repository interfaces; routes never import
+  Mongoose (D-009). Owner
 
 ## 1.1a Done when
 
