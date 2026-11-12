@@ -51,7 +51,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `grep -n "message?, params?" CLAUDE.md .claude/rules/security.md` prints both. (Done when
   1, 2, 19 part 1)
 
-- [ ] Task 3. Config for the first owner and the client IP
+- [x] Task 3. Config for the first owner and the client IP
   `BOOTSTRAP_OWNER_EMAIL` (trimmed, lower case), `WEB_ORIGIN`, `TRUST_PROXY`,
   `CLIENT_IP_HEADER` in `config.ts`; prod refuses a missing `BOOTSTRAP_OWNER_EMAIL` or
   `WEB_ORIGIN`, naming the variable; local defaults `TRUST_PROXY=1`,

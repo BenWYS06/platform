@@ -37,6 +37,26 @@ Details and Windows problems: `infra/docker-compose/README.md`.
 | `RABBITMQ_USER`, `RABBITMQ_PASSWORD` | chat, ai | from `.env` (also used by compose) | password required |
 | `RABBITMQ_HOST`, `RABBITMQ_PORT` | chat, ai | default `localhost`, `5672` | set to the prod broker |
 
+### First owner and client IP (issue 1.1a, auth)
+
+| Variable | Local | prod |
+|---|---|---|
+| `BOOTSTRAP_OWNER_EMAIL` | empty: no boot link, one warning | required, not `owner@example.com`; stored trimmed and lower case |
+| `WEB_ORIGIN` | default `http://localhost:5173` | required, not the local value; origin only, no path |
+
+How auth finds the client IP (used by the accept failure limit):
+
+| Variable | Local dev | Production behind Cloudflare | Self-host without Cloudflare |
+|---|---|---|---|
+| `TRUST_PROXY` | default `1` (Caddy) | unset | `1` (your reverse proxy) |
+| `CLIENT_IP_HEADER` | unset | `cf-connecting-ip` | unset |
+
+`TRUST_PROXY` is Express `trust proxy`: a hop count, `true`, `false` or a list of
+addresses; unset means none outside local. When `CLIENT_IP_HEADER` is set, that header decides.
+
+> **Warning:** never set `CLIENT_IP_HEADER` on a host that clients can reach directly. They
+> could send the header themselves and choose their own counter.
+
 Services read the repo `.env` at startup; real env variables win. Leave `MONGODB_URI` and
 `REDIS_URL` out of `.env` locally: an empty value is not the same as a missing one for Spring.
 

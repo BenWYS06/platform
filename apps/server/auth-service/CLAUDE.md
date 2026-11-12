@@ -28,7 +28,9 @@ forwards `/api/auth/*` here with the prefix kept.
 - Env first; `npm start` and `npm run dev` also load the repo `.env`
   (`--env-file-if-exists`). Names in `.env.example`. MongoDB database `platform`.
 - `APP_ENV=prod` refuses a missing, short or default `INTERNAL_API_KEY`, and a missing
-  `MONGODB_URI` or `REDIS_URL`. Bad config or a port in use exits with code 1.
+  `MONGODB_URI` or `REDIS_URL`, and a missing or example `BOOTSTRAP_OWNER_EMAIL` or
+  `WEB_ORIGIN`. Bad config or a port in use exits with code 1 (`test/startup.test.ts`).
+- `TRUST_PROXY` and `CLIENT_IP_HEADER` decide the client IP: `docs/environments.md`.
 
 ## Gotchas
 
