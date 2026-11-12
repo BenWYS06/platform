@@ -13,6 +13,7 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 - [x] 0.7a Web skeleton (5)
 - [ ] 0.7b Android skeleton (5): later, no date (#25)
 - [x] Spotless in the Java build and CI (2, #22)
+- [x] Use axios in the web api layer (1, #37)
 
 ## Phase 1: Identity
 

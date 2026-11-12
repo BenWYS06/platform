@@ -2,7 +2,7 @@
 
 Issue: #37, its "Done when" list. Short plan: 1 point, web client only, no contract change, no spec.
 Branch: chore/web-axios
-Status: in progress
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -55,7 +55,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `grep -n "fetch" apps/web/CLAUDE.md .claude/rules/vue.md docs/architecture.md` -> no hit
   that says the api layer uses fetch.
 
-- [ ] Task 4. Close the issue
+- [x] Task 4. Close the issue
   Run the full web checks. Tick this plan and set `Status: done`; add its line to
   `docs/plans/README.md` as `done`; add `- [x] Use axios in the web api layer (1, #37)` to
   `docs/roadmap.md` under Phase 0 next to #22; point `docs/handoff.md` to issue 1.1a First
