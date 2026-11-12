@@ -2,23 +2,24 @@
 
 Job: where the last session stopped and what to do next. Read this first in every new session.
 
-Last updated: 2026-11-11
+Last updated: 2026-11-12
 
 ## Now
 
-- Issue #22 Spotless in the Java build and CI: done. Plan 008 tasks 1 to 4 done.
-- Plan: [plans/008-spotless.md](plans/008-spotless.md)
+- Issue #37 Use axios in the web api layer: done. Plan 010 tasks 1 to 4 done.
+- Plan: [plans/010-web-axios.md](plans/010-web-axios.md)
 
 ## Done
 
-- Spotless 3.10.4 with google-java-format 1.36.1 in the root `pom.xml` (1.37.0 does not run
-  in Spotless 3.10.4). Java formatted once (`.git-blame-ignore-revs`); CI `java` job runs
-  `spotless:check`. Phase 0 is done apart from 0.7b (Android, #25, later).
+- Web `src/api/http.ts` uses axios 1.21.0 (5 s timeout, `validateStatus` reads error
+  bodies); behavior unchanged. Tests use the fake adapter in `apps/web/tests/fake-server.ts`.
+  Lint bans importing axios outside `src/api/`.
 
-## Next step: Phase 1, issue 1.1 Users, first owner, password login
+## Next step: Phase 1, issue 1.1a First owner (#34)
 
-1. Merge the #22 PR. 1.1 has no GitHub issue yet: create it (estimate, Sprint 2).
-2. Login is security, so spec first (`/write-spec 1.1`), then `/write-plan`.
+1. Merge the #37 PR.
+2. Continue on branch `feature/first-owner-login`: spec 009 and plan 009a live there;
+   rebase it on `main` (expect a small conflict in `docs/plans/README.md`).
 
 ## Known gaps
 
@@ -26,6 +27,8 @@ Last updated: 2026-11-11
   `.env` or reset infra (`down -v`), then confirm three Up rows at `localhost:5173`.
 - Java on Windows needs `-XX:-UseThreadPriorities` (set for `spring-boot:run`).
 - `MONGODB_URI` set to an empty string fails in the MongoDB driver before the guard runs.
+- Vitest on Windows fails every suite ("failed to find the current suite") when the shell
+  path starts with lowercase `d:`; run it from `D:/openbox/...`. CI (Linux) is not hit.
 - Permission rules match command text only: `cat .env` through Bash is not blocked.
 - Spring Boot 3.5 gets no free security fixes (owner decision, D-006).
 - `CONTRIBUTING.md` loop step 2 still says "3+ points: spec" (rule is now 5+; tiny fix).

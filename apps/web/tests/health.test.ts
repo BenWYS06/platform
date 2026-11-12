@@ -1,25 +1,21 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createAppI18n, type Locale } from '../src/i18n';
 import { useHealthStore } from '../src/stores/health';
 import HealthView from '../src/views/HealthView.vue';
+import { fakeServer, json, stopFakeServer } from './fake-server';
 
 type Answer = { status: number; body: unknown } | 'network-error';
 
-const json = (status: number, body: unknown) =>
-  new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
-
-// fetch that answers per service: /api/<service>/health -> answers[service] (default Up).
+// A server that answers per service: /api/<service>/health -> answers[service] (default Up).
 function stubServices(answers: Partial<Record<string, Answer>> = {}) {
-  const fetchMock = vi.fn(async (url: string) => {
+  return fakeServer(async ({ url }) => {
     const service = url.split('/')[2] ?? '';
     const answer = answers[service] ?? { status: 200, body: { status: 'UP' } };
     if (answer === 'network-error') throw new TypeError('Failed to fetch');
     return json(answer.status, answer.body);
   });
-  vi.stubGlobal('fetch', fetchMock);
-  return fetchMock;
 }
 
 async function mountView(locale: Locale = 'en') {
@@ -34,17 +30,17 @@ const row = (wrapper: Awaited<ReturnType<typeof mountView>>, service: string) =>
 });
 
 beforeEach(() => setActivePinia(createPinia()));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => stopFakeServer());
 
 describe('health screen', () => {
   it('shows three Up rows when every service is up', async () => {
-    const fetchMock = stubServices();
+    const server = stubServices();
     const wrapper = await mountView();
     for (const service of ['auth', 'chat', 'ai']) {
       expect(row(wrapper, service).status).toBe('Up');
       expect(row(wrapper, service).message.exists()).toBe(false);
     }
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(server).toHaveBeenCalledTimes(3);
   });
 
   it('shows one service Down with the SERVICE_UNAVAILABLE message, the others Up', async () => {
@@ -81,11 +77,10 @@ describe('health screen', () => {
   it('disables "Check again" while checking and runs a new round when pressed', async () => {
     let release: () => void = () => {};
     const gate = new Promise<void>((resolve) => (release = resolve));
-    const fetchMock = vi.fn(async () => {
+    const server = fakeServer(async () => {
       await gate;
       return json(200, { status: 'UP' });
     });
-    vi.stubGlobal('fetch', fetchMock);
 
     const wrapper = mount(HealthView, { global: { plugins: [createAppI18n('en')] } });
     await flushPromises();
@@ -99,16 +94,16 @@ describe('health screen', () => {
 
     await button.trigger('click');
     await flushPromises();
-    expect(fetchMock).toHaveBeenCalledTimes(6);
+    expect(server).toHaveBeenCalledTimes(6);
   });
 });
 
 describe('health store', () => {
   it('runs one round when checkAll is called twice fast', async () => {
-    const fetchMock = stubServices();
+    const server = stubServices();
     const store = useHealthStore();
     await Promise.all([store.checkAll(), store.checkAll()]);
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(server).toHaveBeenCalledTimes(3);
     expect(store.checking).toBe(false);
   });
 });

@@ -32,10 +32,15 @@ export default tseslint.config(
         { object: 'window', property: 'localStorage', message: onlyInApi },
         { object: 'globalThis', property: 'localStorage', message: onlyInApi },
       ],
+      'no-restricted-imports': ['error', { paths: [{ name: 'axios', message: onlyInApi }] }],
     },
   },
   {
     files: ['src/api/**'],
-    rules: { 'no-restricted-globals': 'off', 'no-restricted-properties': 'off' },
+    rules: {
+      'no-restricted-globals': 'off',
+      'no-restricted-properties': 'off',
+      'no-restricted-imports': 'off',
+    },
   },
 );
