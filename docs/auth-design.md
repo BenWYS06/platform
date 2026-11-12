@@ -145,7 +145,7 @@ These decisions define 1.1; the spec is written from them.
 - First owner:
   - Env: `BOOTSTRAP_OWNER_EMAIL` only. No password in env, no setup route, no setup token.
   - At every boot, while no user exists and the email is set: replace any pending owner invitation with a new one (token 256 bits, only its sha256 stored, 7 days) and print the link `<WEB_ORIGIN>/invite/<token>` once to stdout as a plain line. This is the only place a token may be printed; the rule "no tokens in logs" gets this one written exception. Once a user exists, boot does nothing.
-  - Accept: `POST /api/auth/invitations/:token/accept-password` with `{ password, displayName }`. The email comes from the invitation. The claim is one atomic conditional update; if creating the user fails the invitation goes back to pending. The user gets role `Owner`. Limit: 5 attempts per IP per 15 minutes. Answers: `INVITATION_INVALID` (404), `INVITATION_EXPIRED` (410), `INVITATION_REVOKED` (410), `INVITATION_ALREADY_ACCEPTED` (409).
+  - Accept: `POST /api/auth/invitations/:token/accept-password` with `{ password, displayName }`. The email comes from the invitation. The claim is one atomic conditional update; if creating the user fails the invitation goes back to pending. The user gets role `Owner`. Limit: 20 failures per IP per 15 minutes (failures only). Answers: `INVITATION_INVALID` (404), `INVITATION_EXPIRED` (410), `INVITATION_REVOKED` (410), `INVITATION_ALREADY_ACCEPTED` (409).
   - 1.1 stores the invitation `role` as a name; 1.3 maps it to `roleId`.
   - Must not happen: two owners; a token in a response, an error or the JSON logs; a link printed once an owner exists; an accept that works after expiry or replacement.
 - Login order, always the same:
