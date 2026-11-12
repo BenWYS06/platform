@@ -13,3 +13,4 @@ Job: list every plan and its status. One line per plan; the spec has the same nu
 | 007 | [Web skeleton](007-client-skeletons.md) | [spec](../specs/007-client-skeletons.md) | 0.7a | done |
 | 008 | [Spotless in the Java build and CI](008-spotless.md) | none, short plan; see issue #22 | #22 | done |
 | 009a | [1.1a First owner](009a-first-owner.md) | [spec](../specs/009-first-owner-login.md) | #34 | not started |
+| 010 | [Use axios in the web api layer](010-web-axios.md) | none, short plan; see issue #37 | #37 | done |
