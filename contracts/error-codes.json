@@ -38,5 +38,30 @@
     "code": "SERVICE_UNAVAILABLE",
     "status": 503,
     "description": "The service behind the gateway is not running or not reachable; try again later."
+  },
+  {
+    "code": "INVITATION_INVALID",
+    "status": 404,
+    "description": "The invitation link is unknown or malformed."
+  },
+  {
+    "code": "INVITATION_EXPIRED",
+    "status": 410,
+    "description": "The invitation link is past its expiry date."
+  },
+  {
+    "code": "INVITATION_REVOKED",
+    "status": 410,
+    "description": "The invitation was replaced or withdrawn."
+  },
+  {
+    "code": "INVITATION_ALREADY_ACCEPTED",
+    "status": 409,
+    "description": "The invitation has already been used."
+  },
+  {
+    "code": "MEMBER_ALREADY_EXISTS",
+    "status": 409,
+    "description": "A user with this email already exists."
   }
 ]

@@ -39,7 +39,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `auth-service` job passes on Linux. If either fails: stop and tell the owner. (Done when
   5, 21)
 
-- [ ] Task 2. Error body with params, and the 1.1a codes
+- [x] Task 2. Error body with params, and the 1.1a codes
   `contracts/error-codes.json`: the 5 codes. `contracts/schemas/error-body.schema.json`:
   `{ code, message?, params? }`, params values string, number or list of strings; contracts
   tests for it; README body shape and a real example name. auth: `ApiError` takes optional

@@ -3,8 +3,10 @@ import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
+import { ApiError } from '../src/errors.js';
 import { errorHandler } from '../src/middleware/errors.js';
 import { createLogger } from '../src/logger.js';
+import { expectError } from './helpers/error-body.js';
 
 const KEY = 'test-internal-key';
 
@@ -23,14 +25,12 @@ function setup() {
 describe('errors', () => {
   it('answers an unknown route with NOT_FOUND', async () => {
     const res = await request(setup().app).get('/nope');
-    expect(res.status).toBe(404);
-    expect(res.body).toEqual({ code: 'NOT_FOUND' });
+    expectError(res, 'NOT_FOUND');
   });
 
   it('answers malformed JSON with VALIDATION_FAILED', async () => {
     const res = await request(setup().app).post('/internal/ping').set('X-Internal-Key', KEY).set('Content-Type', 'application/json').send('{bad');
-    expect(res.status).toBe(400);
-    expect(res.body).toEqual({ code: 'VALIDATION_FAILED' });
+    expectError(res, 'VALIDATION_FAILED');
   });
 
   it('answers an unexpected error with INTERNAL and no detail', async () => {
@@ -46,30 +46,52 @@ describe('errors', () => {
     app.use(errorHandler);
 
     const res = await request(app).get('/boom');
-    expect(res.status).toBe(500);
+    expectError(res, 'INTERNAL');
     expect(res.text).toBe('{"code":"INTERNAL"}');
+  });
+
+  it('sends the params of an ApiError in the error body', async () => {
+    const app = express();
+    app.get('/gone', () => {
+      throw new ApiError('INVITATION_EXPIRED', { retryAfterSeconds: 60, field: 'token', fields: ['a', 'b'] });
+    });
+    app.use(errorHandler);
+
+    const res = await request(app).get('/gone');
+    expectError(res, 'INVITATION_EXPIRED', { retryAfterSeconds: 60, field: 'token', fields: ['a', 'b'] });
+  });
+
+  it('sends no params field when an ApiError has none', async () => {
+    const app = express();
+    app.get('/taken', () => {
+      throw new ApiError('MEMBER_ALREADY_EXISTS');
+    });
+    app.use(errorHandler);
+
+    const res = await request(app).get('/taken');
+    expect(res.text).toBe('{"code":"MEMBER_ALREADY_EXISTS"}');
+    expectError(res, 'MEMBER_ALREADY_EXISTS');
   });
 });
 
 describe('GET /internal/ping', () => {
   it('rejects a request without the key', async () => {
     const res = await request(setup().app).get('/internal/ping');
-    expect(res.status).toBe(401);
-    expect(res.body).toEqual({ code: 'UNAUTHENTICATED' });
+    expectError(res, 'UNAUTHENTICATED');
   });
 
   it('rejects a wrong key, a wrong-length key and an empty key', async () => {
     const { app } = setup();
     for (const key of ['test-internal-kez', 'x', '']) {
       const res = await request(app).get('/internal/ping').set('X-Internal-Key', key);
-      expect(res.status, key).toBe(401);
+      expectError(res, 'UNAUTHENTICATED');
     }
   });
 
   it('rejects the key sent twice', async () => {
     // Node joins a header sent twice into "a, b"; this is what the middleware sees.
     const res = await request(setup().app).get('/internal/ping').set('X-Internal-Key', `${KEY}, ${KEY}`);
-    expect(res.status).toBe(401);
+    expectError(res, 'UNAUTHENTICATED');
   });
 
   it('accepts the right key', async () => {

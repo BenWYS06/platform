@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
 import { createHealth, type StoreCheck } from '../src/services/health.js';
+import { expectError } from './helpers/error-body.js';
 
 const logger = createLogger(new Writable({ write: (_c, _e, done) => done() }));
 const up = (name: string): StoreCheck => ({ name, check: async () => {} });
@@ -42,7 +43,7 @@ describe('GET /api/auth/health', () => {
 
   it('returns SERVICE_UNAVAILABLE without detail when a store is down', async () => {
     const res = await request(app(false)).get('/api/auth/health');
-    expect(res.status).toBe(503);
+    expectError(res, 'SERVICE_UNAVAILABLE');
     expect(res.text).toBe('{"code":"SERVICE_UNAVAILABLE"}');
   });
 });

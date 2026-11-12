@@ -11,8 +11,8 @@ Job: conventions for auth-service (Express + TypeScript).
   `npm run lint`.
 - Layout: `routes/` (HTTP only) -> `services/` (logic) -> `repositories/` (MongoDB).
 - Validate every request body, query and params with a schema (zod) before use.
-- Async handlers pass errors to the single error middleware; it returns `{ code, message? }`
-  with a code from `contracts/error-codes.json`. No `res.status(500).send(err)`.
+- Async handlers pass errors to the single error middleware; it returns
+  `{ code, message?, params? }` with a code from `contracts/error-codes.json`. No `res.status(500).send(err)`.
 - Config read and validated once at startup from env; the production guard refuses unsafe
   values. No `process.env` reads outside the config module.
 - Passwords: argon2 only. Tokens: short-lived access JWT plus refresh token; signing key

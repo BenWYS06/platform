@@ -85,6 +85,24 @@ export function checkContract(name, filePath) {
   return problems;
 }
 
+let errorBodyValidator;
+
+// Checks one error response body against schemas/error-body.schema.json.
+// Returns a list of problems; empty means valid.
+export function checkErrorBody(body) {
+  if (!errorBodyValidator) {
+    const schemaPath = join(CONTRACTS_DIR, 'schemas', 'error-body.schema.json');
+    errorBodyValidator = ajv.compile(JSON.parse(readFileSync(schemaPath, 'utf8')));
+  }
+  if (errorBodyValidator(body)) return [];
+  return errorBodyValidator.errors.map((err) => {
+    const where = err.instancePath === '' ? 'error body' : `error body ${err.instancePath}`;
+    const message =
+      err.keyword === 'additionalProperties' ? `has unknown field "${err.params.additionalProperty}"` : err.message;
+    return `${where} ${message}`;
+  });
+}
+
 // A schema cannot say "unique by this field", so duplicates are checked here.
 function duplicateProblems(label, data, field) {
   const firstIndex = new Map();

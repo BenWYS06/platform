@@ -90,6 +90,8 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 
 ## Rules that cross services
 
-- Error responses use `{ code, message? }`; codes live in `contracts/error-codes.json`.
+- Error responses use `{ code, message?, params? }`; codes live in `contracts/error-codes.json`,
+  the body shape in `contracts/schemas/error-body.schema.json`. The Java `ErrorBody` has no
+  `params` yet (added when a Java route first needs it, no later than 1.4).
 - Capabilities, RabbitMQ names and events live in `contracts/` too; each issue adds the names it first uses.
 - Clients use a relative `/api` base URL, never a service port.

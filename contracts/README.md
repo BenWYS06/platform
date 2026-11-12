@@ -6,12 +6,22 @@ Job: the names that services and clients share, in one place, and the check that
 
 | File | What | Entry |
 |---|---|---|
-| `error-codes.json` | codes in error responses `{ code, message? }` | `{ code, status, description }` |
+| `error-codes.json` | codes in error responses (body below) | `{ code, status, description }` |
 | `capabilities.json` | permissions that roles grant (from issue 1.3) | `{ name, description }` |
 | `messaging.json` | RabbitMQ exchanges, queues, routing keys (from issue 3.1) | `{ name, kind, value, description }` |
 | `events.json` | events services publish to each other (from issue 1.4) | `{ name, version, description }` |
 
 Each file is a JSON list. Its schema is in `schemas/`.
+
+## Error body
+
+Every error response has the body `{ code, message?, params? }`, checked by
+`schemas/error-body.schema.json`:
+
+- `code`: an entry of `error-codes.json`; the HTTP status is the one listed there.
+- `message`: optional text for people; clients never parse it.
+- `params`: optional values a client can show, for example `{ "retryAfterSeconds": 120 }`.
+  Each value is a string, a number or a list of strings; no nested objects.
 
 ## Rules
 
@@ -28,7 +38,7 @@ Each file is a JSON list. Its schema is in `schemas/`.
 1. Add the name in the PR of the issue that first uses it, not earlier.
 2. Add one entry at the end of the right file, for example in `error-codes.json`:
    ```json
-   { "code": "AUTH_INVALID_CREDENTIALS", "status": 401, "description": "Wrong email or password." }
+   { "code": "INVITATION_EXPIRED", "status": 410, "description": "The invitation link is past its expiry date." }
    ```
 3. Run the check (below). Fix any line it prints.
 4. Never rename or remove a name that a service already uses; add a new one and move the
@@ -41,4 +51,5 @@ cd contracts && npm ci && npm test
 ```
 
 Each problem prints as one line: the file, the entry and the rule it breaks. Services read
-these files in their own tests (issues 0.4 and 0.5). CI runs the check from issue 0.6.
+these files, and the error-body schema, in their own tests (issues 0.4 and 0.5). CI runs the
+check from issue 0.6.

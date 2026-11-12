@@ -33,5 +33,7 @@ forwards `/api/auth/*` here with the prefix kept.
 ## Gotchas
 
 - Tests never touch real stores: `createApp` takes a `health` object, tests pass a fake.
+- Tests check every error answer with `expectError` (`test/helpers/error-body.ts`): status,
+  code and the contract error-body schema. `throw new ApiError(code, params?)` in code.
 - TypeScript stays on 6.0.x until typescript-eslint supports 7.
 - Express 5 calls the `app.listen` callback on errors too; `server.ts` uses `node:http`.

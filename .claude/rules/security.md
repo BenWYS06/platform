@@ -27,7 +27,9 @@ Job: the security rules every service and client follows. Loaded every session.
 
 ## Errors
 
-- Error responses are `{ code, message? }` with a code from `contracts/error-codes.json`.
+- Error responses are `{ code, message?, params? }` with a code from `contracts/error-codes.json`.
+  `params` values are a string, a number or a list of strings
+  (`contracts/schemas/error-body.schema.json`); never a secret or a token.
 - No stack traces, SQL/Mongo queries or internal hostnames in responses.
 - Same answer for "user not found" and "wrong password".
 
