@@ -30,7 +30,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `package.json` diff is one added line `"axios": "1.21.0"`; `npm run build`, `npm run lint`,
   `npm test` pass (5 test files, same test count as on main).
 
-- [ ] Task 2. http.ts on axios, tests adapted
+- [x] Task 2. http.ts on axios, tests adapted
   `src/api/http.ts` replaces the fetch code (AbortController, timer, `readJson`) with one
   axios instance: `baseURL: '/api'`, `timeout: 5000`, `validateStatus: () => true` (error
   bodies are read, not thrown), `Accept: application/json`, `responseType: 'json'` and
