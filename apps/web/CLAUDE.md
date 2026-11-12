@@ -17,7 +17,8 @@ Android: later, issue #25.
 - `src/main.ts`: creates the app with Pinia and the router.
 - `src/router.ts`: routes; `createAppRouter(history)` so tests can pass a memory history.
 - `src/views/`: one component per route.
-- `src/api/`: the only code that calls `fetch` or browser storage (lint enforces it).
+- `src/api/`: the only code that uses axios or browser storage (lint enforces it). axios in
+  src/api only; tests use the fake adapter in `tests/fake-server.ts`.
 - `tests/`: Vitest + Vue Test Utils, jsdom.
 
 ## Style

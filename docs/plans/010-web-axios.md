@@ -44,7 +44,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `npm run build`, `npm run lint`, `npm test` pass with the same test count as Task 1;
   `grep -rn "fetch" apps/web/src` -> no call to `fetch`.
 
-- [ ] Task 3. Lint rule and docs
+- [x] Task 3. Lint rule and docs
   `eslint.config.js`: add `no-restricted-imports` for `axios` (same "Only src/api/" message)
   to the `**/*.ts`, `**/*.vue` block, and turn it off in the `src/api/**` block.
   Docs say "axios in src/api only" in place of "fetch": `apps/web/CLAUDE.md` (src/api line),

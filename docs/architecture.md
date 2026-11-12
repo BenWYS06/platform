@@ -77,7 +77,8 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 ## Web client (apps/web)
 
 - Vue 3, Vite, vue-router, Pinia, vue-i18n (`en`, `vi`; the browser language picks).
-- `src/api/` is the only code that calls the server: relative `/api`, 5 s timeout. A
+- `src/api/` is the only code that calls the server (axios in `src/api/` only, lint
+  enforces it): relative `/api`, 5 s timeout. A
   result is the JSON body, the contract error `code`, or `NETWORK` when there is no usable
   answer. Screens map a code to the message `errors.<CODE>` (`errors.UNKNOWN` for a code
   they do not know); the server's own `message` is never shown.
