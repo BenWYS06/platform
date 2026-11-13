@@ -70,7 +70,12 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
   expired or revoked, 409 used) and the email (409 `MEMBER_ALREADY_EXISTS`). One atomic
   update claims the invitation; the user gets the invitation's email and role and an
   argon2id hash. If creating the user fails, the invitation goes back to pending. 201
-  `{ user }`. Only the sha256 of a token is stored; logs show the token as `[redacted]`.
+  `{ user }`. After the token shape, a failure limit applies: 20 token-check failures (404,
+  410, 409 `INVITATION_ALREADY_ACCEPTED`, malformed tokens) per client IP in a 15-minute
+  fixed window in Redis, then 429 `RATE_LIMITED` with `Retry-After` equal to
+  `params.retryAfterSeconds`; successes never count; Redis down answers 503. The client IP is
+  `CLIENT_IP_HEADER` when set and valid, otherwise `req.ip` under `TRUST_PROXY`
+  (`docs/environments.md`). Only the sha256 of a token is stored; logs show the token as `[redacted]`.
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)

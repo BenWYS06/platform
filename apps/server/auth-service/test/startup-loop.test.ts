@@ -13,7 +13,7 @@ import { createHealth } from '../src/services/health.js';
 import { createInvitationsService, type InvitationsService } from '../src/services/invitations.js';
 import { createStartupLoop, type StartupLoop } from '../src/services/startup.js';
 import { expectError } from './helpers/error-body.js';
-import { unusedInvitations } from './helpers/invitations.js';
+import { noLimit, unusedInvitations } from './helpers/invitations.js';
 import { freePort, START_TIMEOUT_MS, startMongo, uniqueDbName } from './helpers/mongo.js';
 
 const logger = createLogger(new Writable({ write: (_c, _e, done) => done() }));
@@ -26,7 +26,7 @@ afterEach(async () => {
 });
 
 function appFor(startup: StartupLoop, allUp: () => Promise<boolean> = async () => true, invitations: InvitationsService = unusedInvitations) {
-  return createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp }, readiness: startup, invitations });
+  return createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp }, readiness: startup, invitations, acceptLimit: noLimit });
 }
 
 // The same steps as src/server.ts: connect, then the indexes.

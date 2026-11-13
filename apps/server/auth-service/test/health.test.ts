@@ -5,7 +5,7 @@ import { createApp } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
 import { createHealth, type StoreCheck } from '../src/services/health.js';
 import { expectError } from './helpers/error-body.js';
-import { unusedInvitations } from './helpers/invitations.js';
+import { noLimit, unusedInvitations } from './helpers/invitations.js';
 
 const logger = createLogger(new Writable({ write: (_c, _e, done) => done() }));
 const up = (name: string): StoreCheck => ({ name, check: async () => {} });
@@ -34,7 +34,7 @@ describe('createHealth', () => {
 });
 
 describe('GET /api/auth/health', () => {
-  const app = (allUp: boolean) => createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp: async () => allUp }, readiness: { isReady: () => true }, invitations: unusedInvitations });
+  const app = (allUp: boolean) => createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp: async () => allUp }, readiness: { isReady: () => true }, invitations: unusedInvitations, acceptLimit: noLimit });
 
   it('returns UP when stores answer', async () => {
     const res = await request(app(true)).get('/api/auth/health');

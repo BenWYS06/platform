@@ -82,8 +82,17 @@ paths:
         "410":
           description: INVITATION_EXPIRED or INVITATION_REVOKED.
           $ref: "#/components/responses/Error"
+        "429":
+          description: >-
+            RATE_LIMITED: 20 failed accepts (404, 409 INVITATION_ALREADY_ACCEPTED, 410, malformed
+            tokens included) from this client IP in a 15-minute window. Successes never count.
+          headers:
+            Retry-After:
+              description: Seconds until the window ends; equal to params.retryAfterSeconds.
+              schema: { type: integer, minimum: 1 }
+          $ref: "#/components/responses/Error"
         "503":
-          description: SERVICE_UNAVAILABLE (MongoDB not reachable or indexes not ready yet).
+          description: SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet).
           $ref: "#/components/responses/Error"
   /internal/ping:
     get:
@@ -123,3 +132,11 @@ components:
       properties:
         code: { type: string }
         message: { type: string }
+        params:
+          type: object
+          description: Values a client may show (for example retryAfterSeconds); string, number or list of strings.
+          additionalProperties:
+            oneOf:
+              - { type: string }
+              - { type: number }
+              - { type: array, items: { type: string } }

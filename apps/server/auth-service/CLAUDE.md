@@ -38,7 +38,9 @@ forwards `/api/auth/*` here with the prefix kept.
 - Routes: `GET /api/auth/health` (pings MongoDB and Redis, 2.5 s timeout), `GET /internal/ping`
   (behind `X-Internal-Key`), `POST /api/auth/invitations/:token/accept-password`
   (`routes/invitations.ts` -> `services/invitations.ts`; token helpers in
-  `services/tokens.ts`). API: `openapi.yaml`; update it with every route change.
+  `services/tokens.ts`; failure limit `services/acceptLimit.ts` over
+  `repositories/failureCounter.ts`; client IP `middleware/clientIp.ts`). API: `openapi.yaml`;
+  update it with every route change.
 
 ## Config
 
@@ -64,9 +66,14 @@ Use these; never hand-write them (`docs/auth-design.md` 0.12).
 
 ## Gotchas
 
-- Route tests use fakes: `createApp` takes `health` and `readiness` objects. Repository and
-  startup tests use a real MongoDB (`test/helpers/mongo.ts`, Testcontainers): Docker must be
-  running, the first run pulls `mongo:8.0.17`. Each test uses its own database name.
+- Route tests use fakes: `createApp` takes `health`, `readiness`, `invitations` and
+  `acceptLimit` objects (stubs in `test/helpers/invitations.ts`). Repository, startup, accept
+  and limit tests use a real MongoDB and Redis (`test/helpers/mongo.ts`, `redis.ts`,
+  Testcontainers): Docker must be running, the first run pulls `mongo:8.0.17` and
+  `redis:7.4.6`. Each test uses its own database name or Redis key prefix.
+- Redis client: no offline queue, so commands fail at once while Redis is down; the failure
+  counters then answer 503 (limits fail closed). `close()` drops the socket when Redis is down
+  instead of waiting for a graceful quit.
 - Mongoose connection: `bufferCommands: false`, `serverSelectionTimeoutMS: 2000`,
   `autoIndex: false`. A query fails in about 2 s when MongoDB is down, at once before the
   first connect (with buffering it would wait 10 s). A failed first connect is retried by

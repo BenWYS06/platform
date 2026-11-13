@@ -117,7 +117,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   contains the token text; `npm run lint` passes. (Done when 3, 9, 10, 11, 12, 16, 17,
   20 part 2)
 
-- [ ] Task 7. Accept failure limit, client IP and the 429 answer
+- [x] Task 7. Accept failure limit, client IP and the 429 answer
   Express `trust proxy` from `TRUST_PROXY`, `CLIENT_IP_HEADER` when set. Redis failure
   counter per client IP: 20 failures (token-check answers 404, 410, 409, malformed tokens
   included) in a 15-minute fixed window, then 429 with `Retry-After` and

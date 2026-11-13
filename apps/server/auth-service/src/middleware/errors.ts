@@ -13,7 +13,12 @@ export const notFound: RequestHandler = (_req, res) => send(res, 'NOT_FOUND');
 
 export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   if (res.headersSent) return next(err);
-  if (err instanceof ApiError) return send(res, err.code, err.params);
+  if (err instanceof ApiError) {
+    // A 429 carries Retry-After equal to params.retryAfterSeconds (A14).
+    const retry = err.params?.retryAfterSeconds;
+    if (err.code === 'RATE_LIMITED' && typeof retry === 'number') res.setHeader('Retry-After', String(retry));
+    return send(res, err.code, err.params);
+  }
   if (err instanceof StoreUnavailableError) return send(res, 'SERVICE_UNAVAILABLE');
   // Body parser errors (bad JSON, too large) and schema failures are bad input.
   const parserError = typeof err === 'object' && err !== null && 'type' in err && 'status' in err && Number(err.status) < 500;
