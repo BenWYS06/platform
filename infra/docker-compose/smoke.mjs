@@ -104,6 +104,11 @@ const checks = [
     async () => expectCaddy(path, 404, 'NOT_FOUND', { 'X-Internal-Key': LOCAL_INTERNAL_KEY }),
   ]),
   ['Caddy: unknown path -> 404 NOT_FOUND', async () => expectCaddy('/no-such-path', 404, 'NOT_FOUND')],
+  // Actuator serves only health, under /api/<service> (D-010a); its default paths stay closed.
+  ...['/actuator/env', '/actuator/beans', '/actuator/metrics'].map((path) => [
+    `Caddy: ${path} -> 404 NOT_FOUND`,
+    async () => expectCaddy(path, 404, 'NOT_FOUND'),
+  ]),
   ...INTERNAL_PATHS.map((path) => [
     `Caddy: ${path} -> 404 NOT_FOUND`,
     async () => expectCaddy(path, 404, 'NOT_FOUND'),

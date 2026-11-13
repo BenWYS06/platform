@@ -55,7 +55,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `git grep -n "HealthController\|HealthService" -- apps/server/chat-service` -> no output;
   `./mvnw -B spotless:check` -> BUILD SUCCESS.
 
-- [ ] Task 3. ai-service: Actuator
+- [x] Task 3. ai-service: Actuator
   The same as Task 2 for ai-service (`GET /api/ai/health`, only the `mongo` and `rabbit`
   indicators; exposed web endpoints exactly `[health]`; `/api/ai/env`, `/api/ai/beans` and
   `/api/ai/metrics` never answer 200 without a token).
