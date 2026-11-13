@@ -25,7 +25,7 @@ and 8082 (D-004); today every one of those answers 503.
    - Both connect to MongoDB (databases `openbox_chat`, `openbox_ai`) and RabbitMQ, using
      the RabbitMQ login from `RABBITMQ_USER` / `RABBITMQ_PASSWORD`.
    - Logs: SLF4J with JSON output and the request id; no `System.out`.
-   - No Spring Actuator endpoints exposed; health is a plain controller.
+   - No Spring Actuator endpoints exposed; health is a plain controller. Superseded by D-010.
 3. Health route in every service: `GET /api/<service>/health`, no auth
    - Pings each store the service uses, with a short timeout.
    - All answer: 200 `{"status":"UP"}`.
@@ -123,6 +123,7 @@ and 8082 (D-004); today every one of those answers 503.
   of `NODE_ENV` or Spring profiles. Claude
 - Local default internal key outside `prod`; in `prod` at least 32 characters. Claude
 - Health is a plain controller, no Actuator, so its body is fully ours. Claude
+  Superseded by D-010.
 - Internal route at the root (`/internal/ping`), not under `/api/<service>`, since only other
   services call it, directly on the port. Claude
 

@@ -59,6 +59,23 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 - Java services get the error handler, guard, request id and security chain from
   `packages/platform-common-java` (auto-configuration); auth-service has its own in TypeScript.
 
+## Observability
+
+Decided in D-010. Health moves to this shape with plan 011; tracing comes with step 3.0,
+error tracking with step 3.6. Each part is off while its env value is empty.
+
+```
+GET /api/<service>/health  -> 200 {"status":"UP"} | 503 {"status":"DOWN"}  (no detail)
+                              chat, ai: Spring Actuator, health only; auth: Express
+
+service --OTLP--> OTEL_EXPORTER_OTLP_ENDPOINT -> Jaeger (dev compose profile, UI 16686)
+                                                 or the company's own collector
+chat --RabbitMQ headers / Redis payloads: traceparent--> ai   (one trace per chat request)
+
+JSON log line: request id and trace id side by side
+errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
+```
+
 ## auth-service
 
 - MongoDB through Mongoose (D-009): models in `src/models`, wrapped by repositories;

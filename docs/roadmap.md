@@ -18,6 +18,7 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 ## Phase 1: Identity
 
 - [ ] 1.1 Users, first owner, password login
+- [ ] Health with Spring Actuator (D-010a to D-010c)
 - [ ] 1.2 Sessions, access token, rotating refresh token, logout
 - [ ] 1.3 Capabilities, roles, workspace settings
 - [ ] 1.4 Session check in every service; logout and permission-change events
@@ -38,12 +39,13 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 
 ## Phase 3: AI in chat
 
+- [ ] 3.0 Tracing baseline: OpenTelemetry in all services, Jaeger in dev, trace id in logs (D-010d, D-010e)
 - [ ] 3.1 RabbitMQ, dead-letter queue
 - [ ] 3.2 chat-service triggers AI, with permission check
 - [ ] 3.3 ai-service calls Claude and streams the answer
 - [ ] 3.4 AI errors, prompt injection defense, model from env
 - [ ] 3.5 Quota, token_usage, persona
-- [ ] 3.6 First server deploy
+- [ ] 3.6 First server deploy, error tracking (D-010f)
 
 ## Phase 4: Knowledge
 
@@ -67,6 +69,6 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 - [ ] Calls and meetings
 - [ ] Model router
 - [ ] AI eval
-- [ ] Tracing
+- [ ] Metrics (D-010g)
 - [ ] Image build and auto-update
 - [ ] iOS
