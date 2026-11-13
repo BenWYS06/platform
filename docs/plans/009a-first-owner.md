@@ -106,7 +106,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   logs; each shows `/api/auth/invitations/[redacted]/...` and none contains the token text.
   (Done when 17)
 
-- [ ] Task 6b. Accept route
+- [x] Task 6b. Accept route
   `POST /api/auth/invitations/:token/accept-password`: check order of A23 (a malformed
   token counts as an accept failure from Task 7 on), atomic claim, create the user with
   role `Owner` and an argon2id hash, invitation back to pending if creation fails, 201

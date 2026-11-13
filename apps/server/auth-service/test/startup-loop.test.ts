@@ -10,20 +10,23 @@ import { createInvitationsRepository } from '../src/repositories/invitations.js'
 import { createMongo, type Mongo } from '../src/repositories/stores.js';
 import { createUsersRepository } from '../src/repositories/users.js';
 import { createHealth } from '../src/services/health.js';
+import { createInvitationsService, type InvitationsService } from '../src/services/invitations.js';
 import { createStartupLoop, type StartupLoop } from '../src/services/startup.js';
 import { expectError } from './helpers/error-body.js';
+import { unusedInvitations } from './helpers/invitations.js';
 import { freePort, START_TIMEOUT_MS, startMongo, uniqueDbName } from './helpers/mongo.js';
 
 const logger = createLogger(new Writable({ write: (_c, _e, done) => done() }));
 const DATA_ROUTE = '/api/auth/invitations/abc/accept-password';
+const UNKNOWN_TOKEN_ROUTE = `/api/auth/invitations/${'A'.repeat(43)}/accept-password`;
 
 const cleanup: (() => Promise<void> | void)[] = [];
 afterEach(async () => {
   for (const step of cleanup.splice(0).reverse()) await step();
 });
 
-function appFor(startup: StartupLoop, allUp: () => Promise<boolean> = async () => true) {
-  return createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp }, readiness: startup });
+function appFor(startup: StartupLoop, allUp: () => Promise<boolean> = async () => true, invitations: InvitationsService = unusedInvitations) {
+  return createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp }, readiness: startup, invitations });
 }
 
 // The same steps as src/server.ts: connect, then the indexes.
@@ -61,8 +64,8 @@ describe('startup loop with fake steps', () => {
     finishIndexes();
     await startup.done();
     expect(order).toEqual(['indexes', 'boot']);
-    // Ready: the request reaches the (still empty) invitations router.
-    expectError(await request(app).post(DATA_ROUTE).send({}), 'NOT_FOUND');
+    // Ready: the request reaches the invitations router (a malformed token: no service call).
+    expectError(await request(app).post(DATA_ROUTE).send({}), 'INVITATION_INVALID');
   });
 
   it('retries a failed step and never runs the after-index step before the indexes', async () => {
@@ -118,7 +121,12 @@ describe('startup loop with a real MongoDB', () => {
     const startup = createStartupLoop(indexSteps(client), logger, 200);
     cleanup.push(() => startup.stop());
     const health = createHealth([{ name: 'mongodb', check: client.ping }], logger, 1000);
-    const app = appFor(startup, () => health.allUp());
+    const service = createInvitationsService({
+      users: createUsersRepository(client.connection),
+      invitations: createInvitationsRepository(client.connection),
+      logger,
+    });
+    const app = appFor(startup, () => health.allUp(), service);
 
     startup.start();
     // Health answers at once (503: a store is down); data routes answer 503 too.
@@ -131,7 +139,9 @@ describe('startup loop with a real MongoDB', () => {
     await startup.done();
 
     expect((await request(app).get('/api/auth/health')).status).toBe(200);
-    expectError(await request(app).post(DATA_ROUTE).send({}), 'NOT_FOUND');
+    // Accept reaches MongoDB: a well-formed unknown token is looked up and not found.
+    const res = await request(app).post(UNKNOWN_TOKEN_ROUTE).send({ password: 'a long enough password', displayName: 'Boss' });
+    expectError(res, 'INVITATION_INVALID');
   }, START_TIMEOUT_MS);
 
   it('answers a data route with 503 within about 3 s when MongoDB stops after startup', async () => {

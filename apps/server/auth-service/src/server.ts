@@ -9,6 +9,7 @@ import { createStores } from './repositories/stores.js';
 import { createUsersRepository } from './repositories/users.js';
 import { createBootOwnerStep } from './services/bootOwner.js';
 import { createHealth } from './services/health.js';
+import { createInvitationsService } from './services/invitations.js';
 import { createStartupLoop } from './services/startup.js';
 
 const log = createLogger();
@@ -48,7 +49,13 @@ const startup = createStartupLoop(
   log,
 );
 
-const app = createApp({ config, logger: log, health, readiness: startup });
+const app = createApp({
+  config,
+  logger: log,
+  health,
+  readiness: startup,
+  invitations: createInvitationsService({ users, invitations, logger: log }),
+});
 const server = http.createServer(app);
 server.on('listening', () => log.info({ port: config.port, appEnv: config.appEnv }, 'auth-service listening'));
 server.on('error', (e: NodeJS.ErrnoException) => {

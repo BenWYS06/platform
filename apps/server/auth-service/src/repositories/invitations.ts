@@ -19,6 +19,12 @@ export interface InvitationsRepository {
   insert(invitation: NewInvitation): Promise<Invitation>;
   // Sets every pending Owner invitation to revoked; returns how many changed.
   revokePendingOwners(): Promise<number>;
+  findByTokenHash(tokenHash: string): Promise<Invitation | null>;
+  // One atomic update: pending and not expired -> accepted. False when another request won.
+  claim(id: string, now: Date): Promise<boolean>;
+  // Undo a claim whose user could not be created: accepted (no user yet) -> pending.
+  release(id: string): Promise<void>;
+  setAcceptedUser(id: string, userId: string): Promise<void>;
 }
 
 const toInvitation = ({ _id, ...fields }: InvitationFields & { _id: { toString(): string } }): Invitation => ({
@@ -43,6 +49,32 @@ export function createInvitationsRepository(connection: Connection): Invitations
         Invitations.updateMany({ status: 'pending', role: 'Owner' }, { $set: { status: 'revoked' } }).exec(),
       );
       return result.modifiedCount;
+    },
+    async findByTokenHash(tokenHash) {
+      const doc = await mapStoreErrors('invitations', () => Invitations.findOne({ tokenHash }).lean().exec());
+      return doc ? toInvitation(doc) : null;
+    },
+    async claim(id, now) {
+      const result = await mapStoreErrors('invitations', () =>
+        Invitations.updateOne(
+          { _id: id, status: 'pending', expiresAt: { $gt: now } },
+          { $set: { status: 'accepted', acceptedAt: now } },
+        ).exec(),
+      );
+      return result.modifiedCount === 1;
+    },
+    async release(id) {
+      await mapStoreErrors('invitations', () =>
+        Invitations.updateOne(
+          { _id: id, status: 'accepted', acceptedUserId: null },
+          { $set: { status: 'pending', acceptedAt: null } },
+        ).exec(),
+      );
+    },
+    async setAcceptedUser(id, userId) {
+      await mapStoreErrors('invitations', () =>
+        Invitations.updateOne({ _id: id }, { $set: { acceptedUserId: userId } }).exec(),
+      );
     },
   };
 }

@@ -1,11 +1,11 @@
 // Job: the first-owner boot step (spec 009 A4, A24, A25). While no user exists and
 // BOOTSTRAP_OWNER_EMAIL is set: revoke pending owner invitations, insert a new one and write
 // its link once to stdout. Runs in the startup loop, after the indexes exist.
-import { createHash, randomBytes } from 'node:crypto';
 import type { Logger } from 'pino';
 import { DuplicateError } from '../repositories/errors.js';
 import type { InvitationsRepository } from '../repositories/invitations.js';
 import type { UsersRepository } from '../repositories/users.js';
+import { hashToken, newToken } from './tokens.js';
 
 export const OWNER_INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_ATTEMPTS = 3;
@@ -20,8 +20,6 @@ export interface BootOwnerDeps {
   now?: () => Date;
 }
 
-export const hashToken = (token: string): string => createHash('sha256').update(token).digest('hex');
-
 export function createBootOwnerStep(deps: BootOwnerDeps): () => Promise<void> {
   const { users, invitations, config, logger } = deps;
   const writeLine = deps.writeLine ?? ((line: string) => void process.stdout.write(`${line}\n`));
@@ -35,7 +33,7 @@ export function createBootOwnerStep(deps: BootOwnerDeps): () => Promise<void> {
       return;
     }
     for (let attempt = 1; ; attempt++) {
-      const token = randomBytes(32).toString('base64url');
+      const token = newToken();
       await invitations.revokePendingOwners();
       try {
         await invitations.insert({

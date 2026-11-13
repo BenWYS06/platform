@@ -6,7 +6,8 @@ import { DuplicateError } from '../src/repositories/errors.js';
 import { createInvitationsRepository, type Invitation } from '../src/repositories/invitations.js';
 import { createMongo, type Mongo } from '../src/repositories/stores.js';
 import { createUsersRepository } from '../src/repositories/users.js';
-import { createBootOwnerStep, hashToken, OWNER_INVITATION_TTL_MS } from '../src/services/bootOwner.js';
+import { createBootOwnerStep, OWNER_INVITATION_TTL_MS } from '../src/services/bootOwner.js';
+import { hashToken } from '../src/services/tokens.js';
 import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
 
 let mongo: TestMongo;

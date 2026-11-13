@@ -63,6 +63,14 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 
 - MongoDB through Mongoose (D-009): models in `src/models`, wrapped by repositories;
   routes never import Mongoose. Indexes come from the schemas (`syncIndexes` at startup).
+- First owner (1.1a): while no user exists, each boot replaces the pending owner invitation
+  and writes `<WEB_ORIGIN>/invite/<token>` once to stdout. `POST
+  /api/auth/invitations/<token>/accept-password` (public, the token is the proof) checks
+  the token shape (404 with no lookup), the body, then the invitation (404 unknown, 410
+  expired or revoked, 409 used) and the email (409 `MEMBER_ALREADY_EXISTS`). One atomic
+  update claims the invitation; the user gets the invitation's email and role and an
+  argon2id hash. If creating the user fails, the invitation goes back to pending. 201
+  `{ user }`. Only the sha256 of a token is stored; logs show the token as `[redacted]`.
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)

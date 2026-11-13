@@ -21,6 +21,70 @@ paths:
                   status: { type: string, const: UP }
         "503":
           $ref: "#/components/responses/Error"
+  /api/auth/invitations/{token}/accept-password:
+    post:
+      summary: Accept an invitation with a password (public)
+      description: >-
+        Public: the invitation token in the path is the proof. Creates the user with the
+        invitation's email and role. A token that is not 43 base64url characters answers 404
+        with no lookup. The token never appears in a response or a log line.
+      security: []
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[A-Za-z0-9_-]{43}$" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [password, displayName]
+              properties:
+                password:
+                  type: string
+                  minLength: 12
+                  maxLength: 128
+                  description: Used exactly as typed (no trim). Length in characters.
+                displayName:
+                  type: string
+                  minLength: 1
+                  maxLength: 64
+                  description: Trimmed, then 1 to 64 characters.
+      responses:
+        "201":
+          description: User created.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user:
+                    type: object
+                    required: [id, email, displayName, role]
+                    properties:
+                      id: { type: string }
+                      email: { type: string }
+                      displayName: { type: string }
+                      role: { type: string, enum: [Owner, Admin, Member] }
+        "400":
+          description: VALIDATION_FAILED (body too short, too long, missing or unknown fields).
+          $ref: "#/components/responses/Error"
+        "404":
+          description: INVITATION_INVALID (unknown or malformed token).
+          $ref: "#/components/responses/Error"
+        "409":
+          description: INVITATION_ALREADY_ACCEPTED, or MEMBER_ALREADY_EXISTS (the email is already a user).
+          $ref: "#/components/responses/Error"
+        "410":
+          description: INVITATION_EXPIRED or INVITATION_REVOKED.
+          $ref: "#/components/responses/Error"
+        "503":
+          description: SERVICE_UNAVAILABLE (MongoDB not reachable or indexes not ready yet).
+          $ref: "#/components/responses/Error"
   /internal/ping:
     get:
       summary: Internal reachability check

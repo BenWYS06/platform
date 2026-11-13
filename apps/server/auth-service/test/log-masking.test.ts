@@ -4,6 +4,7 @@ import express from 'express';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createApp } from '../src/app.js';
+import { unusedInvitations } from './helpers/invitations.js';
 import { createLogger } from '../src/logger.js';
 import { errorHandler, notFound } from '../src/middleware/errors.js';
 import { maskTokens, requestLogger } from '../src/middleware/requestLog.js';
@@ -60,7 +61,7 @@ describe('token masking in logs', () => {
 
   it('masks the token in the 404 log of the real app, in any letter case', async () => {
     const { logger, lines } = capture();
-    const app = createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp: async () => true }, readiness: { isReady: () => true } });
+    const app = createApp({ config: { internalApiKey: 'k' }, logger, health: { allUp: async () => true }, readiness: { isReady: () => true }, invitations: unusedInvitations });
     expect((await request(app).post(`/API/Auth/Invitations/${TOKEN}/accept-password`)).status).toBe(404);
     expectMasked(lines, '/API/Auth/Invitations/[redacted]/accept-password');
   });

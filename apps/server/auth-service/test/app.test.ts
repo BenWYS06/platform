@@ -7,6 +7,7 @@ import { ApiError } from '../src/errors.js';
 import { errorHandler } from '../src/middleware/errors.js';
 import { createLogger } from '../src/logger.js';
 import { expectError } from './helpers/error-body.js';
+import { unusedInvitations } from './helpers/invitations.js';
 
 const KEY = 'test-internal-key';
 
@@ -19,7 +20,7 @@ function setup() {
     },
   });
   const logger = createLogger(sink);
-  return { app: createApp({ config: { internalApiKey: KEY }, logger, health: { allUp: async () => true }, readiness: { isReady: () => true } }), lines, logger };
+  return { app: createApp({ config: { internalApiKey: KEY }, logger, health: { allUp: async () => true }, readiness: { isReady: () => true }, invitations: unusedInvitations }), lines, logger };
 }
 
 describe('errors', () => {
