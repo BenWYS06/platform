@@ -134,6 +134,20 @@ Google login, SSO and MFA (phase 6). Password reset, email codes, phone numbers 
 - One MongoDB database, `platform`, for every service.
 - Each collection has one writer service. Other services only read it.
 
+### 0.12 Libraries
+
+Use these libraries; never hand-write what they do.
+
+- `helmet`: security headers on every auth-service answer (1.1b).
+- `express-rate-limit`: the burst limit, memory store.
+- `jsonwebtoken`: sign and verify access tokens (1.2).
+- `cookie-parser` and `cors`: the refresh cookie and cross-origin rules (1.2).
+- `nodemailer`: optional invitation email (1.5).
+- Java: `jjwt` and `spring-boot-starter-data-redis`: token and session check (1.4).
+- Hand-written on purpose: the failure counters in Redis (per email, per IP, accept).
+- Web, when needed: `@stomp/stompjs`, `@tanstack/vue-query`, `vee-validate` with `zod`,
+  `shadcn-vue`, `openapi-typescript`.
+
 ---
 
 ## 1.1 Users, first owner, password login

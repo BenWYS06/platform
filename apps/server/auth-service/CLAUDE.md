@@ -41,6 +41,19 @@ forwards `/api/auth/*` here with the prefix kept.
   `WEB_ORIGIN`. Bad config or a port in use exits with code 1 (`test/startup.test.ts`).
 - `TRUST_PROXY` and `CLIENT_IP_HEADER` decide the client IP: `docs/environments.md`.
 
+## Libraries
+
+Use these; never hand-write them (`docs/auth-design.md` 0.12).
+
+- `helmet`: security headers (1.1b).
+- `express-rate-limit`: burst limit, memory store.
+- `jsonwebtoken`: access tokens (1.2).
+- `cookie-parser` and `cors`: refresh cookie, cross-origin rules (1.2).
+- `nodemailer`: optional invitation email (1.5).
+- Java: `jjwt` and `spring-boot-starter-data-redis` (1.4).
+- Hand-written on purpose: failure counters in Redis (per email, per IP, accept).
+- Web, when needed: `@stomp/stompjs`, `@tanstack/vue-query`, `vee-validate` + `zod`, `shadcn-vue`, `openapi-typescript`.
+
 ## Gotchas
 
 - Route tests use fakes: `createApp` takes `health` and `readiness` objects. Repository and
