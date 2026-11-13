@@ -18,6 +18,8 @@ export interface UsersRepository {
   // Throws DuplicateError when a user with this email (any letter case) exists.
   insert(user: NewUser): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
+  // True when at least one user exists.
+  any(): Promise<boolean>;
 }
 
 export const normalizeEmail = (email: string): string => email.trim().toLowerCase();
@@ -37,6 +39,9 @@ export function createUsersRepository(connection: Connection): UsersRepository {
     async findByEmail(email) {
       const doc = await mapStoreErrors('users', () => Users.findOne({ email: normalizeEmail(email) }).lean().exec());
       return doc ? toUser(doc) : null;
+    },
+    async any() {
+      return (await mapStoreErrors('users', () => Users.exists({}).exec())) !== null;
     },
   };
 }

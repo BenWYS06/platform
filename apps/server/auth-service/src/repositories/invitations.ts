@@ -17,6 +17,8 @@ export interface InvitationsRepository {
   ensureIndexes(): Promise<void>;
   // Throws DuplicateError on a known token hash or a second pending invitation for the email.
   insert(invitation: NewInvitation): Promise<Invitation>;
+  // Sets every pending Owner invitation to revoked; returns how many changed.
+  revokePendingOwners(): Promise<number>;
 }
 
 const toInvitation = ({ _id, ...fields }: InvitationFields & { _id: { toString(): string } }): Invitation => ({
@@ -35,6 +37,12 @@ export function createInvitationsRepository(connection: Connection): Invitations
         Invitations.create({ ...invitation, email: normalizeEmail(invitation.email) }),
       );
       return toInvitation(created.toObject());
+    },
+    async revokePendingOwners() {
+      const result = await mapStoreErrors('invitations', () =>
+        Invitations.updateMany({ status: 'pending', role: 'Owner' }, { $set: { status: 'revoked' } }).exec(),
+      );
+      return result.modifiedCount;
     },
   };
 }

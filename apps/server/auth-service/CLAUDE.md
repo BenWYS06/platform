@@ -27,6 +27,10 @@ forwards `/api/auth/*` here with the prefix kept.
 - `src/services/startup.ts`: one retry loop (every 30 s) connects and runs `syncIndexes`,
   then the after-index step. Until the indexes exist, data routes answer 503 (`middleware/ready.ts`);
   health answers from the start. Data routes mount behind `requireReady` in `app.ts`.
+- `src/services/bootOwner.ts`: the after-index step. While no user exists and
+  `BOOTSTRAP_OWNER_EMAIL` is set, it revokes pending owner invitations, inserts a new one
+  (sha256 of the token stored, 7 days) and writes the boot link once to stdout (plain
+  write, the one token allowed out; never through pino).
 - `src/middleware/`: contract error handler, internal key check, readiness gate.
 - `src/logger.ts`: pino; `Authorization`, `Cookie`, `X-Internal-Key` are redacted.
 - Routes: `GET /api/auth/health` (pings MongoDB and Redis, 2.5 s timeout), `GET /internal/ping`

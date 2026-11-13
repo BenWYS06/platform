@@ -83,6 +83,8 @@ Details: `.claude/rules/git-and-docs.md`, `.claude/rules/testing.md`.
 
 - Identity comes from the verified token, never from the request body or query.
 - Secrets only in env; never read, edit, print or commit `.env` files or keys.
+- No tokens in logs. One written exception: auth-service writes the first-owner boot link
+  (`<WEB_ORIGIN>/invite/<token>`) once to stdout, not through the logger (spec 009 A5).
 - Errors are `{ code, message?, params? }` with codes from `contracts/error-codes.json`.
 - Clients call the relative `/api` base URL; no service host or port in client code.
 - Every bug fix comes with a test that failed before the fix.

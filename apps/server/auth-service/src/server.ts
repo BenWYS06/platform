@@ -7,6 +7,7 @@ import { createLogger } from './logger.js';
 import { createInvitationsRepository } from './repositories/invitations.js';
 import { createStores } from './repositories/stores.js';
 import { createUsersRepository } from './repositories/users.js';
+import { createBootOwnerStep } from './services/bootOwner.js';
 import { createHealth } from './services/health.js';
 import { createStartupLoop } from './services/startup.js';
 
@@ -42,6 +43,7 @@ const startup = createStartupLoop(
       await users.ensureIndexes();
       await invitations.ensureIndexes();
     },
+    afterIndexes: createBootOwnerStep({ users, invitations, config, logger: log }),
   },
   log,
 );

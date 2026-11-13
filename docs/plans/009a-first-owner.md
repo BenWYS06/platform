@@ -85,7 +85,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   data route works with no restart; with MongoDB stopped after startup, a data route
   answers 503 within about 3 s, not 10. (Done when 3 part 1, 4)
 
-- [ ] Task 5. Boot link
+- [x] Task 5. Boot link
   Boot step: while no user exists and the email is set, revoke pending owner invitations,
   insert a new one (32 random bytes, base64url, sha256 stored, 7 days, role `Owner`,
   `invitedBy: system`), retry revoke-and-insert at most 3 times on a duplicate, then write
