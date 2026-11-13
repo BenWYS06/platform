@@ -25,6 +25,11 @@
     "RATE_LIMITED": "Bạn đã thử quá nhiều lần. Vui lòng đợi một lát rồi thử lại.",
     "INTERNAL": "Máy chủ gặp sự cố.",
     "SERVICE_UNAVAILABLE": "Dịch vụ này hiện không khả dụng.",
+    "INVITATION_INVALID": "Liên kết mời này không hợp lệ.",
+    "INVITATION_EXPIRED": "Liên kết mời này đã hết hạn. Vui lòng yêu cầu liên kết mới.",
+    "INVITATION_REVOKED": "Liên kết mời này đã được thay thế. Vui lòng dùng liên kết mới nhất.",
+    "INVITATION_ALREADY_ACCEPTED": "Liên kết mời này đã được sử dụng.",
+    "MEMBER_ALREADY_EXISTS": "Đã có tài khoản dùng email này.",
     "UNKNOWN": "Đã xảy ra lỗi không mong muốn.",
     "NETWORK": "Không kết nối được máy chủ. Vui lòng kiểm tra kết nối."
   }

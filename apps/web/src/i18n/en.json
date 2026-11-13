@@ -25,6 +25,11 @@
     "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
     "INTERNAL": "Something went wrong on the server.",
     "SERVICE_UNAVAILABLE": "This service is not available right now.",
+    "INVITATION_INVALID": "This invitation link is not valid.",
+    "INVITATION_EXPIRED": "This invitation link has expired. Ask for a new one.",
+    "INVITATION_REVOKED": "This invitation link was replaced. Use the newest link.",
+    "INVITATION_ALREADY_ACCEPTED": "This invitation link has already been used.",
+    "MEMBER_ALREADY_EXISTS": "An account with this email already exists.",
     "UNKNOWN": "Something unexpected happened.",
     "NETWORK": "Cannot reach the server. Check your connection."
   }

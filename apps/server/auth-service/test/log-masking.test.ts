@@ -9,7 +9,8 @@ import { createLogger } from '../src/logger.js';
 import { errorHandler, notFound } from '../src/middleware/errors.js';
 import { maskTokens, requestLogger } from '../src/middleware/requestLog.js';
 
-const TOKEN = 'Zm9vYmFyLXRva2VuLXZhbHVlLXRoYXQtaXMtNDMtY2hh';
+// Low entropy on purpose, so the secret scan does not take it for a key.
+const TOKEN = 'T'.repeat(44);
 const MASKED = '/api/auth/invitations/[redacted]/';
 
 function capture() {

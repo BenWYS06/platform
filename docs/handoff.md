@@ -2,27 +2,33 @@
 
 Job: where the last session stopped and what to do next. Read this first in every new session.
 
-Last updated: 2026-11-12
+Last updated: 2026-11-13
 
 ## Now
 
-- Issue #37 Use axios in the web api layer: done. Plan 010 tasks 1 to 4 done.
-- Plan: [plans/010-web-axios.md](plans/010-web-axios.md)
+- Issue #34 1.1a First owner: done. Plan 009a tasks 1 to 8 done.
+- Plan: [plans/009a-first-owner.md](plans/009a-first-owner.md)
 
 ## Done
 
-- Web `src/api/http.ts` uses axios 1.21.0 (5 s timeout, `validateStatus` reads error
-  bodies); behavior unchanged. Tests use the fake adapter in `apps/web/tests/fake-server.ts`.
-  Lint bans importing axios outside `src/api/`.
+- auth-service: Mongoose repositories for users and invitations, indexes at startup with
+  data routes on 503 until ready; the boot link for the first owner; token masking in logs;
+  `POST /api/auth/invitations/<token>/accept-password`; the accept failure limit per client
+  IP in Redis (429 with `Retry-After`). Error body `{ code, message?, params? }`.
+- Web: messages for the five invitation error codes (en, vi).
+- Checked through Caddy: accept gives 201, then 409; a restart prints no link.
+- `.gitleaksignore`: one entry, the fake token of the first log-masking test commit.
 
-## Next step: Phase 1, issue 1.1a First owner (#34)
+## Next step: Phase 1, issue 1.1b Login (#35)
 
-1. Merge the #37 PR.
-2. Continue on branch `feature/first-owner-login`: spec 009 and plan 009a live there;
-   rebase it on `main` (expect a small conflict in `docs/plans/README.md`).
+1. Merge the #34 PR.
+2. Branch from `main`, then `/write-plan` for 1.1b from spec 009 part 1.1b (plan 009b).
+3. After 1.1b: plan 011, Health with Actuator (#40).
 
 ## Known gaps
 
+- The local `platform` database now holds a test owner (`owner@openbox.test`) from the
+  Caddy run, so no boot link prints locally. Reset infra (`down -v`) to see it again.
 - Local RabbitMQ refuses the login from `.env`, so chat and ai health say Down locally. Fix
   `.env` or reset infra (`down -v`), then confirm three Up rows at `localhost:5173`.
 - Java on Windows needs `-XX:-UseThreadPriorities` (set for `spring-boot:run`).

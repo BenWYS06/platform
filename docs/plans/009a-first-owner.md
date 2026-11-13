@@ -3,7 +3,7 @@
 Spec: docs/specs/009-first-owner-login.md, part 1.1a (Decisions A1 to A30, Done when 1 to 22)
 Issue: #34
 Branch: feature/first-owner-login
-Status: not started
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -130,7 +130,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   to `req.ip`; with `TRUST_PROXY=1`, a fake first `X-Forwarded-For` value does not get a new
   counter (the last value, added by the trusted hop, decides). (Done when 13, 14, 15)
 
-- [ ] Task 8. Close the issue
+- [x] Task 8. Close the issue
   Run the full checks (contracts, auth-service, web, `./mvnw verify`, repo checks,
   gitleaks). Through Caddy: start auth with `BOOTSTRAP_OWNER_EMAIL` set, accept the printed
   link via `localhost:8080` (201, then 409), restart (no link). Tick this plan and set
