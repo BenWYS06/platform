@@ -28,8 +28,6 @@ Last updated: 2026-11-13
 
 ## Known gaps
 
-- The local `platform` database now holds a test owner (`owner@openbox.test`) from the
-  Caddy run, so no boot link prints locally. Reset infra (`down -v`) to see it again.
 - Local RabbitMQ refuses the login from `.env`, so chat and ai health say Down locally. Fix
   `.env` or reset infra (`down -v`), then confirm three Up rows at `localhost:5173`.
 - Java on Windows needs `-XX:-UseThreadPriorities` (set for `spring-boot:run`).
