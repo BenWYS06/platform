@@ -38,7 +38,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   running, `node infra/docker-compose/smoke.mjs` -> the auth health line passes with
   `200 UP`; MongoDB stopped -> the same line shows `503 DOWN`.
 
-- [ ] Task 2. chat-service: Actuator
+- [x] Task 2. chat-service: Actuator
   Add `spring-boot-starter-actuator`. `application.yml`: exposure `include: health`,
   `show-details: never`, `show-components: never`, base path and mapping so health stays
   at `GET /api/chat/health`; every other endpoint off. Remove `HealthController`,

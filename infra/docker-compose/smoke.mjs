@@ -69,7 +69,8 @@ async function expectCaddy(path, status, code, headers) {
 // runs and a store is down (D-010b); Caddy's 503 SERVICE_UNAVAILABLE when it is not running.
 // Without --services all three pass; the returned note says which it was.
 async function expectHealth(service) {
-  const res = await get(CADDY_PORT, `/api/${service}/health`);
+  // Accept as clients send it; without it Actuator answers with its own vendor media type.
+  const res = await get(CADDY_PORT, `/api/${service}/health`, { Accept: 'application/json' });
   const json = res.type.startsWith('application/json');
   if (res.status === 200 && json && res.body === JSON.stringify({ status: 'UP' })) return '200 UP';
   if (!REQUIRE_SERVICES && res.status === 503 && json) {
