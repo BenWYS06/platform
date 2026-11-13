@@ -3,7 +3,7 @@
 Issue: #40, its "Done when" list. Short plan: health only, decided in D-010a to D-010c,
 no spec.
 Branch: chore/actuator-health
-Status: in progress
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -76,7 +76,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   -> no health line; `grep -n "D-010" CLAUDE.md .claude/rules/security.md
   docs/specs/004-service-skeletons.md` -> prints a line for each.
 
-- [ ] Task 5. Close the issue
+- [x] Task 5. Close the issue
   Run the full checks (contracts, auth-service, web, `./mvnw verify`, repo checks,
   gitleaks). Tick this plan and set `Status: done`; set its line in docs/plans/README.md to
   `done`; tick the line in docs/roadmap.md; point docs/handoff.md to the next issue
