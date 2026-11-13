@@ -42,10 +42,12 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 
 ## Service skeleton (every service)
 
-- `GET /api/<service>/health`, public: pings the stores the service uses (auth: MongoDB,
-  Redis; chat and ai: MongoDB, RabbitMQ) in parallel, at most 2.5 s. 200 `{"status":"UP"}`
-  or 503 `{"code":"SERVICE_UNAVAILABLE"}` with no detail. A service starts with its stores
-  down and recovers without a restart.
+- `GET /api/<service>/health`, public: checks the stores the service uses (auth: MongoDB,
+  Redis; chat and ai: MongoDB, RabbitMQ). 200 `{"status":"UP"}` or 503 `{"status":"DOWN"}`
+  with no detail (D-010b), the one written exception to the error body. A hanging store
+  answers 503 within about 3 s. A service starts with its stores down and recovers without
+  a restart. chat and ai serve it through Spring Actuator, health the only endpoint
+  (D-010a); auth through Express.
 - `GET /internal/ping` on the service port: `X-Internal-Key` compared in constant time with
   `INTERNAL_API_KEY`; 401 `UNAUTHENTICATED` otherwise. Caddy answers 404 from outside.
 - `APP_ENV` (`local`, `dev`, `prod`, default `local`). The production guard stops startup
@@ -61,7 +63,7 @@ client -> Caddy :8080 -> /api/auth/*     -> auth-service  :3001
 
 ## Observability
 
-Decided in D-010. Health moves to this shape with plan 011; tracing comes with step 3.0,
+Decided in D-010. Health has this shape since plan 011; tracing comes with step 3.0,
 error tracking with step 3.6. Each part is off while its env value is empty.
 
 ```

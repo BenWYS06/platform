@@ -1,5 +1,8 @@
 # Spec 004: Service skeletons: auth, chat, ai
 
+> Superseded by D-010 for health: chat and ai serve it through Spring Actuator, and every
+> service answers 503 `{"status":"DOWN"}` instead of the error body (plan 011).
+
 Issue: 0.4 Service skeletons: auth, chat, ai. Sprint 1. Estimate 5.
 
 ## Why

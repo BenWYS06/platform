@@ -33,6 +33,9 @@ Job: the security rules every service and client follows. Loaded every session.
 - Error responses are `{ code, message?, params? }` with a code from `contracts/error-codes.json`.
   `params` values are a string, a number or a list of strings
   (`contracts/schemas/error-body.schema.json`); never a secret or a token.
+- One written exception: `GET /api/<service>/health` answers 503 `{"status":"DOWN"}`, never
+  naming a store, host, port or exception (D-010b). In chat and ai it is Spring Actuator
+  with health the only endpoint; no other actuator endpoint is ever exposed (D-010a).
 - No stack traces, SQL/Mongo queries or internal hostnames in responses.
 - Same answer for "user not found" and "wrong password".
 

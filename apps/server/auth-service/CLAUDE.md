@@ -35,7 +35,8 @@ forwards `/api/auth/*` here with the prefix kept.
 - `src/logger.ts`: pino; `Authorization`, `Cookie`, `X-Internal-Key` are redacted.
 - `src/middleware/requestLog.ts`: pino-http; the token segment of `/api/auth/invitations/<token>`
   and of a `/invite/<token>` Referer shows as `[redacted]` in request, error and 404 lines.
-- Routes: `GET /api/auth/health` (pings MongoDB and Redis, 2.5 s timeout), `GET /internal/ping`
+- Routes: `GET /api/auth/health` (pings MongoDB and Redis, 2.5 s timeout; 200
+  `{"status":"UP"}` or 503 `{"status":"DOWN"}`, not the error body, D-010b), `GET /internal/ping`
   (behind `X-Internal-Key`), `POST /api/auth/invitations/:token/accept-password`
   (`routes/invitations.ts` -> `services/invitations.ts`; token helpers in
   `services/tokens.ts`; failure limit `services/acceptLimit.ts` over

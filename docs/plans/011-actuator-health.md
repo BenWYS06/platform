@@ -67,7 +67,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   all three services running, `node infra/docker-compose/smoke.mjs --services` -> all three
   health lines `200 UP`, the actuator lines 404.
 
-- [ ] Task 4. Docs
+- [x] Task 4. Docs
   `docs/architecture.md` (service skeleton health line), the `CLAUDE.md` of auth-, chat-
   and ai-service, and the rules text for the health exception (`CLAUDE.md` rule on errors,
   `.claude/rules/security.md`, `.claude/rules/express.md`, `.claude/rules/spring.md`).
