@@ -19,11 +19,12 @@ Last updated: 2026-11-13
 - Checked through Caddy: accept gives 201, then 409; a restart prints no link.
 - `.gitleaksignore`: one entry, the fake token of the first log-masking test commit.
 
-## Next step: Phase 1, issue 1.1b Login (#35)
+## Next step: issue #40 Health with Spring Actuator (plan 011)
 
 1. Merge the #34 PR.
-2. Branch from `main`, then `/write-plan` for 1.1b from spec 009 part 1.1b (plan 009b).
-3. After 1.1b: plan 011, Health with Actuator (#40).
+2. Branch `chore/actuator-health` from `main` and start plan 011, Task 1
+   ([plans/011-actuator-health.md](plans/011-actuator-health.md)).
+3. Then Phase 1 issue 1.1b Login (#35): `/write-plan` from spec 009 part 1.1b (plan 009b).
 
 ## Known gaps
 
