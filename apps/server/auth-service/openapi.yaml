@@ -20,7 +20,18 @@ paths:
                 properties:
                   status: { type: string, const: UP }
         "503":
-          $ref: "#/components/responses/Error"
+          description: >-
+            A store did not answer. The body is { "status": "DOWN" }, not the error body, and
+            names no store (D-010b). Through Caddy, a service that is not running answers 503
+            with the error body { "code": "SERVICE_UNAVAILABLE" } instead.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                additionalProperties: false
+                properties:
+                  status: { type: string, const: DOWN }
   /api/auth/invitations/{token}/accept-password:
     post:
       summary: Accept an invitation with a password (public)

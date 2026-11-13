@@ -3,7 +3,7 @@
 Issue: #40, its "Done when" list. Short plan: health only, decided in D-010a to D-010c,
 no spec.
 Branch: chore/actuator-health
-Status: not started
+Status: in progress
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -25,7 +25,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 
 ## Tasks
 
-- [ ] Task 1. auth-service health body, smoke script and web
+- [x] Task 1. auth-service health body, smoke script and web
   auth-service `GET /api/auth/health` answers 503 `{"status":"DOWN"}` instead of the error
   body; 200 stays `{"status":"UP"}`; tests updated; `openapi.yaml` updated.
   `infra/docker-compose/smoke.mjs` accepts 503 `{"status":"DOWN"}` (service up, a store down)

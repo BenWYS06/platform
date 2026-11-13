@@ -1,14 +1,14 @@
 // Job: GET /api/auth/health, public. 200 { "status": "UP" } when every store answers,
-// otherwise 503 { "code": "SERVICE_UNAVAILABLE" } with no detail.
+// otherwise 503 { "status": "DOWN" } with no detail (D-010b: the one route whose 503 is not
+// the contract error body).
 import { Router } from 'express';
-import { ApiError } from '../errors.js';
 import type { Health } from '../services/health.js';
 
 export function healthRouter(health: Health): Router {
   const router = Router();
   router.get('/health', async (_req, res) => {
-    if (!(await health.allUp())) throw new ApiError('SERVICE_UNAVAILABLE');
-    res.json({ status: 'UP' });
+    const up = await health.allUp();
+    res.status(up ? 200 : 503).json({ status: up ? 'UP' : 'DOWN' });
   });
   return router;
 }
