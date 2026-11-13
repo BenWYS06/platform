@@ -16,4 +16,15 @@ export default tseslint.config(
     },
   },
   { files: ['src/config.ts'], rules: { 'no-restricted-properties': 'off' } },
+  {
+    // A31: only models and repositories touch MongoDB.
+    files: ['src/**/*.ts'],
+    ignores: ['src/models/**', 'src/repositories/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { paths: ['mongoose', 'mongodb'].map((name) => ({ name, message: 'Only src/models and src/repositories use MongoDB (A31).' })) },
+      ],
+    },
+  },
 );

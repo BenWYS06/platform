@@ -51,6 +51,11 @@ Decision: auth-, chat- and ai-service use one MongoDB database, `platform`; this
 Why: one database is simpler to run, back up and inspect, and lets a service read another's data (for example users) without an extra internal call. One writer per collection keeps ownership clear: rules and indexes for a collection live in one service.
 Instead of: one database per service (`openbox_auth`, `openbox_chat`, `openbox_ai`), or any service writing any collection.
 
+## D-009 auth-service reads and writes MongoDB through Mongoose (2026-11-13)
+Decision: auth-service uses plain `mongoose` (not NestJS) for MongoDB. Models live in `src/models`; repositories keep their interfaces and wrap the models; routes and services never import Mongoose. Indexes come from the schemas through `syncIndexes` at startup (`autoIndex` off); the connection sets `bufferCommands: false` and a 2 s `serverSelectionTimeoutMS`, so a request fails fast (503) when MongoDB is down.
+Why: follows the reference design; schemas and models replace hand-written queries and index code. The repository interfaces keep Mongoose out of routes and keep tests simple.
+Instead of: the raw `mongodb` driver in repositories, or NestJS.
+
 ## D-010 Spring Actuator for health; observability steps (2026-11-13)
 Decision: the Spring services serve health through Spring Actuator, and observability comes in the steps below. This replaces the "no Actuator, plain health controller" parts of D-005 and spec 004.
 - D-010a Actuator: chat and ai now; connector-service uses the same setup when it is created in step 5.2. `spring-boot-starter-actuator` exposes only the health endpoint (`management.endpoints.web.exposure.include=health`), with `show-details` and `show-components` set to `never`, on the same public path as today (`GET /api/<service>/health`). Every other actuator endpoint is off; a test proves the exposed web endpoints are exactly `[health]` and that `/api/<service>/env`, `/beans` and `/metrics` never answer 200 without a token; the smoke script checks `/actuator/*` through Caddy.

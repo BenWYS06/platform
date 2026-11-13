@@ -78,6 +78,21 @@ errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
 
 ## auth-service
 
+- MongoDB through Mongoose (D-009): models in `src/models`, wrapped by repositories;
+  routes never import Mongoose. Indexes come from the schemas (`syncIndexes` at startup).
+- First owner (1.1a): while no user exists, each boot replaces the pending owner invitation
+  and writes `<WEB_ORIGIN>/invite/<token>` once to stdout. `POST
+  /api/auth/invitations/<token>/accept-password` (public, the token is the proof) checks
+  the token shape (404 with no lookup), the body, then the invitation (404 unknown, 410
+  expired or revoked, 409 used) and the email (409 `MEMBER_ALREADY_EXISTS`). One atomic
+  update claims the invitation; the user gets the invitation's email and role and an
+  argon2id hash. If creating the user fails, the invitation goes back to pending. 201
+  `{ user }`. After the token shape, a failure limit applies: 20 token-check failures (404,
+  410, 409 `INVITATION_ALREADY_ACCEPTED`, malformed tokens) per client IP in a 15-minute
+  fixed window in Redis, then 429 `RATE_LIMITED` with `Retry-After` equal to
+  `params.retryAfterSeconds`; successes never count; Redis down answers 503. The client IP is
+  `CLIENT_IP_HEADER` when set and valid, otherwise `req.ip` under `TRUST_PROXY`
+  (`docs/environments.md`). Only the sha256 of a token is stored; logs show the token as `[redacted]`.
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)
@@ -107,6 +122,8 @@ errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
 
 ## Rules that cross services
 
-- Error responses use `{ code, message? }`; codes live in `contracts/error-codes.json`.
+- Error responses use `{ code, message?, params? }`; codes live in `contracts/error-codes.json`,
+  the body shape in `contracts/schemas/error-body.schema.json`. The Java `ErrorBody` has no
+  `params` yet (added when a Java route first needs it, no later than 1.4).
 - Capabilities, RabbitMQ names and events live in `contracts/` too; each issue adds the names it first uses.
 - Clients use a relative `/api` base URL, never a service port.

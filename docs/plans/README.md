@@ -12,5 +12,6 @@ Job: list every plan and its status. One line per plan; the spec has the same nu
 | 006 | [CI pipeline](006-ci-pipeline.md) | none, short plan; see issue #7 | 0.6 | done |
 | 007 | [Web skeleton](007-client-skeletons.md) | [spec](../specs/007-client-skeletons.md) | 0.7a | done |
 | 008 | [Spotless in the Java build and CI](008-spotless.md) | none, short plan; see issue #22 | #22 | done |
+| 009a | [1.1a First owner](009a-first-owner.md) | [spec](../specs/009-first-owner-login.md) | #34 | done |
 | 010 | [Use axios in the web api layer](010-web-axios.md) | none, short plan; see issue #37 | #37 | done |
 | 011 | [Health with Actuator](011-actuator-health.md) | none, short plan; see issue #40 | #40 | not started |

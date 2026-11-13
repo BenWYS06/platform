@@ -20,3 +20,7 @@ versions follow [Semantic Versioning](https://semver.org/).
 - platform-common-java: shared Java errors, production guard, request id and a Spring Security
   chain that closes every chat and ai `/api` route except health (401 until real tokens);
   one Maven build at the repo root (`./mvnw verify`) (issue 0.5).
+- First owner: while no user exists, auth-service prints a one-time invitation link at
+  boot; `POST /api/auth/invitations/<token>/accept-password` creates the owner. Failed
+  accepts are limited per client IP (429 with `Retry-After`); error bodies may carry
+  `params` (issue 1.1a).

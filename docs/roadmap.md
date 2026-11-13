@@ -18,6 +18,8 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
 ## Phase 1: Identity
 
 - [ ] 1.1 Users, first owner, password login
+  - [x] 1.1a First owner (5, #34)
+  - [ ] 1.1b Login (3, #35)
 - [ ] Health with Spring Actuator (D-010a to D-010c)
 - [ ] 1.2 Sessions, access token, rotating refresh token, logout
 - [ ] 1.3 Capabilities, roles, workspace settings

@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError, LOCAL_DEFAULT_INTERNAL_KEY, loadConfig } from '../src/config.js';
+import { ConfigError, EXAMPLE_OWNER_EMAIL, LOCAL_DEFAULT_INTERNAL_KEY, LOCAL_WEB_ORIGIN, loadConfig } from '../src/config.js';
 
 const GOOD_KEY = 'k'.repeat(32);
-const PROD = { APP_ENV: 'prod', INTERNAL_API_KEY: GOOD_KEY, MONGODB_URI: 'mongodb://db/?replicaSet=rs0', REDIS_URL: 'redis://cache:6379' };
+const PROD = {
+  APP_ENV: 'prod',
+  INTERNAL_API_KEY: GOOD_KEY,
+  MONGODB_URI: 'mongodb://db/?replicaSet=rs0',
+  REDIS_URL: 'redis://cache:6379',
+  BOOTSTRAP_OWNER_EMAIL: 'boss@team.test',
+  WEB_ORIGIN: 'https://example.com',
+};
 
 describe('loadConfig', () => {
   it('rejects an unknown APP_ENV', () => {
@@ -60,5 +67,54 @@ describe('loadConfig', () => {
 
   it('rejects a port that is not a number', () => {
     expect(() => loadConfig({ AUTH_SERVICE_PORT: 'abc' })).toThrow(/AUTH_SERVICE_PORT/);
+  });
+});
+
+describe('loadConfig: first owner and client IP', () => {
+  it('rejects prod without BOOTSTRAP_OWNER_EMAIL or with the example value, naming it', () => {
+    expect(() => loadConfig({ ...PROD, BOOTSTRAP_OWNER_EMAIL: undefined })).toThrow(/BOOTSTRAP_OWNER_EMAIL/);
+    expect(() => loadConfig({ ...PROD, BOOTSTRAP_OWNER_EMAIL: ' ' })).toThrow(/BOOTSTRAP_OWNER_EMAIL/);
+    expect(() => loadConfig({ ...PROD, BOOTSTRAP_OWNER_EMAIL: EXAMPLE_OWNER_EMAIL })).toThrow(/BOOTSTRAP_OWNER_EMAIL/);
+    expect(() => loadConfig({ ...PROD, BOOTSTRAP_OWNER_EMAIL: ' Owner@Example.COM ' })).toThrow(/BOOTSTRAP_OWNER_EMAIL/);
+  });
+
+  it('rejects prod without WEB_ORIGIN or with the example value, naming it', () => {
+    expect(() => loadConfig({ ...PROD, WEB_ORIGIN: undefined })).toThrow(/WEB_ORIGIN/);
+    expect(() => loadConfig({ ...PROD, WEB_ORIGIN: LOCAL_WEB_ORIGIN })).toThrow(/WEB_ORIGIN/);
+  });
+
+  it('stores the owner email trimmed and in lower case', () => {
+    expect(loadConfig({ ...PROD, BOOTSTRAP_OWNER_EMAIL: '  Boss@Team.TEST ' }).bootstrapOwnerEmail).toBe('boss@team.test');
+  });
+
+  it('rejects an owner email that is not an email address', () => {
+    expect(() => loadConfig({ BOOTSTRAP_OWNER_EMAIL: 'boss' })).toThrow(/BOOTSTRAP_OWNER_EMAIL/);
+  });
+
+  it('rejects a WEB_ORIGIN with a path or another scheme', () => {
+    expect(() => loadConfig({ WEB_ORIGIN: 'https://example.com/app' })).toThrow(/WEB_ORIGIN/);
+    expect(() => loadConfig({ WEB_ORIGIN: 'ftp://example.com' })).toThrow(/WEB_ORIGIN/);
+    expect(() => loadConfig({ WEB_ORIGIN: 'not a url' })).toThrow(/WEB_ORIGIN/);
+    expect(loadConfig({ WEB_ORIGIN: 'https://example.com/' }).webOrigin).toBe('https://example.com');
+  });
+
+  it('uses the local defaults: no owner email, web origin 5173, trust one proxy', () => {
+    const config = loadConfig({});
+    expect(config.bootstrapOwnerEmail).toBeUndefined();
+    expect(config.webOrigin).toBe('http://localhost:5173');
+    expect(config.trustProxy).toBe(1);
+    expect(config.clientIpHeader).toBeUndefined();
+  });
+
+  it('trusts no proxy in prod unless TRUST_PROXY is set', () => {
+    expect(loadConfig(PROD).trustProxy).toBe(false);
+    expect(loadConfig({ ...PROD, TRUST_PROXY: '1' }).trustProxy).toBe(1);
+    expect(loadConfig({ ...PROD, TRUST_PROXY: 'true' }).trustProxy).toBe(true);
+    expect(loadConfig({ ...PROD, TRUST_PROXY: 'loopback, 10.0.0.0/8' }).trustProxy).toBe('loopback, 10.0.0.0/8');
+  });
+
+  it('reads CLIENT_IP_HEADER in lower case and rejects a bad name', () => {
+    expect(loadConfig({ ...PROD, CLIENT_IP_HEADER: 'CF-Connecting-IP' }).clientIpHeader).toBe('cf-connecting-ip');
+    expect(() => loadConfig({ CLIENT_IP_HEADER: 'bad header:' })).toThrow(/CLIENT_IP_HEADER/);
   });
 });

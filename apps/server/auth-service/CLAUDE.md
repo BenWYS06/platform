@@ -16,19 +16,40 @@ forwards `/api/auth/*` here with the prefix kept.
 
 - `src/config.ts`: the only `process.env` reader (lint enforces it); production guard.
 - `src/app.ts`: builds the app without listening (tests use it with supertest).
-- `src/server.ts`: config, store clients, listen, shutdown.
+- `src/server.ts`: config, store clients, listen, startup loop, shutdown.
 - `src/routes/` (HTTP only) -> `src/services/` (logic) -> `src/repositories/` (MongoDB, Redis).
-- `src/middleware/`: contract error handler, internal key check.
+- MongoDB through Mongoose, not the raw driver (D-009). `src/models/`: schemas, models and
+  indexes; only repositories import them, routes never import Mongoose (lint enforces it).
+- `src/repositories/`: `stores.ts` (Mongoose connection, Redis client), `users.ts`,
+  `invitations.ts` (only writer of both in `platform`). Emails are stored trimmed and lower
+  case. `mapStoreErrors`: duplicate key (11000) -> `DuplicateError`, MongoDB unreachable ->
+  `StoreUnavailableError` (the error handler answers 503).
+- `src/services/startup.ts`: one retry loop (every 30 s) connects and runs `syncIndexes`,
+  then the after-index step. Until the indexes exist, data routes answer 503 (`middleware/ready.ts`);
+  health answers from the start. Data routes mount behind `requireReady` in `app.ts`.
+- `src/services/bootOwner.ts`: the after-index step. While no user exists and
+  `BOOTSTRAP_OWNER_EMAIL` is set, it revokes pending owner invitations, inserts a new one
+  (sha256 of the token stored, 7 days) and writes the boot link once to stdout (plain
+  write, the one token allowed out; never through pino).
+- `src/middleware/`: contract error handler, internal key check, readiness gate.
 - `src/logger.ts`: pino; `Authorization`, `Cookie`, `X-Internal-Key` are redacted.
+- `src/middleware/requestLog.ts`: pino-http; the token segment of `/api/auth/invitations/<token>`
+  and of a `/invite/<token>` Referer shows as `[redacted]` in request, error and 404 lines.
 - Routes: `GET /api/auth/health` (pings MongoDB and Redis, 2.5 s timeout), `GET /internal/ping`
-  (behind `X-Internal-Key`). API: `openapi.yaml`; update it with every route change.
+  (behind `X-Internal-Key`), `POST /api/auth/invitations/:token/accept-password`
+  (`routes/invitations.ts` -> `services/invitations.ts`; token helpers in
+  `services/tokens.ts`; failure limit `services/acceptLimit.ts` over
+  `repositories/failureCounter.ts`; client IP `middleware/clientIp.ts`). API: `openapi.yaml`;
+  update it with every route change.
 
 ## Config
 
 - Env first; `npm start` and `npm run dev` also load the repo `.env`
   (`--env-file-if-exists`). Names in `.env.example`. MongoDB database `platform`.
 - `APP_ENV=prod` refuses a missing, short or default `INTERNAL_API_KEY`, and a missing
-  `MONGODB_URI` or `REDIS_URL`. Bad config or a port in use exits with code 1.
+  `MONGODB_URI` or `REDIS_URL`, and a missing or example `BOOTSTRAP_OWNER_EMAIL` or
+  `WEB_ORIGIN`. Bad config or a port in use exits with code 1 (`test/startup.test.ts`).
+- `TRUST_PROXY` and `CLIENT_IP_HEADER` decide the client IP: `docs/environments.md`.
 
 ## Libraries
 
@@ -45,6 +66,20 @@ Use these; never hand-write them (`docs/auth-design.md` 0.12).
 
 ## Gotchas
 
-- Tests never touch real stores: `createApp` takes a `health` object, tests pass a fake.
+- Route tests use fakes: `createApp` takes `health`, `readiness`, `invitations` and
+  `acceptLimit` objects (stubs in `test/helpers/invitations.ts`). Repository, startup, accept
+  and limit tests use a real MongoDB and Redis (`test/helpers/mongo.ts`, `redis.ts`,
+  Testcontainers): Docker must be running, the first run pulls `mongo:8.0.17` and
+  `redis:7.4.6`. Each test uses its own database name or Redis key prefix.
+- Redis client: no offline queue, so commands fail at once while Redis is down; the failure
+  counters then answer 503 (limits fail closed). `close()` drops the socket when Redis is down
+  instead of waiting for a graceful quit.
+- Mongoose connection: `bufferCommands: false`, `serverSelectionTimeoutMS: 2000`,
+  `autoIndex: false`. A query fails in about 2 s when MongoDB is down, at once before the
+  first connect (with buffering it would wait 10 s). A failed first connect is retried by
+  the next `connectMongo()`; index changes go in the schema, built by `syncIndexes`, which
+  also drops indexes the schema does not list.
+- Tests check every error answer with `expectError` (`test/helpers/error-body.ts`): status,
+  code and the contract error-body schema. `throw new ApiError(code, params?)` in code.
 - TypeScript stays on 6.0.x until typescript-eslint supports 7.
 - Express 5 calls the `app.listen` callback on errors too; `server.ts` uses `node:http`.

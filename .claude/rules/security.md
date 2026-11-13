@@ -20,6 +20,9 @@ Job: the security rules every service and client follows. Loaded every session.
 
 - Secrets live only in env variables. Names go in `.env.example`, values never go in git.
 - Never log tokens, passwords, keys, full request bodies or `Authorization` headers.
+  One written exception: the first-owner boot link. While no user exists, auth-service
+  writes `<WEB_ORIGIN>/invite/<token>` once per boot to stdout with a plain write, never
+  through pino (spec 009 A5, A25). No other token is ever written.
 - Each service refuses to start in production with a missing or default secret
   (production guard).
 - Claude never reads or edits `.env` files or keys: settings deny it and
@@ -27,7 +30,9 @@ Job: the security rules every service and client follows. Loaded every session.
 
 ## Errors
 
-- Error responses are `{ code, message? }` with a code from `contracts/error-codes.json`.
+- Error responses are `{ code, message?, params? }` with a code from `contracts/error-codes.json`.
+  `params` values are a string, a number or a list of strings
+  (`contracts/schemas/error-body.schema.json`); never a secret or a token.
 - No stack traces, SQL/Mongo queries or internal hostnames in responses.
 - Same answer for "user not found" and "wrong password".
 

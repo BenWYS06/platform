@@ -1,3 +1,7 @@
 # Job: known false positives for the gitleaks secret scan (CI from issue 0.6).
 # One fingerprint per line, as printed by gitleaks, with a comment saying why it is safe.
 # A real secret is never ignored here: rotate it instead.
+
+# Fake invitation token in the log-masking test (Task 6a of plan 009a); replaced by a
+# low-entropy value in a later commit. Not a real secret.
+1fbf0a3b15831a9cb3fdd774c897cafb2bbb0aec:apps/server/auth-service/test/log-masking.test.ts:generic-api-key:11

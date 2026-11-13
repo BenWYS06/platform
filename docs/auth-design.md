@@ -50,7 +50,7 @@ Logout, block or role change = change the session in Redis. The next call in eve
 | refresh answers 401 or 403 | log out; show the reason if the code is on the allow-list |
 | refresh answers 503 or the network fails | stay signed in; the call fails this time, the user can retry |
 | login or refresh answers 403 `ACCOUNT_BLOCKED` (a blocked user's other calls answer 401 `SESSION_REVOKED`) | log out, show "account blocked" on the login screen |
-| 401 on login, setup, invitation or refresh calls | never start a refresh (it is a real answer, a refresh would loop) |
+| 401 on login, invitation or refresh calls | never start a refresh (it is a real answer, a refresh would loop) |
 | 429 | show "try again later" with the wait time from `params` |
 
 Only codes on a fixed allow-list ever reach the login screen (`/login?reason=CODE`). Server text is never shown.
@@ -159,7 +159,7 @@ These decisions define 1.1; the spec is written from them.
 - First owner:
   - Env: `BOOTSTRAP_OWNER_EMAIL` only. No password in env, no setup route, no setup token.
   - At every boot, while no user exists and the email is set: replace any pending owner invitation with a new one (token 256 bits, only its sha256 stored, 7 days) and print the link `<WEB_ORIGIN>/invite/<token>` once to stdout as a plain line. This is the only place a token may be printed; the rule "no tokens in logs" gets this one written exception. Once a user exists, boot does nothing.
-  - Accept: `POST /api/auth/invitations/:token/accept-password` with `{ password, displayName }`. The email comes from the invitation. The claim is one atomic conditional update; if creating the user fails the invitation goes back to pending. The user gets role `Owner`. Limit: 5 attempts per IP per 15 minutes. Answers: `INVITATION_INVALID` (404), `INVITATION_EXPIRED` (410), `INVITATION_REVOKED` (410), `INVITATION_ALREADY_ACCEPTED` (409).
+  - Accept: `POST /api/auth/invitations/:token/accept-password` with `{ password, displayName }`. The email comes from the invitation. The claim is one atomic conditional update; if creating the user fails the invitation goes back to pending. The user gets role `Owner`. Limit: 20 failures per IP per 15 minutes (failures only). Answers: `INVITATION_INVALID` (404), `INVITATION_EXPIRED` (410), `INVITATION_REVOKED` (410), `INVITATION_ALREADY_ACCEPTED` (409).
   - 1.1 stores the invitation `role` as a name; 1.3 maps it to `roleId`.
   - Must not happen: two owners; a token in a response, an error or the JSON logs; a link printed once an owner exists; an accept that works after expiry or replacement.
 - Login order, always the same:
@@ -176,7 +176,6 @@ These decisions define 1.1; the spec is written from them.
 - Limits (all fail closed when Redis is down, 503):
   - per email: 5 failures in 15 minutes, then 429 until the window ends;
   - per client IP: 20 failures in 15 minutes. Count failures only, not all attempts, so an office behind one address can log in all morning;
-  - setup: 5 attempts per IP in 15 minutes;
   - burst: 5 requests per second per client on every auth route except refresh.
 - A counter gets its expiry on the first failure (fixed window) and is cleared by a success.
 - 429 carries a `Retry-After` header and `params.retryAfterSeconds`.
