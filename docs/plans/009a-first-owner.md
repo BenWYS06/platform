@@ -98,7 +98,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   one warning when unset); `grep -n "boot link" CLAUDE.md .claude/rules/security.md`
   prints both. (Done when 6, 7, 8, 19 part 2)
 
-- [ ] Task 6a. Token masking in logs
+- [x] Task 6a. Token masking in logs
   Logger: the token segment of `/api/auth/invitations/<token>` shows as `[redacted]` in
   request, error and 404 logs, before the accept route exists.
   Check: tests on a fake path (a test-only route under `/api/auth/invitations/<token>/...`
