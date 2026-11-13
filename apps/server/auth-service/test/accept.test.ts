@@ -124,6 +124,29 @@ describe('accept with password', () => {
     expect(await db.collection('users').countDocuments()).toBe(1);
   });
 
+  it('answers 409 INVITATION_ALREADY_ACCEPTED when another accept of the same link wins between the lookup and the email check', async () => {
+    // Forces the race of the parallel test: the winner runs after this request read the
+    // invitation as pending, just before it checks the email.
+    let beforeEmailCheck = async () => {};
+    const { db, app, invite, users, invitations, logger } = await setup((u) => ({
+      ...u,
+      findByEmail: async (email) => {
+        const run = beforeEmailCheck;
+        beforeEmailCheck = async () => {};
+        await run();
+        return u.findByEmail(email);
+      },
+    }));
+    const token = await invite();
+    const winner = createInvitationsService({ users, invitations, logger });
+    beforeEmailCheck = async () => {
+      await winner.acceptWithPassword({ token, password: PASSWORD, displayName: 'Winner' });
+    };
+
+    expectError(await request(app).post(path(token)).send(GOOD), 'INVITATION_ALREADY_ACCEPTED');
+    expect(await db.collection('users').countDocuments()).toBe(1);
+  });
+
   it('answers 410 for an expired link and 404 for an unknown token', async () => {
     const { app, invite } = await setup();
     const expired = await invite({ expiresAt: new Date(Date.now() - 1000) });

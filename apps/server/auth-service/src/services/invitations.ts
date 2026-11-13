@@ -45,7 +45,12 @@ export function createInvitationsService(deps: InvitationsServiceDeps): Invitati
       if (invitation.status === 'revoked') throw new ApiError('INVITATION_REVOKED');
       if (invitation.status === 'accepted') throw new ApiError('INVITATION_ALREADY_ACCEPTED');
       if (invitation.expiresAt <= at) throw new ApiError('INVITATION_EXPIRED');
-      if (await users.findByEmail(invitation.email)) throw new ApiError('MEMBER_ALREADY_EXISTS');
+      if (await users.findByEmail(invitation.email)) {
+        // The user may come from this very link, accepted by a parallel request since the lookup.
+        const again = await invitations.findByTokenHash(invitation.tokenHash);
+        if (again?.status === 'accepted') throw new ApiError('INVITATION_ALREADY_ACCEPTED');
+        throw new ApiError('MEMBER_ALREADY_EXISTS');
+      }
 
       const passwordHash = await hashPassword(password);
       // Another request claimed it between the lookup and here.
