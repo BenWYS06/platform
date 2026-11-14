@@ -29,4 +29,4 @@ Job: which tests each layer needs, and when a change is tested enough. Loaded ev
 - No sleeps to wait for async work; poll with a timeout or use the tool's await helper.
 - Tests must pass in any order and in parallel; each test sets up its own data.
 - Do not delete or skip a failing test to make the build green. Fix it or ask the user.
-- Run the tests for the code you changed before saying a task is done, and show the output.
+- Plan tasks are not run locally (root `CLAUDE.md` "Work mode"); CI runs the tests on the open PR.

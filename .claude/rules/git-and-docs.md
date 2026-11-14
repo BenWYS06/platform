@@ -13,8 +13,9 @@ Job: how work moves from a branch to main, and how docs stay true. Loaded every 
 - Conventional Commits: `type: summary` in the imperative, under 72 characters.
   Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `perf`, `ci`.
 - One plan task, one commit. The body says which task: `Task 3 of plan 001.`
-- When a task's check passes, tick it (`- [x]`) in the plan and put that change in the same
-  commit as the task. No separate commit for ticks.
+- When a task is done, tick it (`- [x]`) in the plan and put that change in the same commit
+  as the task. No separate commit for ticks. CI proves build, lint and tests at the end of
+  the plan.
 - Commit only when the user asks or the plan says so. Never commit `.env` files or keys.
 
 ## Never
@@ -32,7 +33,7 @@ Job: how work moves from a branch to main, and how docs stay true. Loaded every 
    - 2 to 3 points with no contract change: "Done when" in the issue, and a short plan.
    - Tiny fix (one file or one rule): no spec, no plan; the issue and a PR.
    - Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5.
-2. Work task by task; stop after each task and show the check output.
+2. Work task by task; after each task commit, report and stop as in root `CLAUDE.md` "Work mode".
 3. The last plan task closes the issue on the feature branch, before the PR opens: tick the
    plan and mark it `done`, set its line in `docs/plans/README.md` to `done`, tick the issue
    in `docs/roadmap.md`, and point `docs/handoff.md` to the next issue. Write `done`, never

@@ -4,17 +4,18 @@ Spec: docs/specs/009-first-owner-login.md, part 1.1b (Decisions B1 to B13, Done 
 Issue: #35
 Branch: feature/login
 Status: not started
-Rule: one task, one commit, one check. Stop after each task and show the check output.
+Rule: one task, one commit. No local runs; Check lines are what CI proves at the end. After
+each task, report and stop as in root `CLAUDE.md` "Work mode".
 
 ## Global Constraints
 
 - Branch: `feature/login` from an up-to-date `main`; never commit to `main`.
 - Stage files one by one: `git add <path>`. Never `git add -A` or `git add .`.
 - Format only the files this task changed; never reformat other files.
-- When a task's Check passes, tick it (`- [x]`) here and put that change in the task's commit.
+- When a task is done, tick it (`- [x]`) here and put that change in the task's commit.
 - Every commit ends with the trailer `Task N of plan 009b.` and the attribution line.
-- Every task leaves `npm run build && npm run lint && npm test` (auth-service) and
-  `cd contracts && npm test` green. Run Vitest from `D:/openbox/...` (handoff gotcha).
+- A task is ticked when it is done. CI proves `npm run build && npm run lint && npm test`
+  (auth-service) and `cd contracts && npm test` green at the end of the plan.
 - New packages: exact versions, each at least two weeks old.
 - Tests that need a real MongoDB or Redis use Testcontainers (Docker running). Route tests
   keep fakes.
@@ -100,22 +101,22 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   (C3) on login and accept, not on health or `/internal`; 429 `RATE_LIMITED` with
   `Retry-After: 1`. `helmet` (exact version) first in the app, defaults with
   `X-Frame-Options: DENY` (B13). `openapi.yaml` notes the burst 429 on both routes; auth
-  `CLAUDE.md`.
-  Check: tests pass: the 6th login and the 6th accept within one second from one IP answer
-  429 with `Retry-After: 1` and `params.retryAfterSeconds: 1`; another IP is not limited;
-  50 health requests in one second all answer 200; `/internal/ping` is not limited; a
-  login 200, an error answer (404) and health each carry `X-Content-Type-Options: nosniff`,
-  `X-Frame-Options: DENY` and a `Content-Security-Policy` header; the Task 4 volume tests
-  still pass with the never-limiting limiter. (Done when 8, 15)
+  `CLAUDE.md`. One core test file.
+  Check (CI): the core test passes: the 6th login within one second from one IP answers 429
+  with `Retry-After: 1` and `params.retryAfterSeconds: 1`; health is not limited; a login
+  answer carries `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and a
+  `Content-Security-Policy` header; the Task 4 tests still pass. (Done when 8, 15)
 
 - [ ] Task 6. Close the issue
-  Run the full checks (contracts, auth-service, web, `./mvnw verify`, repo checks,
-  gitleaks). Through Caddy: after a 1.1a accept, login via `localhost:8080` with the chosen
-  password (200) and a wrong one (401). CHANGELOG line under `Unreleased`. Tick this plan
-  and set `Status: done`; set its line in docs/plans/README.md to `done`; tick 1.1b and 1.1
-  in docs/roadmap.md; point docs/handoff.md to the next issue (/session-summary). Scan,
-  push, open the PR with `Closes #35`.
-  Check: all checks pass and CI is green on the PR; the Caddy run gives 200 and 401;
+  CHANGELOG line under `Unreleased`. Tick this plan and set `Status: done`; set its line in
+  docs/plans/README.md to `done`; tick 1.1b and 1.1 in docs/roadmap.md; point
+  docs/handoff.md to the next issue (/session-summary). Scan; when the user says so, push
+  and open the PR with `Closes #35`. CI runs the full checks (contracts, auth-service,
+  web, `./mvnw verify`, repo checks, gitleaks): read `gh pr checks` once; for a red check
+  open only its log, fix all red checks in one commit, push again. The Caddy run is the
+  user's: after a 1.1a accept, login via `localhost:8080` with the chosen password (200)
+  and a wrong one (401).
+  Check: CI is green on the PR; the user's Caddy run gives 200 and 401;
   `git diff main --stat` lists the plan, plans/README.md, roadmap.md and handoff.md; none
   says "merged" or a PR number; handoff "Next step" names the next issue. (Done when 13, 14)
 

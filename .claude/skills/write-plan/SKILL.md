@@ -25,13 +25,14 @@ built, checked and committed alone. A tiny fix (one file or one rule) needs no p
    it touches.
 3. **Split** "What we build" (or the issue's "Done when") into tasks:
    - One task = one commit, about 15 to 60 minutes of work.
-   - Each task has a **Check**: a command to run or a thing to open, with the expected result.
+   - Each task has a **Check**: what CI must prove at the end, with the expected result; not a
+     command to run per task (root `CLAUDE.md` "Work mode").
      "Looks good" is not a check.
    - Order: things others depend on first; risky or unknown parts early.
    - Tests go in the same task as the code they test.
    - Docs updates go in the task that changes the behavior.
    - The last task is always "Close the issue": on the feature branch, before the PR opens,
-     run the full checks, tick the plan and mark it `done`, set the plans index line to
+     tick the plan and mark it `done`, set the plans index line to
      `done`, tick the issue in `docs/roadmap.md`, and point `docs/handoff.md` to the next
      issue. Write `done`, never "merged" or a PR number. Merging is not a task: the user
      merges after reading the diff. One PR per issue; no follow-up PR to close the plan.
@@ -47,26 +48,28 @@ built, checked and committed alone. A tiny fix (one file or one rule) needs no p
 
 Spec: docs/specs/NNN-short-name.md   (short plan: Issue: #n, its "Done when" list)
 Branch: feature/<short-name>
-Rule: one task, one commit, one check. Stop after each task and show the check output.
+Rule: one task, one commit. No local runs; Check lines are what CI proves at the end. After
+each task, report and stop as in root `CLAUDE.md` "Work mode".
 
 ## Global Constraints
 
 - Branch: `feature/<short-name>` from an up-to-date `main`; never commit to `main`.
 - Stage files one by one: `git add <path>`. Never `git add -A` or `git add .`.
 - Format only the files this task changed; never reformat other files.
-- When a task's Check passes, tick it (`- [x]`) here and put that change in the task's commit.
+- When a task is done, tick it (`- [x]`) here and put that change in the task's commit.
 - Every commit ends with the trailer `Task N of plan NNN.` and the attribution line.
 
 ## Tasks
 
 - [ ] Task 1. <name>
   <what to do, in one to three lines>
-  Check: <command or action> -> <expected result>.
+  Check: <what CI must prove> -> <expected result>.
 
 - [ ] Task N. Close the issue
-  Run the full checks. Tick this plan and set `Status: done`; set its line in
-  docs/plans/README.md to `done`; tick the issue in docs/roadmap.md; point docs/handoff.md
-  to the next issue (/session-summary). Scan, push, open the PR.
+  Tick this plan and set `Status: done`; set its line in docs/plans/README.md to `done`;
+  tick the issue in docs/roadmap.md; point docs/handoff.md to the next issue
+  (/session-summary). Scan; when the user says so, push and open the PR. CI runs the full
+  checks: read `gh pr checks` once, fix all red checks in one commit, push again.
   Check: `git diff main --stat` lists the plan, plans/README.md, roadmap.md and handoff.md;
   none of them says "merged" or a PR number; handoff "Next step" names the next issue.
 ```
