@@ -130,7 +130,8 @@ describe('startup loop with a real MongoDB', () => {
 
     startup.start();
     // Health answers at once (503: a store is down); data routes answer 503 too.
-    expectError(await request(app).get('/api/auth/health'), 'SERVICE_UNAVAILABLE');
+    const down = await request(app).get('/api/auth/health');
+    expect([down.status, down.text]).toEqual([503, '{"status":"DOWN"}']);
     expectError(await request(app).post(DATA_ROUTE).send({}), 'SERVICE_UNAVAILABLE');
     expect(startup.isReady()).toBe(false);
 

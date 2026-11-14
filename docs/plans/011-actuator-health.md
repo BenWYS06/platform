@@ -3,7 +3,7 @@
 Issue: #40, its "Done when" list. Short plan: health only, decided in D-010a to D-010c,
 no spec.
 Branch: chore/actuator-health
-Status: not started
+Status: done
 Rule: one task, one commit, one check. Stop after each task and show the check output.
 
 ## Global Constraints
@@ -25,7 +25,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 
 ## Tasks
 
-- [ ] Task 1. auth-service health body, smoke script and web
+- [x] Task 1. auth-service health body, smoke script and web
   auth-service `GET /api/auth/health` answers 503 `{"status":"DOWN"}` instead of the error
   body; 200 stays `{"status":"UP"}`; tests updated; `openapi.yaml` updated.
   `infra/docker-compose/smoke.mjs` accepts 503 `{"status":"DOWN"}` (service up, a store down)
@@ -38,7 +38,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   running, `node infra/docker-compose/smoke.mjs` -> the auth health line passes with
   `200 UP`; MongoDB stopped -> the same line shows `503 DOWN`.
 
-- [ ] Task 2. chat-service: Actuator
+- [x] Task 2. chat-service: Actuator
   Add `spring-boot-starter-actuator`. `application.yml`: exposure `include: health`,
   `show-details: never`, `show-components: never`, base path and mapping so health stays
   at `GET /api/chat/health`; every other endpoint off. Remove `HealthController`,
@@ -55,7 +55,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `git grep -n "HealthController\|HealthService" -- apps/server/chat-service` -> no output;
   `./mvnw -B spotless:check` -> BUILD SUCCESS.
 
-- [ ] Task 3. ai-service: Actuator
+- [x] Task 3. ai-service: Actuator
   The same as Task 2 for ai-service (`GET /api/ai/health`, only the `mongo` and `rabbit`
   indicators; exposed web endpoints exactly `[health]`; `/api/ai/env`, `/api/ai/beans` and
   `/api/ai/metrics` never answer 200 without a token).
@@ -67,7 +67,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   all three services running, `node infra/docker-compose/smoke.mjs --services` -> all three
   health lines `200 UP`, the actuator lines 404.
 
-- [ ] Task 4. Docs
+- [x] Task 4. Docs
   `docs/architecture.md` (service skeleton health line), the `CLAUDE.md` of auth-, chat-
   and ai-service, and the rules text for the health exception (`CLAUDE.md` rule on errors,
   `.claude/rules/security.md`, `.claude/rules/express.md`, `.claude/rules/spring.md`).
@@ -76,7 +76,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   -> no health line; `grep -n "D-010" CLAUDE.md .claude/rules/security.md
   docs/specs/004-service-skeletons.md` -> prints a line for each.
 
-- [ ] Task 5. Close the issue
+- [x] Task 5. Close the issue
   Run the full checks (contracts, auth-service, web, `./mvnw verify`, repo checks,
   gitleaks). Tick this plan and set `Status: done`; set its line in docs/plans/README.md to
   `done`; tick the line in docs/roadmap.md; point docs/handoff.md to the next issue

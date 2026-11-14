@@ -19,6 +19,32 @@ spring:
     problemdetails:
       enabled: false
 
+# Actuator serves only health, at GET /api/chat/health (D-010a): 200 {"status":"UP"},
+# 503 {"status":"DOWN"}, never a component or detail (D-010b). Every other endpoint is off.
+# Only the mongo and rabbit indicators run; no other indicator joins by itself.
+management:
+  endpoints:
+    access:
+      default: none
+    web:
+      base-path: /api/chat
+      exposure:
+        include: health
+      discovery:
+        enabled: false
+  endpoint:
+    health:
+      access: read-only
+      show-details: never
+      show-components: never
+  health:
+    defaults:
+      enabled: false
+    mongo:
+      enabled: true
+    rabbit:
+      enabled: true
+
 logging:
   structured:
     format:

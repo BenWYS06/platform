@@ -24,3 +24,10 @@ versions follow [Semantic Versioning](https://semver.org/).
   boot; `POST /api/auth/invitations/<token>/accept-password` creates the owner. Failed
   accepts are limited per client IP (429 with `Retry-After`); error bodies may carry
   `params` (issue 1.1a).
+
+### Changed
+
+- Health: every service answers 503 `{"status":"DOWN"}` instead of the error body when a
+  store is down; chat-service and ai-service serve health through Spring Actuator, the only
+  actuator endpoint. The web health screen and the smoke check accept both 503 bodies
+  (issue #40).

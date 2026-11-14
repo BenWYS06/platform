@@ -21,6 +21,16 @@ describe('api layer', () => {
     expect(await checkHealth('chat')).toEqual({ status: 'DOWN', code: 'SERVICE_UNAVAILABLE' });
   });
 
+  it('reads a 503 { status: DOWN } health answer as SERVICE_UNAVAILABLE', async () => {
+    fakeServer(async () => json(503, { status: 'DOWN' }));
+    expect(await checkHealth('auth')).toEqual({ status: 'DOWN', code: 'SERVICE_UNAVAILABLE' });
+  });
+
+  it('keeps a JSON error body without a contract code, with code NETWORK', async () => {
+    fakeServer(async () => json(500, { status: 'DOWN' }));
+    expect(await getJson('/x')).toEqual({ ok: false, code: NETWORK, body: { status: 'DOWN' } });
+  });
+
   it('passes an unknown code through for the screen to map', async () => {
     fakeServer(async () => json(418, { code: 'TEAPOT_BUSY', message: 'raw server text' }));
     expect(await getJson('/x')).toEqual({ ok: false, code: 'TEAPOT_BUSY' });

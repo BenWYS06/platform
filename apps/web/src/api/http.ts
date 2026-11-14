@@ -1,13 +1,15 @@
 // Job: the only way the web app talks to the server. Relative /api base, 5 s timeout.
 // A result is either the JSON body or an error code: a contract code from the server, or
 // NETWORK when there is no usable answer (no connection, timeout, HTML, empty body).
+// An error status with a JSON body that has no contract code keeps that body in `body`
+// (health answers 503 { "status": "DOWN" }, D-010b).
 import axios, { type AxiosResponse } from 'axios';
 
 export const NETWORK = 'NETWORK';
 
 const CONTRACT_CODE = /^[A-Z][A-Z0-9_]*$/;
 
-export type ApiResult<T> = { ok: true; data: T } | { ok: false; code: string };
+export type ApiResult<T> = { ok: true; data: T } | { ok: false; code: string; body?: unknown };
 
 // The one axios instance. Exported so tests can set a fake adapter on it.
 export const apiClient = axios.create({
@@ -28,7 +30,9 @@ export async function getJson<T>(path: string): Promise<ApiResult<T>> {
     if (response.status >= 200 && response.status < 300) {
       return body === undefined ? { ok: false, code: NETWORK } : { ok: true, data: body as T };
     }
-    return { ok: false, code: errorCode(body) ?? NETWORK };
+    const code = errorCode(body);
+    if (code !== undefined) return { ok: false, code };
+    return body === undefined ? { ok: false, code: NETWORK } : { ok: false, code: NETWORK, body };
   } catch {
     return { ok: false, code: NETWORK };
   }

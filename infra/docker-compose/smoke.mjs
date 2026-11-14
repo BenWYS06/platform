@@ -65,14 +65,18 @@ async function expectCaddy(path, status, code, headers) {
   if (res.body !== JSON.stringify({ code })) throw new Error(`body ${res.body}`);
 }
 
-// A service health through Caddy: 200 UP when it runs with its stores, 503 when it or a
-// store is down. Without --services both pass; the returned note says which it was.
+// A service health through Caddy: 200 UP when it runs with its stores; 503 DOWN when it
+// runs and a store is down (D-010b); Caddy's 503 SERVICE_UNAVAILABLE when it is not running.
+// Without --services all three pass; the returned note says which it was.
 async function expectHealth(service) {
-  const res = await get(CADDY_PORT, `/api/${service}/health`);
+  // Accept as clients send it; without it Actuator answers with its own vendor media type.
+  const res = await get(CADDY_PORT, `/api/${service}/health`, { Accept: 'application/json' });
   const json = res.type.startsWith('application/json');
   if (res.status === 200 && json && res.body === JSON.stringify({ status: 'UP' })) return '200 UP';
-  const down = res.status === 503 && json && res.body === JSON.stringify({ code: 'SERVICE_UNAVAILABLE' });
-  if (down && !REQUIRE_SERVICES) return '503 SERVICE_UNAVAILABLE (service or a store down)';
+  if (!REQUIRE_SERVICES && res.status === 503 && json) {
+    if (res.body === JSON.stringify({ status: 'DOWN' })) return '503 DOWN (a store down)';
+    if (res.body === JSON.stringify({ code: 'SERVICE_UNAVAILABLE' })) return '503 SERVICE_UNAVAILABLE (service not running)';
+  }
   throw new Error(`status ${res.status}, body ${res.body}`);
 }
 
@@ -100,6 +104,11 @@ const checks = [
     async () => expectCaddy(path, 404, 'NOT_FOUND', { 'X-Internal-Key': LOCAL_INTERNAL_KEY }),
   ]),
   ['Caddy: unknown path -> 404 NOT_FOUND', async () => expectCaddy('/no-such-path', 404, 'NOT_FOUND')],
+  // Actuator serves only health, under /api/<service> (D-010a); its default paths stay closed.
+  ...['/actuator/env', '/actuator/beans', '/actuator/metrics'].map((path) => [
+    `Caddy: ${path} -> 404 NOT_FOUND`,
+    async () => expectCaddy(path, 404, 'NOT_FOUND'),
+  ]),
   ...INTERNAL_PATHS.map((path) => [
     `Caddy: ${path} -> 404 NOT_FOUND`,
     async () => expectCaddy(path, 404, 'NOT_FOUND'),

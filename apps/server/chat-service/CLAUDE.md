@@ -19,8 +19,13 @@ Run from the repo root (one `./mvnw` for all Java parts):
 
 - Errors, production guard, request id and internal key come from
   `packages/platform-common-java` (package `com.openbox.platform`); throw `ApiException`.
-- `health/`: `GET /api/chat/health`, pings MongoDB and RabbitMQ (2.5 s timeout; driver
-  connect and server selection bounded at 2 s in `StoreTimeoutConfig`).
+- Health: Spring Actuator, configured in `application.yml` (D-010a). `GET /api/chat/health`
+  answers 200 `{"status":"UP"}` or 503 `{"status":"DOWN"}`; only the `mongo` and `rabbit`
+  indicators run, and health is the only actuator endpoint. `health/StoreTimeoutConfig`
+  bounds MongoDB server selection and connect and the RabbitMQ handshake at 2 s, so a
+  hanging store answers 503 within 3 s. Indicators run one after another: two hanging
+  stores take about 4 s. Clients send `Accept: application/json` (otherwise Actuator's own
+  media type).
 - `internal/`: `GET /internal/ping`, behind `X-Internal-Key`.
 - API: `openapi.yaml`. Update it with every route change.
 

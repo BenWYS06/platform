@@ -7,7 +7,10 @@ paths:
   /api/chat/health:
     get:
       summary: Health check (public)
-      description: Pings MongoDB and RabbitMQ. Public so the gateway and operators can check it.
+      description: >-
+        Spring Actuator health (D-010a), the only actuator endpoint. Checks MongoDB and
+        RabbitMQ. Public so the gateway and operators can check it. Send
+        Accept: application/json; without it Actuator answers with its own vendor media type.
       security: []
       responses:
         "200":
@@ -17,10 +20,22 @@ paths:
               schema:
                 type: object
                 required: [status]
+                additionalProperties: false
                 properties:
                   status: { type: string, const: UP }
         "503":
-          $ref: "#/components/responses/Error"
+          description: >-
+            A store did not answer within about 2 s. The body is { "status": "DOWN" }, not the
+            error body, and names no store (D-010b). Through Caddy, a service that is not
+            running answers 503 with the error body { "code": "SERVICE_UNAVAILABLE" } instead.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                additionalProperties: false
+                properties:
+                  status: { type: string, const: DOWN }
   /internal/ping:
     get:
       summary: Internal reachability check
