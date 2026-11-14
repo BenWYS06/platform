@@ -40,6 +40,12 @@ export function createDummyHash(): Promise<string> {
   return hashPassword(randomBytes(32).toString('base64url'));
 }
 
+// The startup step: makes the dummy hash once, then the service; server.ts awaits it before it
+// listens, so the first login already has the dummy hash.
+export async function startLoginService(deps: Omit<LoginServiceDeps, 'dummyHash'>): Promise<LoginService> {
+  return createLoginService({ ...deps, dummyHash: await createDummyHash() });
+}
+
 export function createLoginService({ users, loginLimit, dummyHash, verify = verifyPassword }: LoginServiceDeps): LoginService {
   return {
     async login({ email: rawEmail, password, ip }) {
@@ -47,7 +53,7 @@ export function createLoginService({ users, loginLimit, dummyHash, verify = veri
       await loginLimit.check(email, ip);
 
       const user = await users.findByEmail(email);
-      const passwordOk = await verify(user?.passwordHash ?? dummyHash, password);
+      const passwordOk = await verify(user?.passwordHash ?? dummyHash, password); // left side undefined or null will fallback dummyHash
       if (!user || !passwordOk) {
         await loginLimit.fail(email, ip);
         throw new ApiError('INVALID_CREDENTIALS');

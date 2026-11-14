@@ -95,6 +95,15 @@ errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
   `params.retryAfterSeconds`; successes never count; Redis down answers 503. The client IP is
   `CLIENT_IP_HEADER` when set and valid, otherwise `req.ip` under `TRUST_PROXY`
   (`docs/environments.md`). Only the sha256 of a token is stored; logs show the token as `[redacted]`.
+- Login (1.1b): `POST /api/auth/login` (public) takes `{ email, password }`; the email is
+  trimmed and lower-cased (at most 254 characters). Fixed order: email locked (5 failures)
+  or client IP over its limit (20 failures), 429; find the user; check the password, against
+  a dummy argon2id hash made once at startup for an unknown email, so both answer the same
+  401 `INVALID_CREDENTIALS`; a blocked user with the right password gets 403
+  `ACCOUNT_BLOCKED`. Success answers 200 `{ user }` (tokens come in 1.2). Failure counters
+  live in Redis in a 15-minute fixed window, keyed by the sha256 of the email and by the
+  client IP; a success (or a blocked answer) clears the email counter only. Redis down
+  answers 503.
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)

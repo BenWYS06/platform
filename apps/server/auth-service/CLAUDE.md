@@ -40,8 +40,10 @@ forwards `/api/auth/*` here with the prefix kept.
   (behind `X-Internal-Key`), `POST /api/auth/invitations/:token/accept-password`
   (`routes/invitations.ts` -> `services/invitations.ts`; token helpers in
   `services/tokens.ts`; failure limit `services/acceptLimit.ts` over
-  `repositories/failureCounter.ts`; client IP `middleware/clientIp.ts`). API: `openapi.yaml`;
-  update it with every route change.
+  `repositories/failureCounter.ts`; client IP `middleware/clientIp.ts`),
+  `POST /api/auth/login` (`routes/auth.ts` -> `services/login.ts`; failure limits
+  `services/loginLimit.ts`; `server.ts` awaits `startLoginService`, which makes the dummy
+  hash, before it listens). API: `openapi.yaml`; update it with every route change.
 
 ## Config
 
@@ -67,9 +69,9 @@ Use these; never hand-write them (`docs/auth-design.md` 0.12).
 
 ## Gotchas
 
-- Route tests use fakes: `createApp` takes `health`, `readiness`, `invitations` and
-  `acceptLimit` objects (stubs in `test/helpers/invitations.ts`). Repository, startup, accept
-  and limit tests use a real MongoDB and Redis (`test/helpers/mongo.ts`, `redis.ts`,
+- Route tests use fakes: `createApp` takes `health`, `readiness`, `invitations`,
+  `acceptLimit` and `login` objects (stubs in `test/helpers/invitations.ts`). Repository,
+  startup, accept, login flow and limit tests use a real MongoDB and Redis (`test/helpers/mongo.ts`, `redis.ts`,
   Testcontainers): Docker must be running, the first run pulls `mongo:8.0.17` and
   `redis:7.4.6`. Each test uses its own database name or Redis key prefix.
 - Redis client: no offline queue, so commands fail at once while Redis is down; the failure

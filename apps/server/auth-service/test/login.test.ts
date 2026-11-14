@@ -2,7 +2,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { ApiError } from '../src/errors.js';
 import type { User } from '../src/repositories/users.js';
-import { createDummyHash, createLoginService } from '../src/services/login.js';
+import { createDummyHash, createLoginService, startLoginService } from '../src/services/login.js';
 import type { LoginLimit } from '../src/services/loginLimit.js';
 import { hashPassword, verifyPassword } from '../src/services/password.js';
 
@@ -96,5 +96,20 @@ describe('login service', () => {
     expect(findByEmail).not.toHaveBeenCalled();
     expect(verify).not.toHaveBeenCalled();
     expect(loginLimit.fail).not.toHaveBeenCalled();
+  });
+});
+
+describe('login service at startup', () => {
+  it('checks an unknown-email login right after startup against the dummy hash', async () => {
+    const verify = vi.fn(verifyPassword);
+    const noLimit: LoginLimit = { check: async () => {}, fail: async () => {}, succeed: async () => {} };
+    const service = await startLoginService({ users: { findByEmail: async () => null }, loginLimit: noLimit, verify });
+
+    expect(await codeOf(service.login({ email: 'nobody@team.test', password: PASSWORD, ip: IP }))).toBe('INVALID_CREDENTIALS');
+    expect(verify).toHaveBeenCalledTimes(1);
+    const [hashUsed] = verify.mock.calls[0] ?? [];
+    expect(hashUsed?.startsWith('$argon2id$v=19$m=19456,t=2,p=1$')).toBe(true);
+    // The dummy hash really is a hash: the check took the full argon2 path, not a shortcut.
+    expect(await verifyPassword(hashUsed ?? '', PASSWORD)).toBe(false);
   });
 });

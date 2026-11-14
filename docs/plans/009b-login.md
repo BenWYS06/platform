@@ -73,7 +73,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Note: the dummy hash at startup and the wiring in server.ts move to Task 4, where the route
   uses them.
 
-- [ ] Task 4. Login route
+- [x] Task 4. Login route
   `POST /api/auth/login` in `src/routes/auth.ts` behind `requireReady`: strict body
   `{ email, password }`, email trimmed, lower case, valid, at most 254 characters (B9),
   password as in A18; one service call; 200 `{ user }`. `openapi.yaml` (200, 400, 401, 403,

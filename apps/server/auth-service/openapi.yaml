@@ -105,6 +105,70 @@ paths:
         "503":
           description: SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet).
           $ref: "#/components/responses/Error"
+  /api/auth/login:
+    post:
+      summary: Log in with email and password (public)
+      description: >-
+        Public: the password is the proof. An unknown email and a wrong password get the same
+        401 answer and take the same time (dummy hash). Tokens come in 1.2.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                  description: Trimmed and lower-cased, then checked; at most 254 characters.
+                password:
+                  type: string
+                  minLength: 12
+                  maxLength: 128
+                  description: Used exactly as typed (no trim). Length in characters.
+      responses:
+        "200":
+          description: Logged in.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user:
+                    type: object
+                    required: [id, email, displayName, role]
+                    properties:
+                      id: { type: string }
+                      email: { type: string }
+                      displayName: { type: string }
+                      role: { type: string, enum: [Owner, Admin, Member] }
+        "400":
+          description: VALIDATION_FAILED (bad or too long email, password length, missing or unknown fields).
+          $ref: "#/components/responses/Error"
+        "401":
+          description: INVALID_CREDENTIALS (unknown email or wrong password; the same body for both).
+          $ref: "#/components/responses/Error"
+        "403":
+          description: ACCOUNT_BLOCKED (right password, blocked account).
+          $ref: "#/components/responses/Error"
+        "429":
+          description: >-
+            RATE_LIMITED: 5 failed logins for this email, or 20 from this client IP, in a
+            15-minute window. A success clears the email count only.
+          headers:
+            Retry-After:
+              description: Seconds until the window ends; equal to params.retryAfterSeconds.
+              schema: { type: integer, minimum: 1 }
+          $ref: "#/components/responses/Error"
+        "503":
+          description: SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet).
+          $ref: "#/components/responses/Error"
   /internal/ping:
     get:
       summary: Internal reachability check

@@ -13,7 +13,7 @@ import { createInvitationsService, type InvitationsService } from '../src/servic
 import { verifyPassword } from '../src/services/password.js';
 import { hashToken, newToken } from '../src/services/tokens.js';
 import { expectError } from './helpers/error-body.js';
-import { noLimit } from './helpers/invitations.js';
+import { noLimit, unusedLogin } from './helpers/invitations.js';
 import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
 
 let mongo: TestMongo;
@@ -63,6 +63,7 @@ async function setup(wrapUsers: (users: UsersRepository) => UsersRepository = (u
     readiness: { isReady: () => true },
     invitations: service,
     acceptLimit: noLimit,
+    login: unusedLogin,
   });
 
   async function invite(fields: { status?: 'revoked'; expiresAt?: Date; email?: string } = {}) {
@@ -224,6 +225,7 @@ describe('accept input checks', () => {
     readiness: { isReady: () => true },
     invitations: spy,
     acceptLimit: noLimit,
+    login: unusedLogin,
   });
   const token = 'A'.repeat(43);
 

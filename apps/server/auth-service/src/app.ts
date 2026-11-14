@@ -6,12 +6,14 @@ import { errorHandler, notFound } from './middleware/errors.js';
 import { requireInternalKey } from './middleware/internalKey.js';
 import { requireReady } from './middleware/ready.js';
 import { requestLogger } from './middleware/requestLog.js';
+import { authRouter } from './routes/auth.js';
 import { healthRouter } from './routes/health.js';
 import { internalRouter } from './routes/internal.js';
 import { invitationsRouter } from './routes/invitations.js';
 import type { AcceptLimit } from './services/acceptLimit.js';
 import type { Health } from './services/health.js';
 import type { InvitationsService } from './services/invitations.js';
+import type { LoginService } from './services/login.js';
 import type { Readiness } from './services/startup.js';
 
 export interface AppDeps {
@@ -23,9 +25,10 @@ export interface AppDeps {
   readiness: Readiness;
   invitations: InvitationsService;
   acceptLimit: AcceptLimit;
+  login: LoginService;
 }
 
-export function createApp({ config, logger, health, readiness, invitations, acceptLimit }: AppDeps): Express {
+export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login }: AppDeps): Express {
   const app = express();
   app.disable('x-powered-by');
   // req.ip follows TRUST_PROXY: with 1, the last X-Forwarded-For value (added by Caddy) decides.
@@ -36,6 +39,7 @@ export function createApp({ config, logger, health, readiness, invitations, acce
 
   app.use('/api/auth', healthRouter(health));
   app.use('/api/auth/invitations', requireReady(readiness), invitationsRouter({ service: invitations, limit: acceptLimit, clientIpHeader: config.clientIpHeader }));
+  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader }));
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);

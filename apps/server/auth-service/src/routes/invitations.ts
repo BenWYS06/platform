@@ -7,9 +7,7 @@ import { clientIp } from '../middleware/clientIp.js';
 import type { AcceptLimit } from '../services/acceptLimit.js';
 import type { InvitationsService } from '../services/invitations.js';
 import { TOKEN_SHAPE } from '../services/tokens.js';
-
-// Length in characters (code points), not UTF-16 units.
-const chars = (min: number, max: number) => (s: string) => [...s].length >= min && [...s].length <= max;
+import { chars } from './chars.js';
 
 // Token-check answers count toward the limit; bad input and MEMBER_ALREADY_EXISTS do not.
 const TOKEN_FAILURES = new Set<ErrorCode>([
