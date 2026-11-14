@@ -40,7 +40,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 
 ## Tasks
 
-- [ ] Task 1. Login error codes
+- [x] Task 1. Login error codes
   `contracts/error-codes.json`: `INVALID_CREDENTIALS` 401, `ACCOUNT_BLOCKED` 403, with
   contracts tests. auth `ERROR_STATUS` gets both.
   Check: `cd contracts && npm test` passes with both codes and statuses; the auth contract
