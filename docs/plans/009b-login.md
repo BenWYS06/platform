@@ -58,7 +58,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   keys after a failure finds no plain email; Redis stopped makes `check` and `fail` throw
   `StoreUnavailableError`. (Done when 5, 10)
 
-- [ ] Task 3. Login service
+- [x] Task 3. Login service
   `src/services/login.ts`: the B1 order over the users repository, `verifyPassword` and the
   login limit; dummy hash made once at startup with `ARGON2_OPTIONS` (B10), wired in
   `server.ts`. Answers `{ user }` = `{ id, email, displayName, role }` (B8). Unit tests with
@@ -70,6 +70,8 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   `ACCOUNT_BLOCKED` and calls `succeed`, never `fail`; blocked user with a wrong password
   throws `INVALID_CREDENTIALS` and calls `fail`; a locked email throws 429 before any user
   lookup. (Done when 2, 6, part of 3)
+  Note: the dummy hash at startup and the wiring in server.ts move to Task 4, where the route
+  uses them.
 
 - [ ] Task 4. Login route
   `POST /api/auth/login` in `src/routes/auth.ts` behind `requireReady`: strict body
@@ -79,8 +81,11 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   fakes; flow tests against a real MongoDB and Redis. The 30-successful-logins and
   20-failures tests must not trip the burst limit (Task 5): they build the app with a burst
   limiter that never limits (C3), not with delays (no sleeps, testing rules). Task 5 adds
-  that option and sets it in these tests.
-  Check: tests pass: right password 200 `{ user }` with no `passwordHash`; wrong password and
+  that option and sets it in these tests. `server.ts` makes `createDummyHash` and the login
+  service before the server starts listening (moved from Task 3). The route takes the client
+  IP from `middleware/clientIp.ts`, not `req.ip`.
+  Check: tests pass: an unknown-email login right after startup is checked against the dummy
+  hash; right password 200 `{ user }` with no `passwordHash`; wrong password and
   unknown email give byte-identical 401 bodies; 5 failures for an unknown email make the 6th
   429; for a real user after 5 failures the right password gets 429; 20 failures from one IP
   across emails make the 21st 429, and 30 successful logins from one IP all answer 200;
