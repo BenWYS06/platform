@@ -44,6 +44,11 @@ forwards `/api/auth/*` here with the prefix kept.
   `POST /api/auth/login` (`routes/auth.ts` -> `services/login.ts`; failure limits
   `services/loginLimit.ts`; `server.ts` awaits `startLoginService`, which makes the dummy
   hash, before it listens). API: `openapi.yaml`; update it with every route change.
+- `src/app.ts`: `helmet` first on every answer (`X-Frame-Options: DENY`). The burst limit
+  (`middleware/burstLimit.ts`, 5 per second per client IP, memory store) covers login and
+  accept, never health or `/internal`. It is an optional `createApp` entry: `server.ts`
+  builds the app with `createAppWithLimits`, which always adds it; tests that build with
+  `createApp` and leave it out get no burst limit.
 
 ## Config
 

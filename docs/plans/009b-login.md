@@ -38,6 +38,9 @@ each task, report and stop as in root `CLAUDE.md` "Work mode".
   `AppDeps` entry, so tests can pass one that never limits. Claude
 - C4. Tests set a user to `blocked` through the Mongoose model in a test helper; no
   repository method for it until 1.5. Claude
+- C5. The burst limiter is an optional `createApp` entry; `server.ts` builds the app with
+  `createAppWithLimits`, which always adds it. The Task 5 core test builds the app through
+  that same function; the older tests build with `createApp` and stay unchanged. Owner
 
 ## Tasks
 
@@ -96,7 +99,7 @@ each task, report and stop as in root `CLAUDE.md` "Work mode".
   400 `VALIDATION_FAILED`; every error answer passes `expectError`. (Done when 2, 3, 4, 6,
   7, 9, 11, 12)
 
-- [ ] Task 5. Burst limit and security headers
+- [x] Task 5. Burst limit and security headers
   `express-rate-limit` (exact version), memory store, 5 requests per second per client IP
   (C3) on login and accept, not on health or `/internal`; 429 `RATE_LIMITED` with
   `Retry-After: 1`. `helmet` (exact version) first in the app, defaults with

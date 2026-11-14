@@ -97,6 +97,8 @@ paths:
           description: >-
             RATE_LIMITED: 20 failed accepts (404, 409 INVITATION_ALREADY_ACCEPTED, 410, malformed
             tokens included) from this client IP in a 15-minute window. Successes never count.
+            Also the burst limit: more than 5 requests per second from this client IP (shared
+            with login), then Retry-After: 1 and params.retryAfterSeconds 1.
           headers:
             Retry-After:
               description: Seconds until the window ends; equal to params.retryAfterSeconds.
@@ -160,7 +162,9 @@ paths:
         "429":
           description: >-
             RATE_LIMITED: 5 failed logins for this email, or 20 from this client IP, in a
-            15-minute window. A success clears the email count only.
+            15-minute window. A success clears the email count only. Also the burst limit:
+            more than 5 requests per second from this client IP (shared with accept), then
+            Retry-After: 1 and params.retryAfterSeconds 1.
           headers:
             Retry-After:
               description: Seconds until the window ends; equal to params.retryAfterSeconds.

@@ -1,7 +1,7 @@
 // Job: start auth-service: check config, open store clients, then listen.
 // Any startup failure exits with code 1. Stores may be down at startup; health reports it.
 import http from 'node:http';
-import { createApp } from './app.js';
+import { createAppWithLimits } from './app.js';
 import { ConfigError, loadConfig } from './config.js';
 import { createLogger } from './logger.js';
 import { createInvitationsRepository } from './repositories/invitations.js';
@@ -59,7 +59,7 @@ const login = await startLoginService({
   loginLimit: createLoginLimit(createFailureCounter(stores.redis, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS)),
 });
 
-const app = createApp({
+const app = createAppWithLimits({
   config,
   logger: log,
   health,
