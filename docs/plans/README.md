@@ -15,3 +15,4 @@ Job: list every plan and its status. One line per plan; the spec has the same nu
 | 009a | [1.1a First owner](009a-first-owner.md) | [spec](../specs/009-first-owner-login.md) | #34 | done |
 | 010 | [Use axios in the web api layer](010-web-axios.md) | none, short plan; see issue #37 | #37 | done |
 | 011 | [Health with Actuator](011-actuator-health.md) | none, short plan; see issue #40 | #40 | done |
+| 009b | [1.1b Login](009b-login.md) | [spec](../specs/009-first-owner-login.md) | #35 | not started |

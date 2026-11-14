@@ -57,6 +57,7 @@ password check made here.
 2. Failure limits per email and per client IP, and a burst limit on every auth route
    except refresh (accept included, on top of its 1.1a failure limit); all fail closed.
 3. New codes `INVALID_CREDENTIALS` 401 and `ACCOUNT_BLOCKED` 403.
+4. Security headers (helmet) on every auth-service answer.
 
 ## Out of scope
 
@@ -274,6 +275,8 @@ Both parts:
   included). Owner
 - B4. A counter gets its expiry on the first failure (fixed window) and is cleared by a
   success. Owner
+  A success clears the per-email counter only; the per-IP counter only expires with its
+  window. Claude
 - B5. A 429 carries `Retry-After` and `params.retryAfterSeconds`, reusing the 1.1a answer.
   Owner
 - B6. New codes: `INVALID_CREDENTIALS` 401, `ACCOUNT_BLOCKED` 403. Owner
@@ -285,6 +288,8 @@ Both parts:
 - B11. The burst limit does not cover health or `/internal`; its 429 has `Retry-After: 1`.
   Claude
 - B12. Rate-limit keys hold the sha256 of the email, never the email itself. Claude
+- B13. helmet with its defaults on every auth-service answer, except `X-Frame-Options` set
+  to `DENY` (helmet's default is `SAMEORIGIN`). Claude
 
 ## 1.1b Done when
 
@@ -315,3 +320,5 @@ Both parts:
     passes on Windows, and the `auth-service` CI job passes on Linux. [B7]
 14. Through Caddy: after the 1.1a accept, login via `localhost:8080` with the chosen
     password answers 200 and a wrong one 401. [B1]
+15. Every answer, errors and health included, carries `X-Content-Type-Options: nosniff`,
+    `X-Frame-Options: DENY` and a `Content-Security-Policy` header. [B13]
