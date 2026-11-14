@@ -46,7 +46,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
   Check: `cd contracts && npm test` passes with both codes and statuses; the auth contract
   test passes. (Done when 1)
 
-- [ ] Task 2. Login failure limits
+- [x] Task 2. Login failure limits
   `FailureCounter.clear(key)`. `src/services/loginLimit.ts`: `check(email, ip)` (email
   locked at 5, then IP at 20; 429 `RATE_LIMITED` with `retryAfterSeconds`), `fail(email, ip)`
   counts both, `succeed(email)` clears the email counter (C1). Email keys hold the sha256
