@@ -18,6 +18,7 @@
   },
   "errors": {
     "VALIDATION_FAILED": "Some details are not valid. Check them and try again.",
+    "INVALID_CREDENTIALS": "Invalid email or password.",
     "UNAUTHENTICATED": "Please sign in to continue.",
     "FORBIDDEN": "You do not have permission to do this.",
     "NOT_FOUND": "This could not be found.",
