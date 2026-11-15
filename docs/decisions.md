@@ -67,3 +67,17 @@ Decision: the Spring services serve health through Spring Actuator, and observab
 - D-010g Metrics (Prometheus, Grafana): not planned now; Actuator and Micrometer keep the door open. One line in Phase 6.
 Why: there are three Spring services (chat, ai, later connector); Actuator is the standard health in Spring, and it makes later tracing and metrics easy. One health body in every service keeps clients and the smoke script simple. Each observability part is off when its env value is empty, so local dev and small installs need nothing extra.
 Instead of: a plain health controller kept in every service (D-005, spec 004); a vendor-specific tracing agent; metrics now.
+
+## D-011 Web tokens in httpOnly cookies on /api/auth (2026-11-15)
+Decision: on the web both tokens are httpOnly cookies, and the client keeps a copy of the access token in memory. This replaces the wording in `docs/auth-design.md` 0.1 that kept the web access token "in memory only" and set the refresh cookie to `SameSite=Strict`.
+- Access token: cookie `accessToken`, httpOnly, Secure, SameSite=Lax, Path=/api/auth, max age 15 minutes, plus a copy in client memory.
+- Refresh token: cookie `refreshToken`, httpOnly, Secure, SameSite=Lax, Path=/api/auth, 30 days, rotating. Value `<sid>.<secret>`. No separate sid cookie.
+- auth-service sets and clears both cookies, only when the request has `X-Client: web`. Login and refresh also return the access token in the response body, so the client can keep it in memory.
+- New route `GET /api/auth/session`: reads the access cookie and runs the same four checks as every service (auth-design 0.3: signature, session exists, not revoked, claims fresh) before it returns the access token and the user. It does not rotate the refresh token. A failed check answers its matching error code. A missing or expired cookie: the client calls `/api/auth/refresh`; any other failed check: the client goes to `/login`.
+- Page reload order: the client calls `/session` first, then `/refresh` on 401. If both fail, it goes to `/login`. The router guard waits for this result.
+- Logout clears both cookies with the same Path and attributes.
+- Android does not use cookies: tokens in the body, encrypted storage.
+- Rule: every service accepts only the `Authorization: Bearer` header. Cookies are never used as login by any service. Step 1.4 adds a test: a request with only the cookie gets 401.
+- Rule: all auth routes stay under `/api/auth`, because the cookies are only sent there. A test fails if an auth route is mounted elsewhere.
+Why: Path=/api/auth because the cookies are read only by auth routes, so chat and ai never receive them. SameSite=Lax because it keeps shared links working and still blocks cross-site POST requests. The access cookie lets a page reload get a token back without rotating the refresh token.
+Instead of: the access token in memory only with a SameSite=Strict refresh cookie (auth-design 0.1 before this entry).
