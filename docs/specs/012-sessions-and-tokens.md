@@ -24,7 +24,7 @@ refresh token (D-011).
    - `sid`: 16 random bytes, base64url. `sess:{sid}` hash: `userId`, `method` (`password`),
      `deviceId`, `platform`, `refreshHash`, `prevRefreshHash`, `rotatedAt`, `claimsVersion`
      (starts at 1), `revoked` (`0`), `revokedReason`, `createdAt`. TTL `REFRESH_TTL_SECONDS`.
-   - `user:{userId}:sessions`: set of the user's sids.
+   - `user:{userId}:sessions`: set of the user's sids, TTL `REFRESH_TTL_SECONDS` (A14).
    - Both written in one Redis transaction.
 2. Tokens (auth-design 0.1)
    - Access token: JWT, HS256, `JWT_ACCESS_TTL_SECONDS` (900), secret `JWT_ACCESS_SECRET`.
@@ -64,17 +64,19 @@ refresh token (D-011).
 
 1. `POST /api/auth/refresh`
    - Refresh token from the `refreshToken` cookie, or from the body `{ refreshToken }`.
-   - Order (B4, B12): IP burst limit; malformed token refused; per-session counter; read
-     `userId` from `sess:{sid}` (one `HGET`, no decision, no write; no session: 401
-     `REFRESH_TOKEN_INVALID` with no MongoDB call); read the user and claims from MongoDB
-     (MongoDB down: 503, nothing rotated; no user: 401 `REFRESH_TOKEN_INVALID`, nothing
-     rotated); then the atomic script below; then the blocked check; then sign.
+   - Order (B4, B12): IP burst limit; malformed token refused; read `userId` from
+     `sess:{sid}` (one `HGET`, no decision, no write; no session: 401
+     `REFRESH_TOKEN_INVALID` with no counter key written and no MongoDB call); per-session
+     counter; read the user and claims from MongoDB (MongoDB down: 503, nothing rotated; no
+     user: 401 `REFRESH_TOKEN_INVALID`, nothing rotated); then the atomic script below; then
+     the blocked check; then sign.
    - One atomic Redis script decides (auth-design 1.2, steps unchanged):
      1. no session hash: 401 `REFRESH_TOKEN_INVALID`;
      2. `revoked=1` and the token matches the current or previous hash: 403
         `ACCOUNT_BLOCKED` if the reason is `blocked`, else 401 `SESSION_REVOKED`;
      3. token hash equals the current hash: store the new hash, move the old one to
-        `prevRefreshHash`, set `rotatedAt`, reset the TTL: success;
+        `prevRefreshHash`, set `rotatedAt`, reset the TTL of the hash and of
+        `user:{userId}:sessions` to `REFRESH_TTL_SECONDS`: success;
      4. token hash equals the previous hash: revoke the session (reason `refresh_reuse`),
         then publish the event, 401 `REFRESH_TOKEN_REUSE`;
      5. anything else: 401 `REFRESH_TOKEN_INVALID`, no revoke.
@@ -84,9 +86,11 @@ refresh token (D-011).
      Answer 200 `{ accessToken, user }`; web gets
      both cookies again, others get the new `refreshToken` in the body.
 2. `POST /api/auth/logout`
-   - Needs a valid access token. Revokes the session of that token (`sid` from the token,
-     never from the body), reason `logout`, then publishes the event. Clears both cookies
-     with the same Path and attributes. Answers 204.
+   - Needs an access token from `Authorization: Bearer` whose HS256 signature verifies; the
+     expiry is ignored for logout only (O9). A wrong signature answers 401
+     `UNAUTHENTICATED`. Revokes the session of that token (`sid` from the token, never from
+     the body), reason `logout`, then publishes the event. Clears both cookies with the same
+     Path and attributes. Answers 204.
 3. Refresh limits
    - Its own burst limit: 100 requests per second per client IP.
    - 10 refreshes per minute per session, keyed on the sid in the refresh token.
@@ -136,6 +140,10 @@ refresh token (D-011).
 - A blocked user refreshes: the session is revoked with reason `blocked`, 403. The next
   refresh with the same token answers 403 `ACCOUNT_BLOCKED`.
 - Logout twice with the same token: the second call also answers 204 (B13).
+- Logout with an expired but correctly signed access token: 204, and the session is revoked;
+  a token with a wrong signature: 401 `UNAUTHENTICATED`, nothing revoked (O9).
+- A refresh with a well-formed sid that has no session: 401 `REFRESH_TOKEN_INVALID`, no
+  `auth:refresh:sid:<sid>` key written (B12).
 - MongoDB down at refresh: 503, nothing rotated; the same refresh token still works once
   MongoDB is back, and it does not count as reuse (B4).
 - A publish fails (Redis pub/sub error): the action still succeeds; one log line without the
@@ -150,6 +158,7 @@ refresh token (D-011).
 - Logout revoking a session of another user, or taking the `sid` from the body.
 - A refresh that succeeds on a revoked session.
 - A 503 on refresh that rotates the token.
+- A live session missing from its user's set (the set expiring before a session in it).
 - A forged refresh token revoking a session.
 - A session hash recreated without a TTL by a late write (every write on a session uses a
   script or checks existence first).
@@ -177,6 +186,9 @@ owner can overrule.
   `exchange`, `queue` and `routingKey` and values of lower-case words and dots. The Redis
   key patterns, hash fields and pub/sub channels (A18, B14) need new kinds and a wider value
   pattern in `contracts/schemas/messaging.schema.json`, or a separate contract file.
+- O9. auth-design 1.2 says logout needs a valid access token. Here logout verifies the HS256
+  signature and ignores the expiry, so a user whose access token ran out can still end the
+  session without a refresh first (B6).
 
 ## 1.2a Decisions
 
@@ -202,8 +214,9 @@ owner can overrule.
   is the user's stored role (O1). Claude
 - A13. `platform` is `web` with `X-Client: web`, else `other`; `deviceId` is empty until the
   Android client sends one (#25) (O2). Claude
-- A14. `user:{userId}:sessions` gets the refresh TTL, reset when a sid is added; a stale sid in
-  the set is harmless because every read checks the hash (O4). Claude
+- A14. `user:{userId}:sessions` gets the refresh TTL, reset when a sid is added and by every
+  rotation in the same script (B1 step 3), so the set never expires before a live session; a
+  stale sid in the set is harmless because every read checks the hash (O4). Claude
 - A15. CORS stays out of 1.2: the web calls the relative `/api` through Caddy, same origin
   (O5). Claude
 - A16. `/session` answers the 0.3 codes only (`UNAUTHENTICATED`, `SESSION_REVOKED`,
@@ -248,20 +261,23 @@ owner can overrule.
 ## 1.2b Decisions
 
 - B1. The refresh decision is one atomic Redis script with the five steps of auth-design 1.2,
-  in that order. Owner
+  in that order. Owner. Step 3 also resets the TTL of `user:{userId}:sessions` to
+  `REFRESH_TTL_SECONDS` in the same script (A14). Claude
 - B2. A revoked session answers its reason (`ACCOUNT_BLOCKED` 403 for `blocked`, else
   `SESSION_REVOKED`) only when the token matches the current or previous hash. Owner
 - B3. A reused (previous) token revokes the session with reason `refresh_reuse` and publishes
   the event; a token matching neither hash revokes nothing. Owner
 - B4. Refresh order: read `userId` from `sess:{sid}` (`HGET`, no decision, no write; no
-  session: 401 `REFRESH_TOKEN_INVALID`, no MongoDB call); read the user and claims from
-  MongoDB (down: 503, nothing rotated; no user: 401 `REFRESH_TOKEN_INVALID`, nothing
+  session: 401 `REFRESH_TOKEN_INVALID`, no counter key written, no MongoDB call); count the
+  refresh on the per-session counter (B12); read the user and claims from MongoDB (down: 503, nothing rotated; no user: 401 `REFRESH_TOKEN_INVALID`, nothing
   rotated); run the atomic script (B1); if the user is blocked, revoke with reason `blocked`
   and answer 403; sign the token with the `claimsVersion` the script returned. This differs
   from auth-design 1.2, which rotates first (O7). Claude
 - B5. No grace window in 1.2; two tabs refreshing at once log out, fixed in 1.6. Owner
-- B6. Logout needs a valid access token, takes the `sid` from it, reason `logout`, clears both
-  cookies with the same attributes, answers 204. Owner
+- B6. Logout takes the access token from `Authorization: Bearer`, verifies its HS256 signature
+  and ignores its expiry (logout only), takes the `sid` from it, reason `logout`, clears both
+  cookies with the same attributes, answers 204; a wrong signature answers 401
+  `UNAUTHENTICATED` (O9). Claude
 - B7. Refresh limits: a burst of 100 per second, plus 10 per minute per session keyed on the
   sid. Owner
 - B8. Revoke helpers: one session, all sessions of a user, mark claims stale; each publishes
@@ -271,11 +287,13 @@ owner can overrule.
 - B10. The refresh token comes from the `refreshToken` cookie or the body; web gets new cookies,
   others get the new refresh token in the body (0.1, D-011). Owner
 - B11. A malformed refresh token is refused before any Redis call. Claude
-- B12. Order of checks on refresh: IP burst, malformed token, per-session counter, then the
-  steps of B4. The per-session refresh limit uses the existing `FailureCounter` style in Redis with a
+- B12. Order of checks on refresh: IP burst, malformed token, `HGET userId` (no session: 401
+  `REFRESH_TOKEN_INVALID`, no counter key written), per-session counter, then MongoDB and the
+  script as in B4. The per-session refresh limit uses the existing `FailureCounter` style in Redis with a
   60-second window, keyed `auth:refresh:sid:<sid>`; the burst uses its own
   `express-rate-limit` instance (memory store), separate from the login burst. Claude
-- B13. Logout runs only the signature check and takes `sub` and `sid` from the token; it
+- B13. Logout runs only the signature check (expiry ignored, B6) and takes `sub` and `sid`
+  from the token; it
   revokes the session when it exists and belongs to `sub`, and answers 204 also for an
   already revoked or stale session, so a second logout is not an error (O3). Claude
 - B14. Event names go in `contracts/messaging.json` with a contract test (a contract
@@ -309,7 +327,9 @@ owner can overrule.
 10. Logout answers 204, revokes only the token's session (another user's session stays live),
    clears both cookies with the same Path and attributes, and publishes the event; after it
    the same access token gets 401 `SESSION_REVOKED` at `/me` and `/session`. A second logout
-   also answers 204. [B6, B13]
+   also answers 204. A logout with an expired but correctly signed access token answers 204
+   and revokes the session; one with a wrong signature answers 401 `UNAUTHENTICATED` and
+   revokes nothing. [B6, B13, O9]
 11. The 11th refresh within a minute for one session answers 429 with `Retry-After`; the
     101st within a second from one IP answers 429 `Retry-After: 1`. [B7, B12]
 12. Each revoke helper changes Redis then publishes; with publish failing the change still
@@ -318,3 +338,8 @@ owner can overrule.
     session leaves no key behind. [Must not happen]
 14. A log capture across refresh, reuse and logout finds no refresh token, refresh hash or
     access token. [Must not happen]
+15. After a rotation, both `sess:{sid}` and `user:{userId}:sessions` have a TTL of
+    `REFRESH_TTL_SECONDS`; a session refreshed after the set's original expiry time is still
+    found and revoked by "revoke all sessions". [A14, B1, Must not happen]
+16. A refresh with a well-formed sid that has no session answers 401 `REFRESH_TOKEN_INVALID`
+    and creates no `auth:refresh:sid:<sid>` key. [B12]

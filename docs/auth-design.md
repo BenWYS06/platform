@@ -192,12 +192,12 @@ These decisions define 1.1; the spec is written from them.
 - `POST /api/auth/refresh` takes the refresh token (cookie or body). One atomic Redis script does the whole decision:
   1. no session hash: `REFRESH_TOKEN_INVALID`;
   2. `revoked=1`: `ACCOUNT_BLOCKED` (403) if the reason is `blocked`, else `SESSION_REVOKED`; only when the token matches current or previous hash, so a stranger learns nothing;
-  3. token hash equals the current hash: store the new hash, move the old one to `prevRefreshHash`, set `rotatedAt`, reset the 30-day TTL: success;
+  3. token hash equals the current hash: store the new hash, move the old one to `prevRefreshHash`, set `rotatedAt`, reset the 30-day TTL of the hash and of `user:{userId}:sessions` (spec 012 A14): success;
   4. token hash equals the previous hash: someone replayed a rotated token. Revoke this session (reason `refresh_reuse`), publish the event, answer `REFRESH_TOKEN_REUSE`;
   5. anything else: `REFRESH_TOKEN_INVALID`, no revoke (a forged token proves nothing).
 - Before the script: read `userId` from `sess:{sid}` (no session: `REFRESH_TOKEN_INVALID`, no MongoDB call), then the user and claims from MongoDB (down: 503, nothing rotated; no user: `REFRESH_TOKEN_INVALID`). After a successful rotation: 403 `ACCOUNT_BLOCKED` if the user is blocked (revoke the session first), else sign a new access token with the `claimsVersion` the script returned as `cv` (spec 012 B4).
 - No grace window for a just-rotated token in 1.2. Two tabs that refresh at the same moment will hit reuse detection and log out. We meet this in 1.6 on purpose and fix it there.
-- Logout: `POST /api/auth/logout`, needs a valid access token, revokes the session of that token (`sid` from the token, never from the body). Reason `logout`. Both cookies are cleared with the same `Path` and attributes. Always 204.
+- Logout: `POST /api/auth/logout`, needs a Bearer access token whose HS256 signature verifies; the expiry is ignored for logout only, a wrong signature answers 401 `UNAUTHENTICATED` (spec 012 B6). It revokes the session of that token (`sid` from the token, never from the body). Reason `logout`. Both cookies are cleared with the same `Path` and attributes. Always 204.
 - Path test: a test fails when an auth route is mounted outside `/api/auth` (D-011).
 - Refresh limit: its own burst of 100 per second, plus 10 per minute per session (keyed on the sid in the token).
 - Revoke helpers (used later by 1.3, 1.5): revoke one session, revoke all sessions of a user (reason given), mark claims stale for users (0.6). Each publishes the event after the Redis change.
