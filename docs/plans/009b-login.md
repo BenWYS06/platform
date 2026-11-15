@@ -3,7 +3,7 @@
 Spec: docs/specs/009-first-owner-login.md, part 1.1b (Decisions B1 to B13, Done when 1 to 15)
 Issue: #35
 Branch: feature/login
-Status: not started
+Status: done
 Rule: one task, one commit. No local runs; Check lines are what CI proves at the end. After
 each task, report and stop as in root `CLAUDE.md` "Work mode".
 
@@ -110,7 +110,7 @@ each task, report and stop as in root `CLAUDE.md` "Work mode".
   answer carries `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` and a
   `Content-Security-Policy` header; the Task 4 tests still pass. (Done when 8, 15)
 
-- [ ] Task 6. Close the issue
+- [x] Task 6. Close the issue
   CHANGELOG line under `Unreleased`. Tick this plan and set `Status: done`; set its line in
   docs/plans/README.md to `done`; tick 1.1b and 1.1 in docs/roadmap.md; point
   docs/handoff.md to the next issue (/session-summary). Scan; when the user says so, push

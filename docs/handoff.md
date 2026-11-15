@@ -2,33 +2,40 @@
 
 Job: where the last session stopped and what to do next. Read this first in every new session.
 
-Last updated: 2026-11-14
+Last updated: 2026-11-15
 
 ## Now
 
-- Issue: #35 1.1b Login (Sprint 2, estimate 3)
+- Issue: #35 1.1b Login: done on `feature/login`, PR next (the user says when to push)
 - Spec: [specs/009-first-owner-login.md](specs/009-first-owner-login.md), part 1.1b
-- Plan: none yet (009b, from `/write-plan`)
+- Plan: [plans/009b-login.md](plans/009b-login.md), done
 
 ## Done
 
-- Issue #40 Health with Spring Actuator: done, plan 011 tasks 1 to 5. Every service answers
-  health 200 `{"status":"UP"}` or 503 `{"status":"DOWN"}` (D-010b); chat and ai serve it
-  through Spring Actuator, health the only actuator endpoint (D-010a). A hanging store
-  answers 503 in about 2 s; MongoDB stopped and back recovers without a restart (D-010c).
-- Smoke script and web accept both 503 bodies (`{"status":"DOWN"}`, Caddy's
-  `SERVICE_UNAVAILABLE`); smoke checks `/actuator/env`, `/beans`, `/metrics` answer 404.
-- Task 5 checks: contracts 30/30, auth 93/93, web 24/24, `./mvnw verify` (common 30, chat
-  13, ai 13), spotless, repo checks, env-leak and gitleaks clean; `smoke.mjs --services`
-  26/26 with all three services up.
+- Plan 009b Tasks 1 to 6: codes `INVALID_CREDENTIALS` 401 and `ACCOUNT_BLOCKED` 403;
+  failure limits in Redis (5 per email, 20 per client IP, 15 minutes, sha256 email keys);
+  login service with a dummy hash made at startup; `POST /api/auth/login`; burst limit
+  (`express-rate-limit`, 5 per second per IP, optional `createApp` entry that `server.ts`
+  always adds) and `helmet` headers.
+- Tasks 1 to 4 were run locally (auth 127/127, contracts 31/31). Tasks 5 and 6 follow the new
+  Work mode (root `CLAUDE.md`): not run locally; CI proves them on the PR.
+- Issue #43 opened: Prettier config and a format check for auth-service (estimate 1).
 
-## Next step: 1.1b Login (#35)
+## Next step: open the 1.1b PR, then 1.2
 
-Branch `feature/login` from an up-to-date `main` (with issue #40 in it), then
-`/write-plan` from spec 009 part 1.1b (plan 009b). Read `docs/auth-design.md` first.
+1. When the user says so: scan, push `feature/login`, open the PR with `Closes #35`, read
+   `gh pr checks` once; fix all red checks in one commit and push again.
+2. The user runs the Caddy check: after a 1.1a accept, login via `localhost:8080` with the
+   chosen password (200) and a wrong one (401). The user merges.
+3. Then 1.2 Sessions, access token, rotating refresh token, logout: no GitHub issue yet.
+   Open it, branch from an up-to-date `main`, `/write-spec` (security change). Read
+   `docs/auth-design.md` first.
 
 ## Known gaps
 
+- Burst limit uses a memory store: per process, resets on restart (fine for one instance).
+- The burst test relies on 6 fast requests within 1 second; a CI stall over 1 s would make
+  it flaky (user chose to keep it as is).
 - Actuator runs health indicators one after another: with MongoDB and RabbitMQ both
   hanging, chat and ai health take about 4 s (one hanging store: about 2 s).
 - Actuator logs a failed health check with the driver exception, which can name store
@@ -58,3 +65,4 @@ Branch `feature/login` from an up-to-date `main` (with issue #40 in it), then
 - One PR per issue; its last plan task marks plan, index and roadmap `done` and points
   this file to the next issue. PR body: `Closes #n`. The user merges.
 - Web first: Android is issue #25, later. Story sizes and spec rules: root `CLAUDE.md`.
+- Work mode (root `CLAUDE.md`): no local runs per task, one core test, commit, report, stop.
