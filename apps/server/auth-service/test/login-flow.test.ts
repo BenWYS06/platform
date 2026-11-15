@@ -1,0 +1,170 @@
+// Integration: POST /api/auth/login against a real MongoDB and Redis (spec 009 Done when 2, 3,
+// 4, 6, 7, 9, 11, 12; plan 009b Task 4).
+import { createHash, randomUUID } from 'node:crypto';
+import { Writable } from 'node:stream';
+import type { Connection } from 'mongoose';
+import request from 'supertest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { createApp } from '../src/app.js';
+import { createLogger } from '../src/logger.js';
+import { userModel } from '../src/models/user.js';
+import { createFailureCounter } from '../src/repositories/failureCounter.js';
+import { createMongo, createRedis, type Mongo, type Redis, type RedisClient } from '../src/repositories/stores.js';
+import { createUsersRepository } from '../src/repositories/users.js';
+import { startLoginService } from '../src/services/login.js';
+import { createLoginLimit, LOGIN_WINDOW_SECONDS } from '../src/services/loginLimit.js';
+import { hashPassword } from '../src/services/password.js';
+import { expectError } from './helpers/error-body.js';
+import { noLimit, unusedInvitations } from './helpers/invitations.js';
+import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
+import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';
+
+let mongo: TestMongo;
+let mongoClient: Mongo;
+let redisServer: TestRedis;
+let redis: Redis;
+
+beforeAll(async () => {
+  [mongo, redisServer] = await Promise.all([startMongo(), startRedis()]);
+  mongoClient = createMongo(mongo.uri, 'unused');
+  await mongoClient.connect();
+  redis = createRedis(redisServer.url);
+  await waitFor(() => redis.client.isReady);
+}, START_TIMEOUT_MS);
+
+afterAll(async () => {
+  await redis?.close();
+  await mongoClient?.close();
+  await Promise.all([redisServer?.stop(), mongo?.stop()]);
+}, START_TIMEOUT_MS);
+
+const PASSWORD = 'correct horse battery';
+const WRONG = 'wrong horse battery';
+const EMAIL = 'boss@team.test';
+const RETRY = { retryAfterSeconds: expect.any(Number) as unknown as number };
+const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
+
+// C4: no repository method blocks a user until 1.5; tests set it through the model.
+async function block(db: Connection, email: string): Promise<void> {
+  await userModel(db).updateOne({ email }, { $set: { status: 'blocked' } });
+}
+
+// A fresh database and Redis key prefix; X-Forwarded-For picks the client IP (TRUST_PROXY=1).
+async function setup(redisClient: RedisClient = redis.client) {
+  const db = mongoClient.connection.useDb(uniqueDbName(), { useCache: false });
+  const users = createUsersRepository(db);
+  await users.ensureIndexes();
+  await users.insert({ email: EMAIL, displayName: 'Boss', role: 'Owner', passwordHash: await hashPassword(PASSWORD) });
+  const prefix = `test:${randomUUID()}:`;
+  const login = await startLoginService({
+    users,
+    loginLimit: createLoginLimit(createFailureCounter(redisClient, prefix, LOGIN_WINDOW_SECONDS)),
+  });
+  const app = createApp({
+    config: { internalApiKey: 'k', trustProxy: 1 },
+    logger: createLogger(new Writable({ write: (_c, _e, done) => done() })),
+    health: { allUp: async () => true },
+    readiness: { isReady: () => true },
+    invitations: unusedInvitations,
+    acceptLimit: noLimit,
+    login,
+  });
+  const post = (email: string, password: string, ip = '203.0.113.1') =>
+    request(app).post('/api/auth/login').set('X-Forwarded-For', ip).send({ email, password });
+  const emailCount = async (email: string) => Number((await redis.client.get(`${prefix}email:${sha256(email)}`)) ?? 0);
+  return { db, post, emailCount };
+}
+
+// Every 429: contract body, Retry-After equal to params.retryAfterSeconds (B5).
+function expect429(res: request.Response): void {
+  expectError(res, 'RATE_LIMITED', RETRY);
+  expect(res.body.params.retryAfterSeconds).toBeGreaterThan(0);
+  expect(res.headers['retry-after']).toBe(String(res.body.params.retryAfterSeconds));
+}
+
+describe('login flow', () => {
+  it('answers the right password with 200 { user } and no passwordHash', async () => {
+    const { post } = await setup();
+    const res = await post(EMAIL, PASSWORD);
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ user: { id: expect.any(String), email: EMAIL, displayName: 'Boss', role: 'Owner' } });
+    expect(res.text).not.toContain('passwordHash');
+    expect(res.text).not.toContain('argon2');
+  });
+
+  it('gives a wrong password and an unknown email byte-identical 401 bodies', async () => {
+    const { post } = await setup();
+    const wrong = await post(EMAIL, WRONG);
+    const unknown = await post('nobody@team.test', PASSWORD);
+    expectError(wrong, 'INVALID_CREDENTIALS');
+    expectError(unknown, 'INVALID_CREDENTIALS');
+    expect(unknown.text).toBe(wrong.text);
+    expect(unknown.headers['content-type']).toBe(wrong.headers['content-type']);
+  });
+
+  it('answers the 6th login for an unknown email with 429 after 5 failures', async () => {
+    const { post } = await setup();
+    for (let i = 0; i < 5; i++) expectError(await post('nobody@team.test', PASSWORD, `198.51.100.${i}`), 'INVALID_CREDENTIALS');
+    expect429(await post('nobody@team.test', PASSWORD, '198.51.100.9'));
+  });
+
+  it('answers even the right password with 429 after 5 failures for a real user', async () => {
+    const { post } = await setup();
+    for (let i = 0; i < 5; i++) expectError(await post(EMAIL, WRONG), 'INVALID_CREDENTIALS');
+    expect429(await post(EMAIL, PASSWORD));
+    expect429(await post(' BOSS@team.test ', PASSWORD, '198.51.100.20'));
+  });
+
+  it('answers the 21st login from one IP with 429 after 20 failures across emails', async () => {
+    const { post } = await setup();
+    for (let i = 0; i < 20; i++) expectError(await post(`user${i}@team.test`, PASSWORD), 'INVALID_CREDENTIALS');
+    expect429(await post('new@team.test', PASSWORD));
+    expect429(await post(EMAIL, PASSWORD));
+    // Another IP is not limited.
+    expect((await post(EMAIL, PASSWORD, '203.0.113.2')).status).toBe(200);
+  });
+
+  it('answers 30 successful logins from one IP all with 200', async () => {
+    const { post } = await setup();
+    for (let i = 0; i < 30; i++) expect((await post(EMAIL, PASSWORD)).status).toBe(200);
+  });
+
+  it('clears the email counter on success', async () => {
+    const { post, emailCount } = await setup();
+    for (let i = 0; i < 4; i++) await post(EMAIL, WRONG);
+    expect(await emailCount(EMAIL)).toBe(4);
+    expect((await post(EMAIL, PASSWORD)).status).toBe(200);
+    expect(await emailCount(EMAIL)).toBe(0);
+  });
+
+  it('answers a blocked user: wrong password 401 counted, right password 403 with the counter gone', async () => {
+    const { db, post, emailCount } = await setup();
+    await block(db, EMAIL);
+    expectError(await post(EMAIL, WRONG), 'INVALID_CREDENTIALS');
+    expectError(await post(EMAIL, WRONG), 'INVALID_CREDENTIALS');
+    expect(await emailCount(EMAIL)).toBe(2);
+
+    expectError(await post(EMAIL, PASSWORD), 'ACCOUNT_BLOCKED');
+    expect(await emailCount(EMAIL)).toBe(0);
+  });
+});
+
+describe('login with Redis down', () => {
+  it('answers 503 SERVICE_UNAVAILABLE', async () => {
+    const down = await startRedis();
+    const own = createRedis(down.url);
+    try {
+      await waitFor(() => own.client.isReady);
+      const { post } = await setup(own.client);
+      expect((await post(EMAIL, PASSWORD)).status).toBe(200);
+
+      await down.stop();
+      await waitFor(() => !own.client.isReady);
+      expectError(await post(EMAIL, PASSWORD), 'SERVICE_UNAVAILABLE');
+      expectError(await post(EMAIL, WRONG), 'SERVICE_UNAVAILABLE');
+      expectError(await post('nobody@team.test', PASSWORD), 'SERVICE_UNAVAILABLE');
+    } finally {
+      await own.close();
+    }
+  }, START_TIMEOUT_MS);
+});

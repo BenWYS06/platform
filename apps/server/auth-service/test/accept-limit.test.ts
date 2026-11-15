@@ -13,6 +13,7 @@ import { createRedis, type Redis } from '../src/repositories/stores.js';
 import { ACCEPT_WINDOW_SECONDS, createAcceptLimit } from '../src/services/acceptLimit.js';
 import type { InvitationsService } from '../src/services/invitations.js';
 import { expectError } from './helpers/error-body.js';
+import { unusedLogin } from './helpers/invitations.js';
 import { START_TIMEOUT_MS } from './helpers/mongo.js';
 import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';
 
@@ -55,6 +56,7 @@ function setup(config: Partial<Pick<Config, 'trustProxy' | 'clientIpHeader'>> = 
     readiness: { isReady: () => true },
     invitations: service,
     acceptLimit: createAcceptLimit(createFailureCounter(client, prefix, ACCEPT_WINDOW_SECONDS)),
+    login: unusedLogin,
   });
   const countOf = async (ip: string) => Number((await redis.client.get(prefix + ip)) ?? 0);
   const keys = async () => (await redis.client.keys(`${prefix}*`)).map((k) => k.slice(prefix.length)).sort();

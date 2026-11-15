@@ -1,6 +1,6 @@
 // Job: fixed-window failure counters in Redis (hand-written on purpose, auth CLAUDE.md). The
-// first failure starts the window; the key expires with it. Redis down: StoreUnavailableError
-// (the error handler answers 503), so limits fail closed (A13).
+// first failure starts the window; the key expires with it or is cleared. Redis down:
+// StoreUnavailableError (the error handler answers 503), so limits fail closed (A13).
 import { StoreUnavailableError } from './errors.js';
 import type { RedisClient } from './stores.js';
 
@@ -13,6 +13,7 @@ export interface FailureCount {
 export interface FailureCounter {
   get(key: string): Promise<FailureCount>;
   add(key: string): Promise<void>;
+  clear(key: string): Promise<void>;
 }
 
 export function createFailureCounter(redis: RedisClient, prefix: string, windowSeconds: number): FailureCounter {
@@ -33,6 +34,10 @@ export function createFailureCounter(redis: RedisClient, prefix: string, windowS
     add: (key) =>
       run(async () => {
         await redis.multi().incr(prefix + key).expire(prefix + key, windowSeconds, 'NX').exec();
+      }),
+    clear: (key) =>
+      run(async () => {
+        await redis.del(prefix + key);
       }),
   };
 }

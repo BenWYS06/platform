@@ -24,6 +24,10 @@ versions follow [Semantic Versioning](https://semver.org/).
   boot; `POST /api/auth/invitations/<token>/accept-password` creates the owner. Failed
   accepts are limited per client IP (429 with `Retry-After`); error bodies may carry
   `params` (issue 1.1a).
+- Login: `POST /api/auth/login` with email and password answers the user profile. Unknown
+  email and wrong password get the same 401; failed logins are limited per email and per
+  client IP, every login and accept request to 5 per second (429 with `Retry-After`); a
+  blocked account gets 403. Every auth-service answer carries security headers (issue 1.1b).
 
 ### Changed
 

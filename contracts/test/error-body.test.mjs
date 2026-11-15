@@ -18,6 +18,16 @@ test('error-codes.json holds the 1.1a invitation codes with their statuses', () 
   }
 });
 
+test('error-codes.json holds the 1.1b login codes with their statuses', () => {
+  const byCode = new Map(loadReal('error-codes').map((e) => [e.code, e.status]));
+  for (const [code, status] of [
+    ['INVALID_CREDENTIALS', 401],
+    ['ACCOUNT_BLOCKED', 403],
+  ]) {
+    assert.equal(byCode.get(code), status, code);
+  }
+});
+
 test('the README example is a real entry of error-codes.json', () => {
   const readme = readFileSync(join(CONTRACTS_DIR, 'README.md'), 'utf8');
   const block = readme.match(/```json\n([\s\S]*?)\n\s*```/);

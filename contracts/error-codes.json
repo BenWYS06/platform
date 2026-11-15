@@ -63,5 +63,15 @@
     "code": "MEMBER_ALREADY_EXISTS",
     "status": 409,
     "description": "A user with this email already exists."
+  },
+  {
+    "code": "INVALID_CREDENTIALS",
+    "status": 401,
+    "description": "The email or password is wrong; the same answer for an unknown email."
+  },
+  {
+    "code": "ACCOUNT_BLOCKED",
+    "status": 403,
+    "description": "The password is right but the account is blocked."
   }
 ]

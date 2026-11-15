@@ -1,7 +1,7 @@
 // Job: start auth-service: check config, open store clients, then listen.
 // Any startup failure exits with code 1. Stores may be down at startup; health reports it.
 import http from 'node:http';
-import { createApp } from './app.js';
+import { createAppWithLimits } from './app.js';
 import { ConfigError, loadConfig } from './config.js';
 import { createLogger } from './logger.js';
 import { createInvitationsRepository } from './repositories/invitations.js';
@@ -12,6 +12,8 @@ import { ACCEPT_KEY_PREFIX, ACCEPT_WINDOW_SECONDS, createAcceptLimit } from './s
 import { createBootOwnerStep } from './services/bootOwner.js';
 import { createHealth } from './services/health.js';
 import { createInvitationsService } from './services/invitations.js';
+import { startLoginService } from './services/login.js';
+import { createLoginLimit, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS } from './services/loginLimit.js';
 import { createStartupLoop } from './services/startup.js';
 
 const log = createLogger();
@@ -51,13 +53,20 @@ const startup = createStartupLoop(
   log,
 );
 
-const app = createApp({
+// The dummy hash is made here, once, before the server listens (B10).
+const login = await startLoginService({
+  users,
+  loginLimit: createLoginLimit(createFailureCounter(stores.redis, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS)),
+});
+
+const app = createAppWithLimits({
   config,
   logger: log,
   health,
   readiness: startup,
   invitations: createInvitationsService({ users, invitations, logger: log }),
   acceptLimit: createAcceptLimit(createFailureCounter(stores.redis, ACCEPT_KEY_PREFIX, ACCEPT_WINDOW_SECONDS)),
+  login,
 });
 const server = http.createServer(app);
 server.on('listening', () => log.info({ port: config.port, appEnv: config.appEnv }, 'auth-service listening'));

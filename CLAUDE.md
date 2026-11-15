@@ -64,10 +64,9 @@ Placeholders until the code exists; update this table in the PR that adds each p
   only (`/write-plan` from the issue).
 - Tiny fix (one file or one rule): no spec, no plan; just the issue and a PR.
 - Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5.
-- One plan task at a time. After each task: run its check, show the output, stop.
-- When a task's check passes, tick it in the plan and put that change in the same commit
-  as the task.
-- One task, one commit. Commit and push only when the user says so.
+- One plan task at a time, as in "Work mode" below.
+- Tick each finished task in the plan and put that change in the same commit as the task.
+- One task, one commit, made when the task is done. Push only as in "Work mode".
 - One PR per issue. The last plan task marks the plan, plans index and roadmap `done` and
   points `docs/handoff.md` to the next issue, on the feature branch, before the PR opens.
 - Branch per issue (`feature/...`, `fix/...`, `chore/...`, `docs/...`); never commit to `main`.
@@ -78,6 +77,25 @@ Placeholders until the code exists; update this table in the PR that adds each p
 - End a session with `/session-summary` so `docs/handoff.md` is current.
 
 Details: `.claude/rules/git-and-docs.md`, `.claude/rules/testing.md`.
+
+## Work mode
+
+1. Do not run build, lint, tests, the app or CI while working on plan tasks. Write clean,
+   short code and the task's core test file together: one test file at most, core flow
+   only, no edge-case variations. A plan's "Check" lines say what CI must prove at the end;
+   they are not commands to run per task.
+2. After each task: one commit, no push. Report in this form and stop:
+   - "What changed in behavior": 2 to 4 plain lines, no file names.
+   - "Read": the 1 to 3 files that carry business rules or security, with line ranges.
+   - "Skip": the other files changed, grouped (config, tests, docs, lockfile).
+   - "Not run locally."
+   The user checks and says when to continue with the next task.
+3. Push only after the last task of the plan, when the user says so; CI then runs on the
+   open PR. Read the result once with `gh pr checks`. For a red check open only its log;
+   fix all red checks in one commit on the same branch and push again.
+4. Tick a task in the plan in the task's own commit. A Caddy or browser run in the close
+   task is for the user, not Claude.
+5. If a task needs a decision, a new library or a contract change: stop and ask.
 
 ## Rules that matter every session
 
