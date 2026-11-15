@@ -48,7 +48,7 @@ Logout, block or role change = change the session in Redis. The next call in eve
 
 | Answer | Client does |
 |---|---|
-| page load (web) | `GET /api/auth/session`; a missing or expired cookie or `TOKEN_CLAIMS_STALE`: one refresh; any other failure (revoked, blocked, bad signature), or a failed refresh: go to `/login`. The router guard waits for this result |
+| page load (web) | `GET /api/auth/session`, then by code: `UNAUTHENTICATED` or `TOKEN_CLAIMS_STALE`: one refresh; `SESSION_REVOKED` or `ACCOUNT_BLOCKED`, or a refresh that fails with 401 or 403: go to `/login`; 503 or network: "unavailable, retry", stay signed in. The router guard waits for this result |
 | 401 on any call while signed in | one refresh, then retry the call once |
 | refresh answers 401 or 403 | log out; show the reason if the code is on the allow-list |
 | refresh answers 503 or the network fails | stay signed in; the call fails this time, the user can retry |
@@ -187,7 +187,7 @@ These decisions define 1.1; the spec is written from them.
 
 ## 1.2 Sessions, access token, rotating refresh token, logout
 
-- Login now answers 200 with `{ accessToken, user }` and the cookies or the refresh token as in 0.1. `GET /api/auth/session` (web) reads the access cookie, runs the four checks in 0.3, and answers `{ accessToken, user }` without rotating the refresh token. A failed check answers its matching code: a missing or expired cookie or `TOKEN_CLAIMS_STALE` makes the client call refresh; any other failure (revoked, blocked, bad signature) sends it to `/login`. `GET /api/auth/me` returns the profile, role and `perms`; the web calls it after a refresh on page load.
+- Login now answers 200 with `{ accessToken, user }` and the cookies or the refresh token as in 0.1. `GET /api/auth/session` (web) reads the access cookie, runs the four checks in 0.3, and answers `{ accessToken, user }` without rotating the refresh token. A failed check answers its matching code, and the client acts by code: `UNAUTHENTICATED` (missing or expired cookie, bad signature, no session) or `TOKEN_CLAIMS_STALE`: the client calls `/api/auth/refresh`; `SESSION_REVOKED` or `ACCOUNT_BLOCKED`: the client goes to `/login`; a refresh that fails with 401 or 403: `/login`; 503 or network: show "unavailable, retry" and stay signed in. `GET /api/auth/me` returns the profile, role and `perms`; the web calls it after a refresh on page load.
 - Create session: `sid`, refresh token, `sess:{sid}` hash (0.2), add to the user's set, in one Redis transaction. `claimsVersion` starts at 1.
 - `POST /api/auth/refresh` takes the refresh token (cookie or body). One atomic Redis script does the whole decision:
   1. no session hash: `REFRESH_TOKEN_INVALID`;
@@ -264,7 +264,7 @@ Audit log
 
 Web (Vue). Android later (issue #25), same rules.
 - Pages: login, accept invitation (`/invite/:token`, also used by the first owner), members and invitations admin, sign out. Route guard: no session means `/login`; a signed-in user does not see login.
-- Session restore on page load (D-011): call `GET /api/auth/session` first; on a missing or expired cookie or `TOKEN_CLAIMS_STALE`, call refresh (the cookie goes automatically), then `GET /api/auth/me`. On any other failure (revoked, blocked, bad signature), or a refresh that fails with 401 or 403, go to `/login`. The router guard waits for this result; 503 or network means show an "unavailable, retry" state, not the login page.
+- Session restore on page load (D-011): call `GET /api/auth/session` first, then by code: `UNAUTHENTICATED` (missing or expired cookie, bad signature, no session) or `TOKEN_CLAIMS_STALE`: call refresh (the cookie goes automatically), then `GET /api/auth/me`; `SESSION_REVOKED` or `ACCOUNT_BLOCKED`, or a refresh that fails with 401 or 403: go to `/login`; 503 or network: show an "unavailable, retry" state and stay signed in, not the login page. The router guard waits for this result.
 - One refresh function for the whole app: parallel 401s wait behind one refresh and then retry. Rules in 0.4.
 - Two tabs: expect the reuse logout from 1.2 to show up here. Fixing it is part of 1.6 and gets its own regression test.
 - Error handling: every server code maps to an i18n key (en and vi). Unknown code shows a generic message. Raw server text, ids and stack traces are never shown.
