@@ -22,10 +22,14 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
   - [x] 1.1b Login (3, #35)
 - [x] Health with Spring Actuator (D-010a to D-010c)
 - [ ] 1.2 Sessions, access token, rotating refresh token, logout
+  - Web cookies on `/api/auth` (D-011), `GET /api/auth/session`, a test that every auth route
+    is mounted under `/api/auth`
 - [ ] 1.3 Capabilities, roles, workspace settings
 - [ ] 1.4 Session check in every service; logout and permission-change events
+  - Bearer only: a test that a request with only the cookie gets 401 (D-011)
 - [ ] 1.5 Invites, member list, block, audit log
 - [ ] 1.6 Clients: login, refresh, accept invite, member management screen
+  - Page reload: `/session`, then `/refresh` on 401, then `/login`; the router guard waits (D-011)
 
 ## Phase 2: Chat core
 

@@ -20,8 +20,9 @@ Logout, block or role change = change the session in Redis. The next call in eve
 
 - Access token: JWT, HS256, 15 minutes, secret `JWT_ACCESS_SECRET` (same value in every service). Claims: `sub` (user id), `sid` (session id), `role` (role name), `perms` (capability list), `depts` (department ids, empty until phase 4), `cv` (claims version, see 0.6), `iat`, `exp`. Every verifier pins the algorithm to HS256.
 - Refresh token: opaque string `<sid>.<secret>`, secret = 32 random bytes, base64url. Not a JWT. Valid 30 days, sliding (each rotation starts 30 days again). Rotates on every use. Only its sha256 is stored. A random 256-bit secret needs no slow hash.
-- Web: the access token lives in memory only. The refresh token is an httpOnly cookie: `Secure` in prod, `SameSite=Strict`, `Path=/api/auth`, 30 days. Android: the refresh token comes in the response body and goes to encrypted storage (later, issue #25).
-- The server sends the refresh token in a cookie when the request has header `X-Client: web`, and in the body otherwise.
+- Web (D-011): both tokens are httpOnly cookies, `Secure`, `SameSite=Lax`, `Path=/api/auth`, so only auth routes receive them. Access cookie `accessToken`, max age 15 minutes; the client also keeps a copy of the access token in memory and sends it as `Authorization: Bearer`. Refresh cookie `refreshToken`: the refresh token `<sid>.<secret>`, 30 days, rotating; no separate sid cookie. Android: no cookies; the tokens come in the response body and go to encrypted storage (later, issue #25).
+- auth-service sets and clears both cookies only when the request has header `X-Client: web`; otherwise the refresh token comes in the body. Login and refresh always return the access token in the body too, so the web client can keep it in memory.
+- Only `GET /api/auth/session` and `POST /api/auth/refresh` read the cookies. All auth routes stay under `/api/auth`, because the cookies are only sent there; chat and ai never receive them.
 
 ### 0.2 Session in Redis
 
@@ -41,11 +42,13 @@ Logout, block or role change = change the session in Redis. The next call in eve
 - Redis unreachable: 503 `SERVICE_UNAVAILABLE`, never 401. A Redis blip must not log people out. Redis client: connect and command timeout 5 seconds, one retry, bounded reconnect backoff.
 - After the session check, a route declares one capability. Allowed if `perms` contains it, else 403 `FORBIDDEN`. Data checks ("member of this chat") are separate and live inside the query.
 - Identity comes only from the token. Never from a body, query or header field.
+- Every service accepts the access token only from `Authorization: Bearer`. A cookie is never used as login; a request that carries only the cookie answers 401 (D-011).
 
 ### 0.4 What clients do with an answer
 
 | Answer | Client does |
 |---|---|
+| page load (web) | `GET /api/auth/session`; on 401 one refresh; if both fail, go to `/login`. The router guard waits for this result |
 | 401 on any call while signed in | one refresh, then retry the call once |
 | refresh answers 401 or 403 | log out; show the reason if the code is on the allow-list |
 | refresh answers 503 or the network fails | stay signed in; the call fails this time, the user can retry |
@@ -141,7 +144,7 @@ Use these libraries; never hand-write what they do.
 - `helmet`: security headers on every auth-service answer (1.1b).
 - `express-rate-limit`: the burst limit, memory store.
 - `jsonwebtoken`: sign and verify access tokens (1.2).
-- `cookie-parser` and `cors`: the refresh cookie and cross-origin rules (1.2).
+- `cookie-parser` and `cors`: the access and refresh cookies, and cross-origin rules (1.2).
 - `nodemailer`: optional invitation email (1.5).
 - Java: `jjwt` and `spring-boot-starter-data-redis`: token and session check (1.4).
 - Hand-written on purpose: the failure counters in Redis (per email, per IP, accept).
@@ -184,7 +187,7 @@ These decisions define 1.1; the spec is written from them.
 
 ## 1.2 Sessions, access token, rotating refresh token, logout
 
-- Login now answers 200 with `{ accessToken, user }` and the refresh token as in 0.1. `GET /api/auth/me` returns the profile, role and `perms`; the web calls it after a refresh on page load.
+- Login now answers 200 with `{ accessToken, user }` and the cookies or the refresh token as in 0.1. `GET /api/auth/session` (web) reads the access cookie, runs the four checks in 0.3, and answers `{ accessToken, user }` without rotating the refresh token. A failed check answers its matching code: a missing or expired cookie makes the client call refresh; any other failed check sends it to `/login`. `GET /api/auth/me` returns the profile, role and `perms`; the web calls it after a refresh on page load.
 - Create session: `sid`, refresh token, `sess:{sid}` hash (0.2), add to the user's set, in one Redis transaction. `claimsVersion` starts at 1.
 - `POST /api/auth/refresh` takes the refresh token (cookie or body). One atomic Redis script does the whole decision:
   1. no session hash: `REFRESH_TOKEN_INVALID`;
@@ -194,7 +197,8 @@ These decisions define 1.1; the spec is written from them.
   5. anything else: `REFRESH_TOKEN_INVALID`, no revoke (a forged token proves nothing).
 - After a successful rotation: read the user, 403 `ACCOUNT_BLOCKED` if blocked (revoke the session first), read claims fresh, sign a new access token with the session's current `claimsVersion` as `cv`.
 - No grace window for a just-rotated token in 1.2. Two tabs that refresh at the same moment will hit reuse detection and log out. We meet this in 1.6 on purpose and fix it there.
-- Logout: `POST /api/auth/logout`, needs a valid access token, revokes the session of that token (`sid` from the token, never from the body). Reason `logout`. The cookie is cleared. Always 204.
+- Logout: `POST /api/auth/logout`, needs a valid access token, revokes the session of that token (`sid` from the token, never from the body). Reason `logout`. Both cookies are cleared with the same `Path` and attributes. Always 204.
+- Path test: a test fails when an auth route is mounted outside `/api/auth` (D-011).
 - Refresh limit: its own burst of 100 per second, plus 10 per minute per session (keyed on the sid in the token).
 - Revoke helpers (used later by 1.3, 1.5): revoke one session, revoke all sessions of a user (reason given), mark claims stale for users (0.6). Each publishes the event after the Redis change.
 - Verifier: `jsonwebtoken` or the framework strategy with `algorithms: ['HS256']`, the secret from config only.
@@ -225,6 +229,7 @@ These decisions define 1.1; the spec is written from them.
 - `packages/platform-common-java`: the JWT filter replaces the stub. Verify the signature (HS256), then the four checks in 0.3, then put the user (`userId`, `role`, `perms`, `depts`) into the Spring security context. Failures answer `{ code }` with the status in 0.3. No cache.
 - auth-service uses the same four checks in its own middleware. It is the only Node service, so no shared TypeScript package is needed.
 - The session field names and the event payloads live in `contracts/` and a contract test in Node and in Java fails when a name differs.
+- Bearer only (D-011): a test in each service proves that a request with only the `accessToken` cookie answers 401.
 - Event publishing exists since 1.2. 1.4 adds the proof: block a user, the next call to chat-service answers 401 `SESSION_REVOKED`; change a role, the next call answers 401 `TOKEN_CLAIMS_STALE`.
 - Listeners that close sockets arrive with 2.2. A periodic sweep that re-checks every open socket every 30 seconds comes with them, as a safety net for missed events.
 - Must not happen: a service that starts accepting tokens when Redis is down; a route that skips the session check because it only needs a signature.
@@ -259,10 +264,10 @@ Audit log
 
 Web (Vue). Android later (issue #25), same rules.
 - Pages: login, accept invitation (`/invite/:token`, also used by the first owner), members and invitations admin, sign out. Route guard: no session means `/login`; a signed-in user does not see login.
-- Session restore on page load: call refresh (the cookie goes automatically), then `GET /api/auth/me`. Failure with 401 or 403 means signed out; 503 or network means show an "unavailable, retry" state, not the login page.
+- Session restore on page load (D-011): call `GET /api/auth/session` first; on 401 call refresh (the cookie goes automatically), then `GET /api/auth/me`. If both fail with 401 or 403, go to `/login`. The router guard waits for this result; 503 or network means show an "unavailable, retry" state, not the login page.
 - One refresh function for the whole app: parallel 401s wait behind one refresh and then retry. Rules in 0.4.
 - Two tabs: expect the reuse logout from 1.2 to show up here. Fixing it is part of 1.6 and gets its own regression test.
 - Error handling: every server code maps to an i18n key (en and vi). Unknown code shows a generic message. Raw server text, ids and stack traces are never shown.
 - Login screen notices come only from the allow-list in 0.4.
-- Tokens: access token in a Pinia store (memory only), nothing in localStorage or sessionStorage.
+- Tokens: the copy of the access token in a Pinia store (memory), both tokens also in httpOnly cookies (0.1); nothing in localStorage or sessionStorage.
 - Must not happen: a token in storage or in the URL; a refresh loop on a login or refresh call; a logout caused by a 503 or a dropped network.
