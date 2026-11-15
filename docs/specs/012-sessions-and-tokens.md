@@ -64,7 +64,12 @@ refresh token (D-011).
 
 1. `POST /api/auth/refresh`
    - Refresh token from the `refreshToken` cookie, or from the body `{ refreshToken }`.
-   - One atomic Redis script decides (auth-design 1.2):
+   - Order (B4, B12): IP burst limit; malformed token refused; per-session counter; read
+     `userId` from `sess:{sid}` (one `HGET`, no decision, no write; no session: 401
+     `REFRESH_TOKEN_INVALID` with no MongoDB call); read the user and claims from MongoDB
+     (MongoDB down: 503, nothing rotated; no user: 401 `REFRESH_TOKEN_INVALID`, nothing
+     rotated); then the atomic script below; then the blocked check; then sign.
+   - One atomic Redis script decides (auth-design 1.2, steps unchanged):
      1. no session hash: 401 `REFRESH_TOKEN_INVALID`;
      2. `revoked=1` and the token matches the current or previous hash: 403
         `ACCOUNT_BLOCKED` if the reason is `blocked`, else 401 `SESSION_REVOKED`;
@@ -73,9 +78,10 @@ refresh token (D-011).
      4. token hash equals the previous hash: revoke the session (reason `refresh_reuse`),
         then publish the event, 401 `REFRESH_TOKEN_REUSE`;
      5. anything else: 401 `REFRESH_TOKEN_INVALID`, no revoke.
-   - After a rotation: read the user; blocked: revoke the session (reason `blocked`), 403
-     `ACCOUNT_BLOCKED`. Otherwise read claims fresh and sign a new access token with the
-     session's current `claimsVersion` as `cv`. Answer 200 `{ accessToken, user }`; web gets
+   - After a rotation: if the user read before the script is blocked, revoke the session
+     (reason `blocked`), 403 `ACCOUNT_BLOCKED`. Otherwise sign a new access token with the
+     claims read before the script and the `claimsVersion` the script returned as `cv`.
+     Answer 200 `{ accessToken, user }`; web gets
      both cookies again, others get the new `refreshToken` in the body.
 2. `POST /api/auth/logout`
    - Needs a valid access token. Revokes the session of that token (`sid` from the token,
@@ -129,7 +135,9 @@ refresh token (D-011).
   and revokes the session (reuse). Accepted until 1.6.
 - A blocked user refreshes: the session is revoked with reason `blocked`, 403. The next
   refresh with the same token answers 403 `ACCOUNT_BLOCKED`.
-- Logout twice with the same token: the second call (see Open items).
+- Logout twice with the same token: the second call also answers 204 (B13).
+- MongoDB down at refresh: 503, nothing rotated; the same refresh token still works once
+  MongoDB is back, and it does not count as reuse (B4).
 - A publish fails (Redis pub/sub error): the action still succeeds; one log line without the
   token.
 
@@ -141,6 +149,7 @@ refresh token (D-011).
 - `/session` returning a token for a revoked or stale session.
 - Logout revoking a session of another user, or taking the `sid` from the body.
 - A refresh that succeeds on a revoked session.
+- A 503 on refresh that rotates the token.
 - A forged refresh token revoking a session.
 - A session hash recreated without a TTL by a late write (every write on a session uses a
   script or checks existence first).
@@ -161,6 +170,13 @@ owner can overrule.
 - O5. Whether CORS (`CORS_ORIGINS`, `cors`) lands in 1.2 or later.
 - O6. Whether `/session` ever answers `ACCOUNT_BLOCKED` (0.3 gives a blocked session
   `SESSION_REVOKED`).
+- O7. The refresh order in B4 differs from auth-design 1.2, which rotates first and reads the
+  user after: here the user and claims are read before the script, so a MongoDB outage never
+  rotates a token the client then cannot use.
+- O8. `contracts/messaging.json` holds RabbitMQ names only today: its schema allows the kinds
+  `exchange`, `queue` and `routingKey` and values of lower-case words and dots. The Redis
+  key patterns, hash fields and pub/sub channels (A18, B14) need new kinds and a wider value
+  pattern in `contracts/schemas/messaging.schema.json`, or a separate contract file.
 
 ## 1.2a Decisions
 
@@ -194,6 +210,9 @@ owner can overrule.
   `TOKEN_CLAIMS_STALE`); `ACCOUNT_BLOCKED` comes only from login and refresh (O6). Claude
 - A17. The `user` object in login, session and refresh answers is the 1.1b shape
   `{ id, email, displayName, role }`; `/me` adds `perms`. Claude
+- A18. The session key patterns (`sess:{sid}`, `user:{userId}:sessions`) and the session
+  hash field names live in `contracts/messaging.json`, with a contract test in auth-service;
+  1.4 reuses them in Java. Needs a schema change (O8). Claude
 
 ## 1.2a Done when
 
@@ -212,7 +231,8 @@ owner can overrule.
    a missing session or a mismatched `userId`: 401 `UNAUTHENTICATED`; revoked session: 401
    `SESSION_REVOKED`; `claimsVersion` above `cv`: 401 `TOKEN_CLAIMS_STALE`. [A6, A9]
 7. `/me` with only the `accessToken` cookie answers 401 `UNAUTHENTICATED`. [A6]
-8. `/session` with a valid cookie answers 200 `{ accessToken, user }` and leaves the session's
+8. `/session` with a valid cookie answers 200 `{ accessToken, user }` whose `accessToken` is
+   the same token as in the cookie (not a new one), and leaves the session's
    `refreshHash` unchanged; with no cookie, an expired one, a revoked or a stale session it
    answers the matching 401 code. [A5, A16]
 9. With Redis stopped, `/me` and `/session` answer 503 `SERVICE_UNAVAILABLE`. [A8]
@@ -222,6 +242,8 @@ owner can overrule.
     characters or the example value. [A10]
 12. A log capture across login, `/session` and `/me` finds no access token, refresh token or
     refresh hash. [Must not happen]
+13. `contracts/messaging.json` lists the two session key patterns and every session hash field
+    name, and an auth-service contract test fails when the code uses a different name. [A18]
 
 ## 1.2b Decisions
 
@@ -231,8 +253,12 @@ owner can overrule.
   `SESSION_REVOKED`) only when the token matches the current or previous hash. Owner
 - B3. A reused (previous) token revokes the session with reason `refresh_reuse` and publishes
   the event; a token matching neither hash revokes nothing. Owner
-- B4. After a rotation the user is read again; blocked means revoke then 403. Claims are read
-  fresh and `cv` is the session's current `claimsVersion`. Owner
+- B4. Refresh order: read `userId` from `sess:{sid}` (`HGET`, no decision, no write; no
+  session: 401 `REFRESH_TOKEN_INVALID`, no MongoDB call); read the user and claims from
+  MongoDB (down: 503, nothing rotated; no user: 401 `REFRESH_TOKEN_INVALID`, nothing
+  rotated); run the atomic script (B1); if the user is blocked, revoke with reason `blocked`
+  and answer 403; sign the token with the `claimsVersion` the script returned. This differs
+  from auth-design 1.2, which rotates first (O7). Claude
 - B5. No grace window in 1.2; two tabs refreshing at once log out, fixed in 1.6. Owner
 - B6. Logout needs a valid access token, takes the `sid` from it, reason `logout`, clears both
   cookies with the same attributes, answers 204. Owner
@@ -245,14 +271,15 @@ owner can overrule.
 - B10. The refresh token comes from the `refreshToken` cookie or the body; web gets new cookies,
   others get the new refresh token in the body (0.1, D-011). Owner
 - B11. A malformed refresh token is refused before any Redis call. Claude
-- B12. The per-session refresh limit uses the existing `FailureCounter` style in Redis with a
+- B12. Order of checks on refresh: IP burst, malformed token, per-session counter, then the
+  steps of B4. The per-session refresh limit uses the existing `FailureCounter` style in Redis with a
   60-second window, keyed `auth:refresh:sid:<sid>`; the burst uses its own
   `express-rate-limit` instance (memory store), separate from the login burst. Claude
 - B13. Logout runs only the signature check and takes `sub` and `sid` from the token; it
   revokes the session when it exists and belongs to `sub`, and answers 204 also for an
   already revoked or stale session, so a second logout is not an error (O3). Claude
 - B14. Event names go in `contracts/messaging.json` with a contract test (a contract
-  change). Claude
+  change; needs the schema change in O8). Claude
 
 ## 1.2b Done when
 
@@ -272,17 +299,22 @@ owner can overrule.
    `SESSION_REVOKED`); a non-matching one answers 401 `REFRESH_TOKEN_INVALID`. [B2]
 7. A blocked user's refresh revokes the session with reason `blocked` and answers 403
    `ACCOUNT_BLOCKED`. [B4]
-8. After a claims-stale mark, a refresh answers a token whose `cv` equals the new
+8. With MongoDB stopped, a refresh answers 503 and leaves `refreshHash`, `prevRefreshHash`
+    and `rotatedAt` unchanged; after MongoDB is back the same refresh token answers 200, not
+    `REFRESH_TOKEN_REUSE`. A refresh for a session whose user no longer exists answers 401
+    `REFRESH_TOKEN_INVALID` and rotates nothing. A refresh with no session hash makes no
+    MongoDB call. [B4]
+9. After a claims-stale mark, a refresh answers a token whose `cv` equals the new
    `claimsVersion`, and `/me` accepts it. [B4, B8]
-9. Logout answers 204, revokes only the token's session (another user's session stays live),
+10. Logout answers 204, revokes only the token's session (another user's session stays live),
    clears both cookies with the same Path and attributes, and publishes the event; after it
    the same access token gets 401 `SESSION_REVOKED` at `/me` and `/session`. A second logout
    also answers 204. [B6, B13]
-10. The 11th refresh within a minute for one session answers 429 with `Retry-After`; the
+11. The 11th refresh within a minute for one session answers 429 with `Retry-After`; the
     101st within a second from one IP answers 429 `Retry-After: 1`. [B7, B12]
-11. Each revoke helper changes Redis then publishes; with publish failing the change still
+12. Each revoke helper changes Redis then publishes; with publish failing the change still
     lands and one log line is written. [B8]
-12. No write recreates a session hash without a TTL: a rotation or revoke on an expired
+13. No write recreates a session hash without a TTL: a rotation or revoke on an expired
     session leaves no key behind. [Must not happen]
-13. A log capture across refresh, reuse and logout finds no refresh token, refresh hash or
+14. A log capture across refresh, reuse and logout finds no refresh token, refresh hash or
     access token. [Must not happen]

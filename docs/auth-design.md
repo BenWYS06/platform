@@ -195,7 +195,7 @@ These decisions define 1.1; the spec is written from them.
   3. token hash equals the current hash: store the new hash, move the old one to `prevRefreshHash`, set `rotatedAt`, reset the 30-day TTL: success;
   4. token hash equals the previous hash: someone replayed a rotated token. Revoke this session (reason `refresh_reuse`), publish the event, answer `REFRESH_TOKEN_REUSE`;
   5. anything else: `REFRESH_TOKEN_INVALID`, no revoke (a forged token proves nothing).
-- After a successful rotation: read the user, 403 `ACCOUNT_BLOCKED` if blocked (revoke the session first), read claims fresh, sign a new access token with the session's current `claimsVersion` as `cv`.
+- Before the script: read `userId` from `sess:{sid}` (no session: `REFRESH_TOKEN_INVALID`, no MongoDB call), then the user and claims from MongoDB (down: 503, nothing rotated; no user: `REFRESH_TOKEN_INVALID`). After a successful rotation: 403 `ACCOUNT_BLOCKED` if the user is blocked (revoke the session first), else sign a new access token with the `claimsVersion` the script returned as `cv` (spec 012 B4).
 - No grace window for a just-rotated token in 1.2. Two tabs that refresh at the same moment will hit reuse detection and log out. We meet this in 1.6 on purpose and fix it there.
 - Logout: `POST /api/auth/logout`, needs a valid access token, revokes the session of that token (`sid` from the token, never from the body). Reason `logout`. Both cookies are cleared with the same `Path` and attributes. Always 204.
 - Path test: a test fails when an auth route is mounted outside `/api/auth` (D-011).
