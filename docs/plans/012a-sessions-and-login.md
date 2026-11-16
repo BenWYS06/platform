@@ -168,7 +168,7 @@ No task waits on an open question.
   (Done when 2, 3, 4)
   STOP: report to the owner before Task 6.
 
-- [ ] Task 6. Access-token middleware
+- [x] Task 6. Access-token middleware
   `src/services/sessionCheck.ts`: the four checks in order (verify, session exists and
   `userId` equals `sub`, not revoked, `cv` at least `claimsVersion`) with one
   `readForCheck`; returns the claims or throws the matching `ApiError`; Redis down rethrows
