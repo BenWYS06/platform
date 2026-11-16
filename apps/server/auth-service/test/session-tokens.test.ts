@@ -7,7 +7,7 @@ import { hashToken } from '../src/services/tokens.js';
 const SECRET = 's'.repeat(32);
 const TTL = 900;
 const tokens = createSessionTokens({ jwtAccessSecret: SECRET, jwtAccessTtlSeconds: TTL });
-const CLAIMS: AccessClaims = { sub: 'user-1', sid: newSid(), role: 'member', perms: [], depts: [], cv: 1 };
+const CLAIMS: AccessClaims = { sub: 'user-1', sid: newSid(), role: 'Member', perms: [], depts: [], cv: 1 };
 
 describe('session tokens', () => {
   it('signs an access token that verifies with every claim and the TTL', () => {

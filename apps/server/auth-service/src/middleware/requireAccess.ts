@@ -9,8 +9,8 @@ const BEARER = /^Bearer ([A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*)$/;
 export const requireAccess =
   (sessionCheck: SessionCheck): RequestHandler =>
   async (req, res, next) => {
-    const match = BEARER.exec(req.headers.authorization ?? '');
-    if (!match) throw new ApiError('UNAUTHENTICATED');
-    res.locals.claims = await sessionCheck.check(match[1]);
+    const token = BEARER.exec(req.headers.authorization ?? '')?.[1];
+    if (!token) throw new ApiError('UNAUTHENTICATED');
+    res.locals.claims = await sessionCheck.check(token);
     next();
   };
