@@ -3,7 +3,7 @@
 Spec: docs/specs/012-sessions-and-tokens.md, part 1.2a (Decisions A1 to A18, Done when 1 to 13)
 Issue: #47
 Branch: feature/sessions
-Status: not started
+Status: done
 Rule: one task, one commit. No local runs; Check lines are what CI proves at the end. After
 each task, report and stop as in root `CLAUDE.md` "Work mode".
 
@@ -217,7 +217,7 @@ No task waits on an open question.
   and `/api/auth/me` with every code the routes answer. (Done when 10)
   STOP: report to the owner before Task 10.
 
-- [ ] Task 10. Close the issue
+- [x] Task 10. Close the issue
   Tick this plan and set `Status: done`; set its line in docs/plans/README.md to `done`;
   tick #47 in docs/roadmap.md; point docs/handoff.md to plan 012b (#48) (/session-summary).
   Scan; when the owner says so, push and open the PR with `Closes #47` and
