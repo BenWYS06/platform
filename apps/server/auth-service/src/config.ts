@@ -7,8 +7,8 @@ export const MIN_PROD_KEY_LENGTH = 32;
 export const LOCAL_DEFAULT_JWT_ACCESS_SECRET = 'local-dev-jwt-access-secret-not-for-prod';
 // The value .env.example shows; prod refuses it.
 export const EXAMPLE_JWT_ACCESS_SECRET = 'change-me-to-32-or-more-random-characters';
-const DEFAULT_ACCESS_TTL_SECONDS = 900;
-const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
+export const DEFAULT_ACCESS_TTL_SECONDS = 900;
+export const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
 const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/?replicaSet=rs0';
 const LOCAL_REDIS_URL = 'redis://localhost:6379';
 // The values .env.example shows; prod refuses them.

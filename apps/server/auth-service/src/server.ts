@@ -6,6 +6,7 @@ import { ConfigError, loadConfig } from './config.js';
 import { createLogger } from './logger.js';
 import { createInvitationsRepository } from './repositories/invitations.js';
 import { createStores } from './repositories/stores.js';
+import { createSessionStore } from './repositories/sessions.js';
 import { createUsersRepository } from './repositories/users.js';
 import { createFailureCounter } from './repositories/failureCounter.js';
 import { ACCEPT_KEY_PREFIX, ACCEPT_WINDOW_SECONDS, createAcceptLimit } from './services/acceptLimit.js';
@@ -14,6 +15,7 @@ import { createHealth } from './services/health.js';
 import { createInvitationsService } from './services/invitations.js';
 import { startLoginService } from './services/login.js';
 import { createLoginLimit, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS } from './services/loginLimit.js';
+import { createSessionTokens } from './services/sessionTokens.js';
 import { createStartupLoop } from './services/startup.js';
 
 const log = createLogger();
@@ -57,6 +59,8 @@ const startup = createStartupLoop(
 const login = await startLoginService({
   users,
   loginLimit: createLoginLimit(createFailureCounter(stores.redis, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS)),
+  sessions: createSessionStore(stores.redis, config.refreshTtlSeconds),
+  tokens: createSessionTokens(config),
 });
 
 const app = createAppWithLimits({

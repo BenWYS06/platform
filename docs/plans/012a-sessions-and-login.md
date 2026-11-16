@@ -152,7 +152,7 @@ No task waits on an open question.
   `messaging.json`. (Done when 2 for the store, 13)
   STOP: report to the owner before Task 5.
 
-- [ ] Task 5. Login answers tokens
+- [x] Task 5. Login answers tokens
   `src/services/login.ts`: after the 1.1b checks pass, create the session (C6), sign the
   access token (`cv` 1, `perms` and `depts` empty, A12), return `{ accessToken,
   refreshToken, user }`. `src/routes/auth.ts`: `platform` from `X-Client` (A13); with

@@ -2,7 +2,7 @@
 import express, { type Express, type RequestHandler } from 'express';
 import helmet from 'helmet';
 import type { Logger } from 'pino';
-import type { Config } from './config.js';
+import { type Config, DEFAULT_ACCESS_TTL_SECONDS, DEFAULT_REFRESH_TTL_SECONDS } from './config.js';
 import { createBurstLimit } from './middleware/burstLimit.js';
 import { errorHandler, notFound } from './middleware/errors.js';
 import { requireInternalKey } from './middleware/internalKey.js';
@@ -19,8 +19,8 @@ import type { LoginService } from './services/login.js';
 import type { Readiness } from './services/startup.js';
 
 export interface AppDeps {
-  // trustProxy unset: false; clientIpHeader unset: req.ip decides.
-  config: Pick<Config, 'internalApiKey'> & Partial<Pick<Config, 'trustProxy' | 'clientIpHeader'>>;
+  // trustProxy unset: false; clientIpHeader unset: req.ip decides; TTLs unset: the config defaults.
+  config: Pick<Config, 'internalApiKey'> & Partial<Pick<Config, 'trustProxy' | 'clientIpHeader' | 'jwtAccessTtlSeconds' | 'refreshTtlSeconds'>>;
   logger: Logger;
   health: Health;
   // Data routes answer 503 until this says the indexes exist.
@@ -47,7 +47,8 @@ export function createApp({ config, logger, health, readiness, invitations, acce
   // One shared limiter for login and accept; never health or /internal (B11).
   if (burstLimit) app.use(['/api/auth/login', '/api/auth/invitations'], burstLimit);
   app.use('/api/auth/invitations', requireReady(readiness), invitationsRouter({ service: invitations, limit: acceptLimit, clientIpHeader: config.clientIpHeader }));
-  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader }));
+  const cookieMaxAge = { access: config.jwtAccessTtlSeconds ?? DEFAULT_ACCESS_TTL_SECONDS, refresh: config.refreshTtlSeconds ?? DEFAULT_REFRESH_TTL_SECONDS };
+  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge }));
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);

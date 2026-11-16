@@ -14,7 +14,7 @@ const USER = { id: 'u1', email: 'boss@team.test', displayName: 'Boss', role: 'Ow
 const PASSWORD = 'a long enough password';
 
 function setup(config: Partial<Pick<Config, 'trustProxy' | 'clientIpHeader'>> = {}, ready = true) {
-  const login = vi.fn<LoginService['login']>(async () => ({ user: USER }));
+  const login = vi.fn<LoginService['login']>(async () => ({ accessToken: 'a', refreshToken: 'r', user: USER }));
   const service: LoginService = { login };
   const app = createApp({
     config: { internalApiKey: 'k', ...config },
@@ -35,11 +35,11 @@ function emailOfLength(length: number): string {
 }
 
 describe('POST /api/auth/login', () => {
-  it('answers 200 { user } and passes the trimmed, lower-case email and the password as typed', async () => {
+  it('answers 200 with the user and passes the trimmed, lower-case email and the password as typed', async () => {
     const { app, login } = setup();
     const res = await request(app).post('/api/auth/login').send({ email: '  Boss@Team.TEST ', password: ` ${PASSWORD} ` });
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ user: USER });
+    expect(res.body).toEqual({ accessToken: 'a', refreshToken: 'r', user: USER });
     expect(login).toHaveBeenCalledTimes(1);
     expect(login.mock.calls[0]?.[0]).toMatchObject({ email: 'boss@team.test', password: ` ${PASSWORD} ` });
   });
