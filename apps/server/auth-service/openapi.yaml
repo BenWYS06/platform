@@ -112,8 +112,17 @@ paths:
       summary: Log in with email and password (public)
       description: >-
         Public: the password is the proof. An unknown email and a wrong password get the same
-        401 answer and take the same time (dummy hash). Tokens come in 1.2.
+        401 answer and take the same time (dummy hash). On success it creates a session and
+        answers tokens. With X-Client: web both tokens are set as cookies (HttpOnly, Secure,
+        SameSite=Lax, Path=/api/auth) and the refresh token is not in the body; any other
+        client gets no cookie and the refresh token in the body.
       security: []
+      parameters:
+        - name: X-Client
+          in: header
+          required: false
+          schema: { type: string }
+          description: "web: tokens as cookies, session platform web. Anything else or missing: platform other."
       requestBody:
         required: true
         content:
@@ -135,21 +144,23 @@ paths:
                   description: Used exactly as typed (no trim). Length in characters.
       responses:
         "200":
-          description: Logged in.
+          description: >-
+            Logged in. Web (X-Client: web): { accessToken, user } and two Set-Cookie headers,
+            accessToken (Max-Age JWT_ACCESS_TTL_SECONDS) and refreshToken (Max-Age
+            REFRESH_TTL_SECONDS). Other clients: { accessToken, refreshToken, user }, no cookie.
+          headers:
+            Set-Cookie:
+              description: Web only. accessToken=<jwt> and refreshToken=<sid>.<secret>; HttpOnly; Secure; SameSite=Lax; Path=/api/auth.
+              schema: { type: string }
           content:
             application/json:
               schema:
                 type: object
-                required: [user]
+                required: [accessToken, user]
                 properties:
-                  user:
-                    type: object
-                    required: [id, email, displayName, role]
-                    properties:
-                      id: { type: string }
-                      email: { type: string }
-                      displayName: { type: string }
-                      role: { type: string, enum: [Owner, Admin, Member] }
+                  accessToken: { type: string, description: "JWT HS256, 15 minutes by default." }
+                  refreshToken: { type: string, description: "Not for web. <sid>.<secret>." }
+                  user: { $ref: "#/components/schemas/User" }
         "400":
           description: VALIDATION_FAILED (bad or too long email, password length, missing or unknown fields).
           $ref: "#/components/responses/Error"
@@ -169,6 +180,68 @@ paths:
             Retry-After:
               description: Seconds until the window ends; equal to params.retryAfterSeconds.
               schema: { type: integer, minimum: 1 }
+          $ref: "#/components/responses/Error"
+        "503":
+          description: >-
+            SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet). Redis
+            down when the session is created: no token and no cookie.
+          $ref: "#/components/responses/Error"
+  /api/auth/session:
+    get:
+      summary: Restore the web session from the access cookie
+      description: >-
+        Reads only the accessToken cookie and runs the session checks (token valid, session
+        exists for this user, not revoked, claims not stale). Never rotates and never writes to
+        Redis; answers the same access token.
+      security:
+        - accessCookie: []
+      responses:
+        "200":
+          description: Session valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accessToken, user]
+                properties:
+                  accessToken: { type: string, description: The cookie value, unchanged. }
+                  user: { $ref: "#/components/schemas/User" }
+        "401":
+          description: >-
+            UNAUTHENTICATED (no cookie, bad or expired token, no session, user missing),
+            SESSION_REVOKED or TOKEN_CLAIMS_STALE.
+          $ref: "#/components/responses/Error"
+        "503":
+          description: SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet).
+          $ref: "#/components/responses/Error"
+  /api/auth/me:
+    get:
+      summary: The calling user
+      description: >-
+        The access token only from Authorization Bearer; a cookie alone answers 401. Runs the
+        same session checks as /session. perms comes from the token (empty until 1.3).
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The user from the token's sub.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user]
+                properties:
+                  user:
+                    allOf:
+                      - $ref: "#/components/schemas/User"
+                      - type: object
+                        required: [perms]
+                        properties:
+                          perms: { type: array, items: { type: string } }
+        "401":
+          description: >-
+            UNAUTHENTICATED (no or malformed Bearer header, bad or expired token, no session,
+            user missing), SESSION_REVOKED or TOKEN_CLAIMS_STALE.
           $ref: "#/components/responses/Error"
         "503":
           description: SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet).
@@ -193,6 +266,14 @@ paths:
           $ref: "#/components/responses/Error"
 components:
   securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    accessCookie:
+      type: apiKey
+      in: cookie
+      name: accessToken
     internalKey:
       type: apiKey
       in: header
@@ -205,6 +286,14 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    User:
+      type: object
+      required: [id, email, displayName, role]
+      properties:
+        id: { type: string }
+        email: { type: string }
+        displayName: { type: string }
+        role: { type: string, enum: [Owner, Admin, Member] }
     Error:
       type: object
       required: [code]

@@ -28,6 +28,9 @@ versions follow [Semantic Versioning](https://semver.org/).
   email and wrong password get the same 401; failed logins are limited per email and per
   client IP, every login and accept request to 5 per second (429 with `Retry-After`); a
   blocked account gets 403. Every auth-service answer carries security headers (issue 1.1b).
+- Sessions: login creates a session and answers an access token and a refresh token (web:
+  httpOnly cookies); `GET /api/auth/session` restores a web login from the cookie and
+  `GET /api/auth/me` answers the calling user; revoked or stale sessions get 401 (issue 1.2a).
 
 ### Changed
 

@@ -100,10 +100,23 @@ errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
   or client IP over its limit (20 failures), 429; find the user; check the password, against
   a dummy argon2id hash made once at startup for an unknown email, so both answer the same
   401 `INVALID_CREDENTIALS`; a blocked user with the right password gets 403
-  `ACCOUNT_BLOCKED`. Success answers 200 `{ user }` (tokens come in 1.2). Failure counters
-  live in Redis in a 15-minute fixed window, keyed by the sha256 of the email and by the
-  client IP; a success (or a blocked answer) clears the email counter only. Redis down
+  `ACCOUNT_BLOCKED`. Success creates a session and answers tokens (1.2a, below). Failure
+  counters live in Redis in a 15-minute fixed window, keyed by the sha256 of the email and by
+  the client IP; a success (or a blocked answer) clears the email counter only. Redis down
   answers 503.
+- Sessions and tokens (1.2a): a login creates a Redis hash `sess:{sid}` (sid 16 random bytes,
+  `claimsVersion` 1, only the sha256 of the refresh token) and adds the sid to
+  `user:{userId}:sessions`, both with the refresh TTL, in one transaction. It answers an
+  access token (JWT HS256, 15 minutes, claims `sub sid role perms depts cv`) and a refresh
+  token `<sid>.<secret>`. With `X-Client: web` both go in httpOnly, Secure, SameSite=Lax
+  cookies on `/api/auth`; other clients get the refresh token in the body. Every protected
+  route runs four checks with one Redis read: the token verifies, the session exists for
+  `sub`, it is not revoked (`SESSION_REVOKED`), and `cv` is at least `claimsVersion`
+  (`TOKEN_CLAIMS_STALE`); any other failure is 401 `UNAUTHENTICATED`, Redis down is 503.
+  `GET /api/auth/me` takes the token only from `Authorization: Bearer`; `GET
+  /api/auth/session` only from the `accessToken` cookie, so a web reload restores the login
+  without rotating. Refresh, logout and revoke come in 1.2b. Key and field names:
+  `contracts/messaging.json`.
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)

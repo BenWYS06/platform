@@ -205,7 +205,7 @@ No task waits on an open question.
   refresh hash or the `Cookie`/`Set-Cookie`/`Authorization` values. (Done when 12)
   STOP: report to the owner before Task 9.
 
-- [ ] Task 9. Path test and docs
+- [x] Task 9. Path test and docs
   New test: list every route on the built app (walk the Express router stack) and fail when
   one is outside `/api/auth` or `/internal` (`/internal` holds `GET /internal/ping`,
   service-to-service, behind the internal key; it is not an auth route); it names the route. `openapi.yaml`: login (200
