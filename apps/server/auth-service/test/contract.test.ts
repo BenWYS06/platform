@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { ERROR_STATUS } from '../src/errors.js';
+import { SESSION_FIELD, SESSION_KEY, USER_SESSIONS_KEY } from '../src/repositories/sessions.js';
 
 // Every code this service returns exists in contracts/error-codes.json with the same status.
 describe('error codes', () => {
@@ -12,5 +13,23 @@ describe('error codes', () => {
     for (const [code, status] of Object.entries(ERROR_STATUS)) {
       expect(byCode.get(code), code).toBe(status);
     }
+  });
+});
+
+// The session key patterns and hash field names match contracts/messaging.json, both ways.
+describe('session Redis names', () => {
+  it('match contracts/messaging.json', () => {
+    const url = new URL('../../../../contracts/messaging.json', import.meta.url);
+    const contract = JSON.parse(readFileSync(url, 'utf8')) as { name: string; kind: string; value: string }[];
+    const fromContract = Object.fromEntries(
+      contract.filter((e) => e.kind === 'redisKey' || e.kind === 'redisField').map((e) => [e.name, e.value]),
+    );
+    const fromCode = {
+      SESSION_KEY,
+      USER_SESSIONS_KEY,
+      ...Object.fromEntries(Object.entries(SESSION_FIELD).map(([k, v]) => ['SESSION_FIELD_' + k, v])),
+    };
+
+    expect(fromCode).toEqual(fromContract);
   });
 });

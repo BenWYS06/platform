@@ -136,7 +136,7 @@ No task waits on an open question.
   when 5)
   STOP: report to the owner before Task 4.
 
-- [ ] Task 4. Session store
+- [x] Task 4. Session store
   `src/repositories/sessions.ts`: `create({ userId, method, platform, deviceId, refreshHash })`
   returns `sid`; one `MULTI`: `HSET sess:{sid}` with every 0.2 field (`claimsVersion` 1,
   `revoked` 0, empty `prevRefreshHash`, `rotatedAt`, `revokedReason`), `EXPIRE`, `SADD
