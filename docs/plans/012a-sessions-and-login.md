@@ -102,7 +102,7 @@ No task waits on an open question.
 
 ## Tasks
 
-- [ ] Task 1. Contracts: session error codes and Redis names
+- [x] Task 1. Contracts: session error codes and Redis names
   `contracts/error-codes.json`: `SESSION_REVOKED` 401 and `TOKEN_CLAIMS_STALE` 401; en and vi
   messages in `apps/web/src/i18n/en.json` and `vi.json`. `contracts/schemas/messaging.schema.json`
   as C2; `contracts/messaging.json` gets `SESSION_KEY`, `USER_SESSIONS_KEY` and one

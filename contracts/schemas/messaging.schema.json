@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "messaging.schema.json",
   "title": "Messaging names",
-  "description": "RabbitMQ exchanges, queues and routing keys. Code uses name; the broker sees value.",
+  "description": "RabbitMQ exchanges, queues and routing keys, and Redis key patterns and hash fields. Code uses name; the broker or Redis sees value.",
   "type": "array",
   "items": {
     "type": "object",
@@ -14,16 +14,33 @@
         "pattern": "^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$"
       },
       "kind": {
-        "enum": ["exchange", "queue", "routingKey"]
+        "enum": ["exchange", "queue", "routingKey", "redisKey", "redisField"]
       },
       "value": {
-        "type": "string",
-        "pattern": "^[a-z][a-z0-9]*(\\.[a-z0-9]+)*$"
+        "type": "string"
       },
       "description": {
         "type": "string",
         "minLength": 1
       }
-    }
+    },
+    "allOf": [
+      {
+        "if": { "properties": { "kind": { "enum": ["exchange", "queue", "routingKey"] } } },
+        "then": { "properties": { "value": { "pattern": "^[a-z][a-z0-9]*(\.[a-z0-9]+)*$" } } }
+      },
+      {
+        "if": { "properties": { "kind": { "const": "redisKey" } } },
+        "then": {
+          "properties": {
+            "value": { "pattern": "^[a-z][a-z0-9]*(:([a-z][a-z0-9]*|\{[a-z][a-zA-Z0-9]*\}))+$" }
+          }
+        }
+      },
+      {
+        "if": { "properties": { "kind": { "const": "redisField" } } },
+        "then": { "properties": { "value": { "pattern": "^[a-z][a-zA-Z0-9]*$" } } }
+      }
+    ]
   }
 }

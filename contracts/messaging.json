@@ -1,1 +1,80 @@
-[]
+[
+  {
+    "name": "SESSION_KEY",
+    "kind": "redisKey",
+    "value": "sess:{sid}",
+    "description": "Hash of one session (auth-design 0.2); TTL is the refresh TTL."
+  },
+  {
+    "name": "USER_SESSIONS_KEY",
+    "kind": "redisKey",
+    "value": "user:{userId}:sessions",
+    "description": "Set of the sids of one user; TTL is the refresh TTL, reset when a sid is added."
+  },
+  {
+    "name": "SESSION_FIELD_USER_ID",
+    "kind": "redisField",
+    "value": "userId",
+    "description": "Id of the user who owns the session."
+  },
+  {
+    "name": "SESSION_FIELD_METHOD",
+    "kind": "redisField",
+    "value": "method",
+    "description": "How the user logged in: password (later google, oidc)."
+  },
+  {
+    "name": "SESSION_FIELD_DEVICE_ID",
+    "kind": "redisField",
+    "value": "deviceId",
+    "description": "Device id sent by the client; empty for now."
+  },
+  {
+    "name": "SESSION_FIELD_PLATFORM",
+    "kind": "redisField",
+    "value": "platform",
+    "description": "web with X-Client: web, else other."
+  },
+  {
+    "name": "SESSION_FIELD_REFRESH_HASH",
+    "kind": "redisField",
+    "value": "refreshHash",
+    "description": "sha256 of the current refresh token."
+  },
+  {
+    "name": "SESSION_FIELD_PREV_REFRESH_HASH",
+    "kind": "redisField",
+    "value": "prevRefreshHash",
+    "description": "sha256 of the refresh token before the last rotation; empty until one."
+  },
+  {
+    "name": "SESSION_FIELD_ROTATED_AT",
+    "kind": "redisField",
+    "value": "rotatedAt",
+    "description": "Time of the last rotation; empty until one."
+  },
+  {
+    "name": "SESSION_FIELD_CLAIMS_VERSION",
+    "kind": "redisField",
+    "value": "claimsVersion",
+    "description": "Starts at 1; an access token with a lower cv is stale."
+  },
+  {
+    "name": "SESSION_FIELD_REVOKED",
+    "kind": "redisField",
+    "value": "revoked",
+    "description": "1 when the session is revoked, else 0."
+  },
+  {
+    "name": "SESSION_FIELD_REVOKED_REASON",
+    "kind": "redisField",
+    "value": "revokedReason",
+    "description": "Why the session was revoked; empty while active."
+  },
+  {
+    "name": "SESSION_FIELD_CREATED_AT",
+    "kind": "redisField",
+    "value": "createdAt",
+    "description": "Time the session was created."
+  }
+]

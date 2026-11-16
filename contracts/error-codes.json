@@ -73,5 +73,15 @@
     "code": "ACCOUNT_BLOCKED",
     "status": 403,
     "description": "The password is right but the account is blocked."
+  },
+  {
+    "code": "SESSION_REVOKED",
+    "status": 401,
+    "description": "The session of this token was revoked (logout, blocked user or refresh reuse)."
+  },
+  {
+    "code": "TOKEN_CLAIMS_STALE",
+    "status": 401,
+    "description": "The access token claims are older than the session claimsVersion; refresh to get new ones."
   }
 ]
