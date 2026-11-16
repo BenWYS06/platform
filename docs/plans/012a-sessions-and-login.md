@@ -124,7 +124,7 @@ No task waits on an open question.
   (Done when 11)
   STOP: report to the owner before Task 3.
 
-- [ ] Task 3. Token helpers
+- [x] Task 3. Token helpers
   Add `jsonwebtoken` and `@types/jsonwebtoken` (exact versions). `src/services/sessionTokens.ts`:
   `signAccess(claims)` and `verifyAccess(token)` with HS256 pinned and the secret and TTL from
   config; `newSid()` (16 bytes base64url); `newRefreshToken(sid)` (`<sid>.<32 bytes
