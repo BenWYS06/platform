@@ -183,7 +183,7 @@ No task waits on an open question.
   `SERVICE_UNAVAILABLE`. (Done when 5, part of 6, part of 9)
   STOP: report to the owner before Task 7.
 
-- [ ] Task 7. GET /session and GET /me
+- [x] Task 7. GET /session and GET /me
   User read as C5. Add `cookie-parser` and `@types/cookie-parser` (exact versions),
   mounted for `/api/auth` only. `GET /api/auth/me` behind `requireAccess`: 200 `{ user }`
   with `id email displayName role perms`. `GET /api/auth/session`: reads the `accessToken`

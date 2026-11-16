@@ -15,6 +15,8 @@ import { createHealth } from './services/health.js';
 import { createInvitationsService } from './services/invitations.js';
 import { startLoginService } from './services/login.js';
 import { createLoginLimit, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS } from './services/loginLimit.js';
+import { createSessionService } from './services/session.js';
+import { createSessionCheck } from './services/sessionCheck.js';
 import { createSessionTokens } from './services/sessionTokens.js';
 import { createStartupLoop } from './services/startup.js';
 
@@ -55,12 +57,14 @@ const startup = createStartupLoop(
   log,
 );
 
+const sessions = createSessionStore(stores.redis, config.refreshTtlSeconds);
+const tokens = createSessionTokens(config);
 // The dummy hash is made here, once, before the server listens (B10).
 const login = await startLoginService({
   users,
   loginLimit: createLoginLimit(createFailureCounter(stores.redis, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS)),
-  sessions: createSessionStore(stores.redis, config.refreshTtlSeconds),
-  tokens: createSessionTokens(config),
+  sessions,
+  tokens,
 });
 
 const app = createAppWithLimits({
@@ -71,6 +75,7 @@ const app = createAppWithLimits({
   invitations: createInvitationsService({ users, invitations, logger: log }),
   acceptLimit: createAcceptLimit(createFailureCounter(stores.redis, ACCEPT_KEY_PREFIX, ACCEPT_WINDOW_SECONDS)),
   login,
+  session: createSessionService(createSessionCheck(tokens, sessions), users),
 });
 const server = http.createServer(app);
 server.on('listening', () => log.info({ port: config.port, appEnv: config.appEnv }, 'auth-service listening'));

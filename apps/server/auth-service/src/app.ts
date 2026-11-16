@@ -1,4 +1,5 @@
 // Job: build the Express app (no listen), so tests can call it with supertest.
+import cookieParser from 'cookie-parser';
 import express, { type Express, type RequestHandler } from 'express';
 import helmet from 'helmet';
 import type { Logger } from 'pino';
@@ -16,6 +17,7 @@ import type { AcceptLimit } from './services/acceptLimit.js';
 import type { Health } from './services/health.js';
 import type { InvitationsService } from './services/invitations.js';
 import type { LoginService } from './services/login.js';
+import type { SessionService } from './services/session.js';
 import type { Readiness } from './services/startup.js';
 
 export interface AppDeps {
@@ -28,11 +30,13 @@ export interface AppDeps {
   invitations: InvitationsService;
   acceptLimit: AcceptLimit;
   login: LoginService;
+  // GET /session and GET /me; server.ts always passes it. Unset: neither route is mounted.
+  session?: SessionService;
   // Burst limit on login and accept; server.ts always passes it (createAppWithLimits).
   burstLimit?: RequestHandler;
 }
 
-export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login, burstLimit }: AppDeps): Express {
+export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login, session, burstLimit }: AppDeps): Express {
   const app = express();
   // Security headers on every answer, errors and health included (B13).
   app.use(helmet({ frameguard: { action: 'deny' } }));
@@ -48,7 +52,9 @@ export function createApp({ config, logger, health, readiness, invitations, acce
   if (burstLimit) app.use(['/api/auth/login', '/api/auth/invitations'], burstLimit);
   app.use('/api/auth/invitations', requireReady(readiness), invitationsRouter({ service: invitations, limit: acceptLimit, clientIpHeader: config.clientIpHeader }));
   const cookieMaxAge = { access: config.jwtAccessTtlSeconds ?? DEFAULT_ACCESS_TTL_SECONDS, refresh: config.refreshTtlSeconds ?? DEFAULT_REFRESH_TTL_SECONDS };
-  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge }));
+  // Cookies are read only under /api/auth (the accessToken cookie for GET /session).
+  app.use('/api/auth', cookieParser());
+  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge, session }));
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);
