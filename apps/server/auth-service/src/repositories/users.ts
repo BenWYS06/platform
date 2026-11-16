@@ -1,6 +1,6 @@
 // Job: users repository over the Mongoose `User` model. Emails are stored trimmed and in lower
 // case; a unique index keeps one user per email. Callers never see Mongoose types.
-import type { Connection } from 'mongoose';
+import { type Connection, isValidObjectId } from 'mongoose';
 import { type UserFields, userModel } from '../models/user.js';
 import { mapStoreErrors } from './errors.js';
 
@@ -18,6 +18,8 @@ export interface UsersRepository {
   // Throws DuplicateError when a user with this email (any letter case) exists.
   insert(user: NewUser): Promise<User>;
   findByEmail(email: string): Promise<User | null>;
+  // null for an unknown id or one that is not an ObjectId.
+  findById(id: string): Promise<User | null>;
   // True when at least one user exists.
   any(): Promise<boolean>;
 }
@@ -38,6 +40,11 @@ export function createUsersRepository(connection: Connection): UsersRepository {
     },
     async findByEmail(email) {
       const doc = await mapStoreErrors('users', () => Users.findOne({ email: normalizeEmail(email) }).lean().exec());
+      return doc ? toUser(doc) : null;
+    },
+    async findById(id) {
+      if (!isValidObjectId(id)) return null;
+      const doc = await mapStoreErrors('users', () => Users.findById(id).lean().exec());
       return doc ? toUser(doc) : null;
     },
     async any() {

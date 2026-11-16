@@ -43,7 +43,14 @@ forwards `/api/auth/*` here with the prefix kept.
   `repositories/failureCounter.ts`; client IP `middleware/clientIp.ts`),
   `POST /api/auth/login` (`routes/auth.ts` -> `services/login.ts`; failure limits
   `services/loginLimit.ts`; `server.ts` awaits `startLoginService`, which makes the dummy
-  hash, before it listens). API: `openapi.yaml`; update it with every route change.
+  hash, before it listens), `GET /api/auth/session` and `GET /api/auth/me` (`routes/auth.ts`
+  -> `services/session.ts`). API: `openapi.yaml`; update it with every route change.
+  `test/route-paths.test.ts` fails for a route outside `/api/auth` and `/internal`.
+- Sessions (1.2a): `services/sessionTokens.ts` (sign and verify the access JWT, sid, refresh
+  token), `repositories/sessions.ts` (`sess:{sid}` hash and `user:{userId}:sessions` set;
+  names checked against `contracts/messaging.json`), `services/sessionCheck.ts` (the four
+  checks, one `HMGET`), `middleware/requireAccess.ts` (Bearer only, claims on
+  `res.locals.claims`). `cookie-parser` runs under `/api/auth` only.
 - `src/app.ts`: `helmet` first on every answer (`X-Frame-Options: DENY`). The burst limit
   (`middleware/burstLimit.ts`, 5 per second per client IP, memory store) covers login and
   accept, never health or `/internal`. It is an optional `createApp` entry: `server.ts`

@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { ConfigError, EXAMPLE_OWNER_EMAIL, LOCAL_DEFAULT_INTERNAL_KEY, LOCAL_WEB_ORIGIN, loadConfig } from '../src/config.js';
+import {
+  ConfigError,
+  EXAMPLE_JWT_ACCESS_SECRET,
+  EXAMPLE_OWNER_EMAIL,
+  LOCAL_DEFAULT_INTERNAL_KEY,
+  LOCAL_DEFAULT_JWT_ACCESS_SECRET,
+  LOCAL_WEB_ORIGIN,
+  loadConfig,
+} from '../src/config.js';
 
 const GOOD_KEY = 'k'.repeat(32);
 const PROD = {
@@ -9,6 +17,7 @@ const PROD = {
   REDIS_URL: 'redis://cache:6379',
   BOOTSTRAP_OWNER_EMAIL: 'boss@team.test',
   WEB_ORIGIN: 'https://example.com',
+  JWT_ACCESS_SECRET: 's'.repeat(32),
 };
 
 describe('loadConfig', () => {
@@ -51,7 +60,7 @@ describe('loadConfig', () => {
 
   it('uses the local default key with a warning outside prod', () => {
     const warnings: string[] = [];
-    const config = loadConfig({ APP_ENV: 'local', INTERNAL_API_KEY: '' }, (m) => warnings.push(m));
+    const config = loadConfig({ APP_ENV: 'local', INTERNAL_API_KEY: '', JWT_ACCESS_SECRET: 'j'.repeat(32) }, (m) => warnings.push(m));
     expect(config.internalApiKey).toBe(LOCAL_DEFAULT_INTERNAL_KEY);
     expect(warnings).toHaveLength(1);
     expect(warnings[0]).toMatch(/INTERNAL_API_KEY/);
@@ -116,5 +125,49 @@ describe('loadConfig: first owner and client IP', () => {
   it('reads CLIENT_IP_HEADER in lower case and rejects a bad name', () => {
     expect(loadConfig({ ...PROD, CLIENT_IP_HEADER: 'CF-Connecting-IP' }).clientIpHeader).toBe('cf-connecting-ip');
     expect(() => loadConfig({ CLIENT_IP_HEADER: 'bad header:' })).toThrow(/CLIENT_IP_HEADER/);
+  });
+});
+
+describe('loadConfig: access secret and TTLs', () => {
+  function prodMessage(secret: string | undefined): string {
+    try {
+      loadConfig({ ...PROD, JWT_ACCESS_SECRET: secret });
+    } catch (e) {
+      return (e as Error).message;
+    }
+    return '';
+  }
+
+  it('uses 900 and 2592000 seconds by default', () => {
+    const config = loadConfig(PROD);
+    expect(config.jwtAccessTtlSeconds).toBe(900);
+    expect(config.refreshTtlSeconds).toBe(2592000);
+    expect(config.jwtAccessSecret).toBe('s'.repeat(32));
+  });
+
+  it('rejects prod with a missing, short, local default or example secret, naming it but not the value', () => {
+    const short = 'x'.repeat(31);
+    for (const secret of [undefined, short, LOCAL_DEFAULT_JWT_ACCESS_SECRET, EXAMPLE_JWT_ACCESS_SECRET]) {
+      const message = prodMessage(secret);
+      expect(message).toMatch(/JWT_ACCESS_SECRET/);
+      if (secret) expect(message).not.toContain(secret);
+    }
+  });
+
+  it('uses the local default secret with a warning outside prod', () => {
+    const warnings: string[] = [];
+    const config = loadConfig({ INTERNAL_API_KEY: 'k' }, (m) => warnings.push(m));
+    expect(config.jwtAccessSecret).toBe(LOCAL_DEFAULT_JWT_ACCESS_SECRET);
+    expect(warnings).toEqual([expect.stringMatching(/JWT_ACCESS_SECRET/)]);
+  });
+
+  it('rejects an access TTL that is not below the refresh TTL', () => {
+    expect(() => loadConfig({ JWT_ACCESS_TTL_SECONDS: '600', REFRESH_TTL_SECONDS: '600' })).toThrow(/JWT_ACCESS_TTL_SECONDS/);
+    expect(() => loadConfig({ JWT_ACCESS_TTL_SECONDS: '700', REFRESH_TTL_SECONDS: '600' })).toThrow(ConfigError);
+  });
+
+  it('rejects a TTL that is not a positive integer', () => {
+    expect(() => loadConfig({ JWT_ACCESS_TTL_SECONDS: '0' })).toThrow(/JWT_ACCESS_TTL_SECONDS/);
+    expect(() => loadConfig({ REFRESH_TTL_SECONDS: 'abc' })).toThrow(/REFRESH_TTL_SECONDS/);
   });
 });

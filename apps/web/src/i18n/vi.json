@@ -32,6 +32,8 @@
     "INVITATION_REVOKED": "Liên kết mời này đã được thay thế. Vui lòng dùng liên kết mới nhất.",
     "INVITATION_ALREADY_ACCEPTED": "Liên kết mời này đã được sử dụng.",
     "MEMBER_ALREADY_EXISTS": "Đã có tài khoản dùng email này.",
+    "SESSION_REVOKED": "Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại.",
+    "TOKEN_CLAIMS_STALE": "Quyền truy cập của bạn đã thay đổi. Vui lòng tải lại trang.",
     "UNKNOWN": "Đã xảy ra lỗi không mong muốn.",
     "NETWORK": "Không kết nối được máy chủ. Vui lòng kiểm tra kết nối."
   }

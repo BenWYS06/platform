@@ -1,5 +1,5 @@
 // Integration: POST /api/auth/login against a real MongoDB and Redis (spec 009 Done when 2, 3,
-// 4, 6, 7, 9, 11, 12; plan 009b Task 4).
+// 4, 6, 7, 9, 11, 12; plan 009b Task 4; spec 012 Done when 2, 3, 4, plan 012a Task 5).
 import { createHash, randomUUID } from 'node:crypto';
 import { Writable } from 'node:stream';
 import type { Connection } from 'mongoose';
@@ -9,11 +9,13 @@ import { createApp } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
 import { userModel } from '../src/models/user.js';
 import { createFailureCounter } from '../src/repositories/failureCounter.js';
+import { createSessionStore, SESSION_FIELD, sessionKey, userSessionsKey } from '../src/repositories/sessions.js';
 import { createMongo, createRedis, type Mongo, type Redis, type RedisClient } from '../src/repositories/stores.js';
 import { createUsersRepository } from '../src/repositories/users.js';
 import { startLoginService } from '../src/services/login.js';
 import { createLoginLimit, LOGIN_WINDOW_SECONDS } from '../src/services/loginLimit.js';
 import { hashPassword } from '../src/services/password.js';
+import { createSessionTokens } from '../src/services/sessionTokens.js';
 import { expectError } from './helpers/error-body.js';
 import { noLimit, unusedInvitations } from './helpers/invitations.js';
 import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
@@ -43,6 +45,9 @@ const WRONG = 'wrong horse battery';
 const EMAIL = 'boss@team.test';
 const RETRY = { retryAfterSeconds: expect.any(Number) as unknown as number };
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
+const ACCESS_TTL = 900;
+const REFRESH_TTL = 2592000;
+const tokens = createSessionTokens({ jwtAccessSecret: 'test-access-secret-of-32-characters!', jwtAccessTtlSeconds: ACCESS_TTL });
 
 // C4: no repository method blocks a user until 1.5; tests set it through the model.
 async function block(db: Connection, email: string): Promise<void> {
@@ -50,7 +55,8 @@ async function block(db: Connection, email: string): Promise<void> {
 }
 
 // A fresh database and Redis key prefix; X-Forwarded-For picks the client IP (TRUST_PROXY=1).
-async function setup(redisClient: RedisClient = redis.client) {
+// sessionClient lets a test stop the session Redis while the failure counters keep working.
+async function setup(redisClient: RedisClient = redis.client, sessionClient: RedisClient = redisClient) {
   const db = mongoClient.connection.useDb(uniqueDbName(), { useCache: false });
   const users = createUsersRepository(db);
   await users.ensureIndexes();
@@ -59,9 +65,11 @@ async function setup(redisClient: RedisClient = redis.client) {
   const login = await startLoginService({
     users,
     loginLimit: createLoginLimit(createFailureCounter(redisClient, prefix, LOGIN_WINDOW_SECONDS)),
+    sessions: createSessionStore(sessionClient, REFRESH_TTL),
+    tokens,
   });
   const app = createApp({
-    config: { internalApiKey: 'k', trustProxy: 1 },
+    config: { internalApiKey: 'k', trustProxy: 1, jwtAccessTtlSeconds: ACCESS_TTL, refreshTtlSeconds: REFRESH_TTL },
     logger: createLogger(new Writable({ write: (_c, _e, done) => done() })),
     health: { allUp: async () => true },
     readiness: { isReady: () => true },
@@ -69,10 +77,15 @@ async function setup(redisClient: RedisClient = redis.client) {
     acceptLimit: noLimit,
     login,
   });
-  const post = (email: string, password: string, ip = '203.0.113.1') =>
-    request(app).post('/api/auth/login').set('X-Forwarded-For', ip).send({ email, password });
+  const post = (email: string, password: string, ip = '203.0.113.1', client?: string) => {
+    const req = request(app).post('/api/auth/login').set('X-Forwarded-For', ip);
+    return (client ? req.set('X-Client', client) : req).send({ email, password });
+  };
   const emailCount = async (email: string) => Number((await redis.client.get(`${prefix}email:${sha256(email)}`)) ?? 0);
-  return { db, post, emailCount };
+  const userId = (await users.findByEmail(EMAIL))?.id ?? '';
+  // The user's session set: empty when no session was created.
+  const sessionIds = () => redis.client.sMembers(userSessionsKey(userId));
+  return { db, post, emailCount, userId, sessionIds };
 }
 
 // Every 429: contract body, Retry-After equal to params.retryAfterSeconds (B5).
@@ -87,7 +100,7 @@ describe('login flow', () => {
     const { post } = await setup();
     const res = await post(EMAIL, PASSWORD);
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ user: { id: expect.any(String), email: EMAIL, displayName: 'Boss', role: 'Owner' } });
+    expect(res.body.user).toEqual({ id: expect.any(String), email: EMAIL, displayName: 'Boss', role: 'Owner' });
     expect(res.text).not.toContain('passwordHash');
     expect(res.text).not.toContain('argon2');
   });
@@ -147,6 +160,81 @@ describe('login flow', () => {
     expectError(await post(EMAIL, PASSWORD), 'ACCOUNT_BLOCKED');
     expect(await emailCount(EMAIL)).toBe(0);
   });
+});
+
+describe('login answers tokens', () => {
+  const sidOf = (refreshToken: string) => refreshToken.split('.')[0] ?? '';
+
+  it('web login: 200 { accessToken, user } and both cookies with the right flags and max ages', async () => {
+    const { post, userId, sessionIds } = await setup();
+    const res = await post(EMAIL, PASSWORD, '203.0.113.1', 'web');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ accessToken: expect.any(String), user: { id: userId, email: EMAIL, displayName: 'Boss', role: 'Owner' } });
+
+    const cookies = ([] as string[]).concat(res.headers['set-cookie'] ?? []);
+    const access = cookies.find((c) => c.startsWith('accessToken='));
+    const refresh = cookies.find((c) => c.startsWith('refreshToken='));
+    for (const cookie of [access, refresh]) {
+      for (const flag of ['HttpOnly', 'Secure', 'SameSite=Lax', 'Path=/api/auth']) expect(cookie).toContain(flag);
+    }
+    expect(access).toContain(`accessToken=${res.body.accessToken};`);
+    expect(access).toContain(`Max-Age=${ACCESS_TTL}`);
+    expect(refresh).toContain(`Max-Age=${REFRESH_TTL}`);
+
+    const refreshToken = decodeURIComponent(refresh?.split(';')[0]?.slice('refreshToken='.length) ?? '');
+    const sid = sidOf(refreshToken);
+    expect(await sessionIds()).toEqual([sid]);
+    expect(await redis.client.hGet(sessionKey(sid), SESSION_FIELD.PLATFORM)).toBe('web');
+    expect(tokens.verifyAccess(res.body.accessToken)).toMatchObject({ sub: userId, sid, role: 'Owner', perms: [], depts: [], cv: 1 });
+  });
+
+  it('login without X-Client: web sets no cookie and returns the refresh token', async () => {
+    for (const client of [undefined, 'android']) {
+      const { post, sessionIds } = await setup();
+      const res = await post(EMAIL, PASSWORD, '203.0.113.1', client);
+      expect(res.status).toBe(200);
+      expect(res.headers['set-cookie']).toBeUndefined();
+      expect(res.body).toEqual({ accessToken: expect.any(String), refreshToken: expect.any(String), user: expect.any(Object) });
+      const sid = sidOf(res.body.refreshToken);
+      expect(await sessionIds()).toEqual([sid]);
+      expect(await redis.client.hGet(sessionKey(sid), SESSION_FIELD.PLATFORM)).toBe('other');
+    }
+  });
+
+  it('a wrong password, a locked email and a blocked user create no session and no cookie', async () => {
+    const { post, sessionIds } = await setup();
+    const wrong = await post(EMAIL, WRONG, '203.0.113.1', 'web');
+    expectError(wrong, 'INVALID_CREDENTIALS');
+    expect(wrong.headers['set-cookie']).toBeUndefined();
+    for (let i = 0; i < 4; i++) await post(EMAIL, WRONG);
+    const locked = await post(EMAIL, PASSWORD, '203.0.113.1', 'web');
+    expect429(locked);
+    expect(locked.headers['set-cookie']).toBeUndefined();
+    expect(await sessionIds()).toEqual([]);
+
+    const other = await setup();
+    await block(other.db, EMAIL);
+    const blocked = await other.post(EMAIL, PASSWORD, '203.0.113.1', 'web');
+    expectError(blocked, 'ACCOUNT_BLOCKED');
+    expect(blocked.headers['set-cookie']).toBeUndefined();
+    expect(await other.sessionIds()).toEqual([]);
+  });
+
+  it('answers 503 with no cookie when the session Redis is down after the user check', async () => {
+    const down = await startRedis();
+    const own = createRedis(down.url);
+    try {
+      await waitFor(() => own.client.isReady);
+      const { post } = await setup(redis.client, own.client);
+      await down.stop();
+      await waitFor(() => !own.client.isReady);
+      const res = await post(EMAIL, PASSWORD, '203.0.113.1', 'web');
+      expectError(res, 'SERVICE_UNAVAILABLE');
+      expect(res.headers['set-cookie']).toBeUndefined();
+    } finally {
+      await own.close();
+    }
+  }, START_TIMEOUT_MS);
 });
 
 describe('login with Redis down', () => {

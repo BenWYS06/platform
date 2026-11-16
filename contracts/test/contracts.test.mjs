@@ -84,3 +84,46 @@ test('accepts valid entries in the empty-list files', () => {
     [],
   );
 });
+
+test('error-codes.json has the session codes at 401', () => {
+  const byCode = new Map(loadReal('error-codes').map((e) => [e.code, e.status]));
+  assert.equal(byCode.get('SESSION_REVOKED'), 401);
+  assert.equal(byCode.get('TOKEN_CLAIMS_STALE'), 401);
+});
+
+test('messaging.json holds the two session keys and one entry per session hash field', () => {
+  const redis = loadReal('messaging').filter((e) => e.kind === 'redisKey' || e.kind === 'redisField');
+  assert.equal(redis.length, 13);
+  const fields = redis.filter((e) => e.kind === 'redisField').map((e) => e.value);
+  assert.deepEqual(fields.sort(), [
+    'claimsVersion',
+    'createdAt',
+    'deviceId',
+    'method',
+    'platform',
+    'prevRefreshHash',
+    'refreshHash',
+    'revoked',
+    'revokedReason',
+    'rotatedAt',
+    'userId',
+  ]);
+});
+
+test('accepts a redisKey and a redisField entry', () => {
+  const data = [
+    { name: 'USER_SESSIONS_KEY', kind: 'redisKey', value: 'user:{userId}:sessions', description: 'Set.' },
+    { name: 'SESSION_FIELD_USER_ID', kind: 'redisField', value: 'userId', description: 'Field.' },
+  ];
+  assert.deepEqual(checkContract('messaging', writeTempJson('messaging', data)), []);
+});
+
+test('rejects a redisKey with upper case and a redisField with a dot', () => {
+  const data = [
+    { name: 'SESSION_KEY', kind: 'redisKey', value: 'Sess:{sid}', description: 'Bad.' },
+    { name: 'SESSION_FIELD_USER_ID', kind: 'redisField', value: 'user.id', description: 'Bad.' },
+  ];
+  const problems = checkContract('messaging', writeTempJson('messaging', data)).join('\n');
+  assert.match(problems, /entry 0 \(name "SESSION_KEY"\), field "value" must match pattern/);
+  assert.match(problems, /entry 1 \(name "SESSION_FIELD_USER_ID"\), field "value" must match pattern/);
+});

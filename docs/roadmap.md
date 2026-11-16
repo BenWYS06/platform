@@ -22,6 +22,8 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
   - [x] 1.1b Login (3, #35)
 - [x] Health with Spring Actuator (D-010a to D-010c)
 - [ ] 1.2 Sessions, access token, rotating refresh token, logout
+  - [x] 1.2a Sessions, access token, /session and /me (5, #47)
+  - [ ] 1.2b Refresh rotation, reuse detection, logout (5, #48)
   - Web cookies on `/api/auth` (D-011), `GET /api/auth/session`, a test that every auth route
     is mounted under `/api/auth`
 - [ ] 1.3 Capabilities, roles, workspace settings

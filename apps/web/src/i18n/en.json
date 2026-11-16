@@ -32,6 +32,8 @@
     "INVITATION_REVOKED": "This invitation link was replaced. Use the newest link.",
     "INVITATION_ALREADY_ACCEPTED": "This invitation link has already been used.",
     "MEMBER_ALREADY_EXISTS": "An account with this email already exists.",
+    "SESSION_REVOKED": "Your session has ended. Please sign in again.",
+    "TOKEN_CLAIMS_STALE": "Your access has changed. Please reload the page.",
     "UNKNOWN": "Something unexpected happened.",
     "NETWORK": "Cannot reach the server. Check your connection."
   }

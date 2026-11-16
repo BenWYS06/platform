@@ -10,7 +10,7 @@ import { expectError } from './helpers/error-body.js';
 import { noLimit, unusedInvitations } from './helpers/invitations.js';
 
 const login: LoginService = {
-  login: async ({ email }) => ({ user: { id: 'u1', email, displayName: 'Boss', role: 'Owner' } }),
+  login: async ({ email }) => ({ accessToken: 'a', refreshToken: 'r', user: { id: 'u1', email, displayName: 'Boss', role: 'Owner' } }),
 };
 const BODY = { email: 'boss@team.test', password: 'a long enough password' };
 
