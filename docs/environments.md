@@ -57,6 +57,17 @@ addresses; unset means none outside local. When `CLIENT_IP_HEADER` is set, that 
 > **Warning:** never set `CLIENT_IP_HEADER` on a host that clients can reach directly. They
 > could send the header themselves and choose their own counter.
 
+### Sessions and tokens (issue 1.2a, auth)
+
+| Variable | Local | prod |
+|---|---|---|
+| `JWT_ACCESS_SECRET` | empty: a fixed local default, one warning | required, at least 32 characters, not the local default or the `.env.example` value |
+| `JWT_ACCESS_TTL_SECONDS` | default `900` (15 minutes) | same default |
+| `REFRESH_TTL_SECONDS` | default `2592000` (30 days) | same default |
+
+Both TTLs are positive integers, and the access TTL must be smaller than the refresh TTL, or
+auth refuses to start.
+
 Services read the repo `.env` at startup; real env variables win. Leave `MONGODB_URI` and
 `REDIS_URL` out of `.env` locally: an empty value is not the same as a missing one for Spring.
 

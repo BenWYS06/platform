@@ -4,6 +4,11 @@ import { z } from 'zod';
 
 export const LOCAL_DEFAULT_INTERNAL_KEY = 'local-dev-internal-key-not-for-prod';
 export const MIN_PROD_KEY_LENGTH = 32;
+export const LOCAL_DEFAULT_JWT_ACCESS_SECRET = 'local-dev-jwt-access-secret-not-for-prod';
+// The value .env.example shows; prod refuses it.
+export const EXAMPLE_JWT_ACCESS_SECRET = 'change-me-to-32-or-more-random-characters';
+const DEFAULT_ACCESS_TTL_SECONDS = 900;
+const DEFAULT_REFRESH_TTL_SECONDS = 2592000;
 const LOCAL_MONGODB_URI = 'mongodb://localhost:27017/?replicaSet=rs0';
 const LOCAL_REDIS_URL = 'redis://localhost:6379';
 // The values .env.example shows; prod refuses them.
@@ -29,12 +34,21 @@ export interface Config {
   trustProxy: boolean | number | string;
   // Lower-case header that carries the client IP (for example cf-connecting-ip), or undefined.
   clientIpHeader: string | undefined;
+  // HS256 secret for access tokens.
+  jwtAccessSecret: string;
+  jwtAccessTtlSeconds: number;
+  // Refresh token and session lifetime.
+  refreshTtlSeconds: number;
 }
 
 export class ConfigError extends Error {}
 
 // Blank values count as not set, so `NAME=` in .env behaves like a missing line.
 const optional = z.preprocess((v) => (typeof v === 'string' && v.trim() === '' ? undefined : v), z.string().optional());
+
+// Blank counts as not set; otherwise a positive integer.
+const seconds = (fallback: number) =>
+  z.preprocess((v) => (v === '' || v === undefined ? undefined : Number(v)), z.number().int().positive().default(fallback));
 
 const schema = z.object({
   APP_ENV: z.preprocess((v) => (v === '' ? undefined : v), z.enum(['local', 'dev', 'prod']).default('local')),
@@ -49,6 +63,9 @@ const schema = z.object({
   WEB_ORIGIN: optional,
   TRUST_PROXY: optional,
   CLIENT_IP_HEADER: optional,
+  JWT_ACCESS_SECRET: optional,
+  JWT_ACCESS_TTL_SECONDS: seconds(DEFAULT_ACCESS_TTL_SECONDS),
+  REFRESH_TTL_SECONDS: seconds(DEFAULT_REFRESH_TTL_SECONDS),
 });
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env, warn: (message: string) => void = () => {}): Config {
@@ -57,7 +74,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, warn: (message:
     const names = [...new Set(parsed.error.issues.map((i) => String(i.path[0])))];
     throw new ConfigError(`${names.join(', ')} invalid (APP_ENV must be local, dev or prod)`);
   }
-  const { APP_ENV, AUTH_SERVICE_PORT, INTERNAL_API_KEY, MONGODB_URI, REDIS_URL } = parsed.data;
+  const { APP_ENV, AUTH_SERVICE_PORT, INTERNAL_API_KEY, MONGODB_URI, REDIS_URL, JWT_ACCESS_SECRET } = parsed.data;
+  const { JWT_ACCESS_TTL_SECONDS, REFRESH_TTL_SECONDS } = parsed.data;
+  if (JWT_ACCESS_TTL_SECONDS >= REFRESH_TTL_SECONDS) {
+    throw new ConfigError('JWT_ACCESS_TTL_SECONDS must be smaller than REFRESH_TTL_SECONDS');
+  }
   const bootstrapOwnerEmail = ownerEmail(parsed.data.BOOTSTRAP_OWNER_EMAIL);
   const webOrigin = origin(parsed.data.WEB_ORIGIN);
   const clientIpHeader = headerName(parsed.data.CLIENT_IP_HEADER);
@@ -74,12 +95,25 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, warn: (message:
     if (!webOrigin || webOrigin === LOCAL_WEB_ORIGIN) {
       throw new ConfigError('WEB_ORIGIN is missing or the local example value (APP_ENV=prod)');
     }
+    if (
+      !JWT_ACCESS_SECRET ||
+      JWT_ACCESS_SECRET.length < MIN_PROD_KEY_LENGTH ||
+      JWT_ACCESS_SECRET === LOCAL_DEFAULT_JWT_ACCESS_SECRET ||
+      JWT_ACCESS_SECRET === EXAMPLE_JWT_ACCESS_SECRET
+    ) {
+      throw new ConfigError('JWT_ACCESS_SECRET is missing, shorter than 32 characters, the local default or the example value (APP_ENV=prod)');
+    }
   }
 
   let internalApiKey = INTERNAL_API_KEY;
   if (!internalApiKey) {
     warn('INTERNAL_API_KEY is not set; using the local default (not allowed in prod)');
     internalApiKey = LOCAL_DEFAULT_INTERNAL_KEY;
+  }
+  let jwtAccessSecret = JWT_ACCESS_SECRET;
+  if (!jwtAccessSecret) {
+    warn('JWT_ACCESS_SECRET is not set; using the local default (not allowed in prod)');
+    jwtAccessSecret = LOCAL_DEFAULT_JWT_ACCESS_SECRET;
   }
 
   return {
@@ -93,6 +127,9 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env, warn: (message:
     webOrigin: webOrigin ?? LOCAL_WEB_ORIGIN,
     trustProxy: trustProxy(parsed.data.TRUST_PROXY, APP_ENV),
     clientIpHeader,
+    jwtAccessSecret,
+    jwtAccessTtlSeconds: JWT_ACCESS_TTL_SECONDS,
+    refreshTtlSeconds: REFRESH_TTL_SECONDS,
   };
 }
 

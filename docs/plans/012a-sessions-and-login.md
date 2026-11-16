@@ -113,7 +113,7 @@ No task waits on an open question.
   (Done when 1, part of 13)
   STOP: report to the owner before Task 2.
 
-- [ ] Task 2. Config: access secret and TTLs
+- [x] Task 2. Config: access secret and TTLs
   `src/config.ts`: `JWT_ACCESS_SECRET`, `JWT_ACCESS_TTL_SECONDS` (default 900),
   `REFRESH_TTL_SECONDS` (default 2592000), prod guard and TTL rule as C3. Names in
   `.env.example` and `docs/environments.md` (new "Sessions and tokens (issue 1.2a, auth)"
