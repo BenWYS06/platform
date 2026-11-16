@@ -1,13 +1,27 @@
 // Invitation tokens never reach the logs: request, error and 404 lines (spec 009 Done when 17).
+// Session tokens never reach the logs or stdout: login, /session, /me (spec 012 Done when 12).
+import { randomUUID } from 'node:crypto';
 import { Writable } from 'node:stream';
 import express from 'express';
 import request from 'supertest';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app.js';
 import { noLimit, unusedInvitations, unusedLogin } from './helpers/invitations.js';
 import { createLogger } from '../src/logger.js';
 import { errorHandler, notFound } from '../src/middleware/errors.js';
 import { maskTokens, requestLogger } from '../src/middleware/requestLog.js';
+import { createFailureCounter } from '../src/repositories/failureCounter.js';
+import { createSessionStore, SESSION_FIELD, sessionKey } from '../src/repositories/sessions.js';
+import { createMongo, createRedis, type Mongo, type Redis } from '../src/repositories/stores.js';
+import { createUsersRepository } from '../src/repositories/users.js';
+import { startLoginService } from '../src/services/login.js';
+import { createLoginLimit, LOGIN_WINDOW_SECONDS } from '../src/services/loginLimit.js';
+import { hashPassword } from '../src/services/password.js';
+import { createSessionService } from '../src/services/session.js';
+import { createSessionCheck } from '../src/services/sessionCheck.js';
+import { createSessionTokens } from '../src/services/sessionTokens.js';
+import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
+import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';
 
 // Low entropy on purpose, so the secret scan does not take it for a key.
 const TOKEN = 'T'.repeat(44);
@@ -84,4 +98,80 @@ describe('maskTokens', () => {
     expect(maskTokens('/api/auth/health')).toBe('/api/auth/health');
     expect(maskTokens('/api/auth/invitations')).toBe('/api/auth/invitations');
   });
+});
+
+describe('session tokens in logs and stdout', () => {
+  let mongo: TestMongo;
+  let mongoClient: Mongo;
+  let redisServer: TestRedis;
+  let redis: Redis;
+
+  beforeAll(async () => {
+    [mongo, redisServer] = await Promise.all([startMongo(), startRedis()]);
+    mongoClient = createMongo(mongo.uri, 'unused');
+    await mongoClient.connect();
+    redis = createRedis(redisServer.url);
+    await waitFor(() => redis.client.isReady);
+  }, START_TIMEOUT_MS);
+
+  afterAll(async () => {
+    await redis?.close();
+    await mongoClient?.close();
+    await Promise.all([redisServer?.stop(), mongo?.stop()]);
+  }, START_TIMEOUT_MS);
+
+  it('writes no token, refresh hash or cookie and auth header value during login, /session and /me', async () => {
+    const EMAIL = 'boss@team.test';
+    const PASSWORD = 'correct horse battery';
+    const users = createUsersRepository(mongoClient.connection.useDb(uniqueDbName(), { useCache: false }));
+    await users.ensureIndexes();
+    await users.insert({ email: EMAIL, displayName: 'Boss', role: 'Owner', passwordHash: await hashPassword(PASSWORD) });
+    const sessions = createSessionStore(redis.client, 2592000);
+    const tokens = createSessionTokens({ jwtAccessSecret: 'test-access-secret-of-32-characters!', jwtAccessTtlSeconds: 900 });
+    const login = await startLoginService({
+      users,
+      loginLimit: createLoginLimit(createFailureCounter(redis.client, `test:${randomUUID()}:`, LOGIN_WINDOW_SECONDS)),
+      sessions,
+      tokens,
+    });
+    const { logger, lines } = capture();
+    const app = createApp({
+      config: { internalApiKey: 'k' },
+      logger,
+      health: { allUp: async () => true },
+      readiness: { isReady: () => true },
+      invitations: unusedInvitations,
+      acceptLimit: noLimit,
+      login,
+      session: createSessionService(createSessionCheck(tokens, sessions), users),
+    });
+
+    const stdout: string[] = [];
+    const spy = vi.spyOn(process.stdout, 'write').mockImplementation((chunk) => (stdout.push(String(chunk)), true));
+    const secrets: string[] = [];
+    try {
+      const web = await request(app).post('/api/auth/login').set('X-Client', 'web').send({ email: EMAIL, password: PASSWORD });
+      const body = await request(app).post('/api/auth/login').send({ email: EMAIL, password: PASSWORD });
+      expect([web.status, body.status]).toEqual([200, 200]);
+      const setCookies = ([] as string[]).concat(web.headers['set-cookie'] ?? []);
+      const cookieValue = (name: string) => decodeURIComponent(setCookies.find((c) => c.startsWith(`${name}=`))?.split(';')[0]?.slice(name.length + 1) ?? '');
+      const webRefresh = cookieValue('refreshToken');
+      const cookie = `accessToken=${cookieValue('accessToken')}`;
+      const authorization = `Bearer ${body.body.accessToken}`;
+
+      expect((await request(app).get('/api/auth/session').set('Cookie', cookie)).status).toBe(200);
+      expect((await request(app).get('/api/auth/me').set('Authorization', authorization)).status).toBe(200);
+
+      const hashes = await Promise.all(
+        [webRefresh, body.body.refreshToken as string].map((t) => redis.client.hGet(sessionKey(t.split('.')[0] ?? ''), SESSION_FIELD.REFRESH_HASH)),
+      );
+      secrets.push(web.body.accessToken, body.body.accessToken, webRefresh, body.body.refreshToken, ...hashes.map(String), ...setCookies, cookie, authorization);
+    } finally {
+      spy.mockRestore();
+    }
+
+    expect(lines.length).toBeGreaterThanOrEqual(4);
+    for (const secret of secrets) expect(secret.length).toBeGreaterThan(20);
+    for (const line of [...lines, ...stdout]) for (const secret of secrets) expect(line).not.toContain(secret);
+  }, START_TIMEOUT_MS);
 });

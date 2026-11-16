@@ -198,7 +198,7 @@ No task waits on an open question.
   (Done when 6, 7, 8, 9)
   STOP: report to the owner before Task 8.
 
-- [ ] Task 8. Log capture across login, /session and /me
+- [x] Task 8. Log capture across login, /session and /me
   Extend `test/log-masking.test.ts`: capture every pino and stdout line during a web login,
   a body login, `/session` and `/me`. Code changes only if the test finds a leak.
   Check: the test passes: no captured line contains the access token, the refresh token, the
