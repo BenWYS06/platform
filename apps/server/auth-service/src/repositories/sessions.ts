@@ -2,7 +2,9 @@
 // MULTI with its TTL, so no session hash exists without one. The check reads three fields with
 // one HMGET (auth-design 0.3). Redis down: StoreUnavailableError (503, never 401; A8).
 // Key patterns and field names match contracts/messaging.json (test/contract.test.ts).
+// Revoke and claims writes run as one Lua script each (sessionScripts.ts, plan 012b D4, D5).
 import { StoreUnavailableError } from './errors.js';
+import { MARK_CLAIMS_STALE, REVOKE_ALL_OF_USER, REVOKE_ONE } from './sessionScripts.js';
 import type { RedisClient } from './stores.js';
 
 export const SESSION_KEY = 'sess:{sid}';
@@ -21,6 +23,7 @@ export const SESSION_FIELD = {
   CREATED_AT: 'createdAt',
 } as const;
 
+const SESSION_KEY_PREFIX = SESSION_KEY.replace('{sid}', '');
 export const sessionKey = (sid: string) => SESSION_KEY.replace('{sid}', sid);
 export const userSessionsKey = (userId: string) =>
   USER_SESSIONS_KEY.replace('{userId}', userId);
@@ -41,10 +44,18 @@ export interface SessionForCheck {
   claimsVersion: number;
 }
 
+export type RevokeReason = 'logout' | 'blocked' | 'refresh_reuse';
+
 export interface SessionStore {
   create(session: NewSession): Promise<string>;
   // undefined when no session hash exists for the sid.
   readForCheck(sid: string): Promise<SessionForCheck | undefined>;
+  // true when this call revoked the session; false when it is missing, already revoked or
+  // owned by another user than expectedUserId (D4).
+  revoke(sid: string, reason: RevokeReason, expectedUserId?: string): Promise<boolean>;
+  // Both return how many sessions they changed; sids whose hash is gone leave the set (D5).
+  revokeAllOfUser(userId: string, reason: RevokeReason): Promise<number>;
+  markClaimsStale(userId: string): Promise<number>;
 }
 
 export function createSessionStore(
@@ -100,5 +111,34 @@ export function createSessionStore(
           claimsVersion: Number(claimsVersion),
         };
       }),
+
+    revoke: (sid, reason, expectedUserId = '') =>
+      run(async () => {
+        const changed = await redis.eval(REVOKE_ONE, {
+          keys: [sessionKey(sid)],
+          arguments: [reason, expectedUserId],
+        });
+        return changed === 1;
+      }),
+
+    revokeAllOfUser: (userId, reason) =>
+      run(async () =>
+        Number(
+          await redis.eval(REVOKE_ALL_OF_USER, {
+            keys: [userSessionsKey(userId)],
+            arguments: [SESSION_KEY_PREFIX, reason],
+          }),
+        ),
+      ),
+
+    markClaimsStale: (userId) =>
+      run(async () =>
+        Number(
+          await redis.eval(MARK_CLAIMS_STALE, {
+            keys: [userSessionsKey(userId)],
+            arguments: [SESSION_KEY_PREFIX],
+          }),
+        ),
+      ),
   };
 }

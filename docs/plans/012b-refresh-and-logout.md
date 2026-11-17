@@ -130,7 +130,7 @@ No task waits on an open question.
   new schema cases; the web i18n test passes with both codes in en and vi. (Done when 1)
   STOP: report to the owner before Task 2.
 
-- [ ] Task 2. Session store: revoke scripts
+- [x] Task 2. Session store: revoke scripts
   `src/repositories/sessionScripts.ts` and `sessions.ts` as D2, D4, D5: `revoke`,
   `revokeAllOfUser`, `markClaimsStale`; each one script, each checks the hash exists first.
   Redis down: `StoreUnavailableError`. Integration test against a real Redis.
