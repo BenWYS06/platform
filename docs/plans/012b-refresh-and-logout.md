@@ -142,7 +142,7 @@ No task waits on an open question.
   (`EXISTS` 0). (part of Done when 13)
   STOP: report to the owner before Task 3.
 
-- [ ] Task 3. Events and revoke helpers
+- [x] Task 3. Events and revoke helpers
   `src/services/sessionRevoker.ts` (D2, D4, D10, D11): the channel constants from Task 1 and
   the payloads `{ userId, sid?, reason }` and `{ userId }`, built only here;
   `revokeSession`, `revokeAllSessions`, `markClaimsStale` (Redis change first, then publish);
