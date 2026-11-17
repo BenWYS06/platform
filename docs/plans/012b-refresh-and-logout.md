@@ -168,9 +168,10 @@ No task waits on an open question.
   with a non-matching hash `invalid`; a missing sid gives `invalid` and leaves no key; after a
   rotation with the set already expired (`DEL user:{userId}:sessions` before rotating), the
   set holds the sid again with the refresh TTL and `revokeAllOfUser` finds the session; when
-  rotation fails (revoked session, reused hash, hash mismatch) the sid is not added to the set
-  (removed from it before the call) and the set's TTL is unchanged (cut to 5 s before the call,
-  still at most 5 s after). (part of Done when 2, 4, 5, 6, 13, 15)
+  rotation fails (revoked session, reused hash, hash mismatch): before the call the real sid is
+  removed from the set, a dummy sid is added so the set key still exists (Redis deletes an
+  empty set, and its TTL would read -2), and the set's TTL is cut to 5 s; after the call the
+  dummy sid is still in the set, the real sid is not, and the set's TTL is at most 5 s. (part of Done when 2, 4, 5, 6, 13, 15)
   STOP: report to the owner before Task 5.
 
 - [ ] Task 5. Refresh service
