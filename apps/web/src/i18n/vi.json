@@ -34,6 +34,8 @@
     "MEMBER_ALREADY_EXISTS": "Đã có tài khoản dùng email này.",
     "SESSION_REVOKED": "Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại.",
     "TOKEN_CLAIMS_STALE": "Quyền truy cập của bạn đã thay đổi. Vui lòng tải lại trang.",
+    "REFRESH_TOKEN_INVALID": "Phiên đăng nhập đã kết thúc. Vui lòng đăng nhập lại.",
+    "REFRESH_TOKEN_REUSE": "Phiên đăng nhập đã bị kết thúc để bảo vệ tài khoản. Vui lòng đăng nhập lại.",
     "UNKNOWN": "Đã xảy ra lỗi không mong muốn.",
     "NETWORK": "Không kết nối được máy chủ. Vui lòng kiểm tra kết nối."
   }

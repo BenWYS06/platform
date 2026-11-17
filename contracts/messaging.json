@@ -76,5 +76,17 @@
     "kind": "redisField",
     "value": "createdAt",
     "description": "Time the session was created."
+  },
+  {
+    "name": "SESSIONS_REVOKED_CHANNEL",
+    "kind": "redisChannel",
+    "value": "auth:sessions-revoked",
+    "description": "Pub/sub channel: one session or all sessions of a user were revoked. Payload { userId, sid?, reason }."
+  },
+  {
+    "name": "CLAIMS_CHANGED_CHANNEL",
+    "kind": "redisChannel",
+    "value": "auth:claims-changed",
+    "description": "Pub/sub channel: the claims of a user changed; their access tokens are stale. Payload { userId }."
   }
 ]

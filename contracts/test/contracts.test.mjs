@@ -127,3 +127,28 @@ test('rejects a redisKey with upper case and a redisField with a dot', () => {
   assert.match(problems, /entry 0 \(name "SESSION_KEY"\), field "value" must match pattern/);
   assert.match(problems, /entry 1 \(name "SESSION_FIELD_USER_ID"\), field "value" must match pattern/);
 });
+
+test('error-codes.json has the refresh codes at 401', () => {
+  const byCode = new Map(loadReal('error-codes').map((e) => [e.code, e.status]));
+  assert.equal(byCode.get('REFRESH_TOKEN_INVALID'), 401);
+  assert.equal(byCode.get('REFRESH_TOKEN_REUSE'), 401);
+});
+
+test('messaging.json holds the two session event channels', () => {
+  const channels = loadReal('messaging').filter((e) => e.kind === 'redisChannel');
+  assert.deepEqual(
+    channels.map((e) => [e.name, e.value]),
+    [
+      ['SESSIONS_REVOKED_CHANNEL', 'auth:sessions-revoked'],
+      ['CLAIMS_CHANGED_CHANNEL', 'auth:claims-changed'],
+    ],
+  );
+});
+
+test('accepts a redisChannel with a hyphen and rejects one without a colon', () => {
+  const ok = [{ name: 'SESSIONS_REVOKED_CHANNEL', kind: 'redisChannel', value: 'auth:sessions-revoked', description: 'Ok.' }];
+  assert.deepEqual(checkContract('messaging', writeTempJson('messaging', ok)), []);
+  const bad = [{ name: 'SESSIONS_REVOKED_CHANNEL', kind: 'redisChannel', value: 'auth-sessions-revoked', description: 'Bad.' }];
+  const problems = checkContract('messaging', writeTempJson('messaging', bad)).join('\n');
+  assert.match(problems, /entry 0 \(name "SESSIONS_REVOKED_CHANNEL"\), field "value" must match pattern/);
+});

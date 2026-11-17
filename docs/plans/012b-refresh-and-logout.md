@@ -120,7 +120,7 @@ No task waits on an open question.
 
 ## Tasks
 
-- [ ] Task 1. Contracts: refresh error codes and event channels
+- [x] Task 1. Contracts: refresh error codes and event channels
   `contracts/error-codes.json`: `REFRESH_TOKEN_INVALID` 401 and `REFRESH_TOKEN_REUSE` 401; en
   and vi messages in `apps/web/src/i18n/en.json` and `vi.json`. `messaging.schema.json` as D1;
   `contracts/messaging.json` gets `SESSIONS_REVOKED_CHANNEL` and `CLAIMS_CHANGED_CHANNEL`.
