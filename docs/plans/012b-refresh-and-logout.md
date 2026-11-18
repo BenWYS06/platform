@@ -3,7 +3,7 @@
 Spec: docs/specs/012-sessions-and-tokens.md, part 1.2b (Decisions B1 to B14, Done when 1 to 16)
 Issue: #48
 Branch: feature/refresh-and-logout
-Status: not started
+Status: done
 Rule: one task, one commit. No local runs; Check lines are what CI proves at the end. After
 each task, report and stop as in root `CLAUDE.md` "Work mode".
 
@@ -240,7 +240,7 @@ No task waits on an open question.
   OpenAPI file lists both routes with every code they answer.
   STOP: report to the owner before Task 10.
 
-- [ ] Task 10. Close the issue
+- [x] Task 10. Close the issue
   Tick this plan and set `Status: done`; set its line in docs/plans/README.md to `done`;
   tick #48 and the 1.2 parent line in docs/roadmap.md; point docs/handoff.md to 1.3
   Capabilities, roles, workspace settings (/session-summary). Scan; when the owner says so,
