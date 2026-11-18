@@ -14,6 +14,7 @@ import { createBootOwnerStep } from './services/bootOwner.js';
 import { createHealth } from './services/health.js';
 import { createInvitationsService } from './services/invitations.js';
 import { startLoginService } from './services/login.js';
+import { createLogoutService } from './services/logout.js';
 import { createLoginLimit, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS } from './services/loginLimit.js';
 import { createRefreshService, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS } from './services/refresh.js';
 import { createSessionService } from './services/session.js';
@@ -61,6 +62,8 @@ const startup = createStartupLoop(
 
 const sessions = createSessionStore(stores.redis, config.refreshTtlSeconds);
 const tokens = createSessionTokens(config);
+// PUBLISH needs no second connection; only subscribers do (plan 012b).
+const revoker = createSessionRevoker({ sessions, publisher: stores.redis, logger: log });
 // The dummy hash is made here, once, before the server listens (B10).
 const login = await startLoginService({
   users,
@@ -82,10 +85,10 @@ const app = createAppWithLimits({
     users,
     sessions,
     counter: createFailureCounter(stores.redis, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS),
-    // PUBLISH needs no second connection; only subscribers do (plan 012b).
-    revoker: createSessionRevoker({ sessions, publisher: stores.redis, logger: log }),
+    revoker,
     tokens,
   }),
+  logout: createLogoutService({ tokens, revoker }),
 });
 const server = http.createServer(app);
 server.on('listening', () => log.info({ port: config.port, appEnv: config.appEnv }, 'auth-service listening'));

@@ -6,12 +6,15 @@
 // a strict body; web gets both cookies again, any other client the new refresh token in the body.
 // GET /session (A5): the access token only from the accessToken cookie. GET /me (A6): only from
 // Authorization: Bearer, through requireAccess.
+// POST /logout (B6, B13): Bearer only, signature checked with expiry ignored; clears both
+// cookies with the login attributes and answers 204, also for an already revoked session.
 import { type CookieOptions, type RequestHandler, type Response, Router } from 'express';
 import { z } from 'zod';
 import { ApiError } from '../errors.js';
 import { clientIp } from '../middleware/clientIp.js';
-import { requireAccess } from '../middleware/requireAccess.js';
+import { bearerToken, requireAccess } from '../middleware/requireAccess.js';
 import type { LoginResult, LoginService } from '../services/login.js';
+import type { LogoutService } from '../services/logout.js';
 import type { RefreshService } from '../services/refresh.js';
 import type { SessionService } from '../services/session.js';
 import type { VerifiedClaims } from '../services/sessionTokens.js';
@@ -40,9 +43,11 @@ export interface AuthRouterDeps {
   session?: SessionService;
   // Unset: /refresh is not mounted.
   refresh?: RefreshService;
+  // Unset: /logout is not mounted.
+  logout?: LogoutService;
 }
 
-export function authRouter({ service, ready, clientIpHeader, cookieMaxAge, session, refresh }: AuthRouterDeps): Router {
+export function authRouter({ service, ready, clientIpHeader, cookieMaxAge, session, refresh, logout }: AuthRouterDeps): Router {
   const router = Router();
 
   // Login and refresh answer the same way: cookies for web, the refresh token in the body else.
@@ -68,6 +73,15 @@ export function authRouter({ service, ready, clientIpHeader, cookieMaxAge, sessi
       const cookie: unknown = req.cookies?.refreshToken;
       const token = typeof cookie === 'string' && cookie !== '' ? cookie : body.refreshToken;
       sendTokens(res, req.get('x-client') === 'web', await refresh.refresh(token));
+    });
+  }
+  if (logout) {
+    // Redis only, so no readiness gate (that waits for the MongoDB indexes).
+    router.post('/logout', async (req, res) => {
+      await logout.logout(bearerToken(req));
+      res.clearCookie('accessToken', COOKIE);
+      res.clearCookie('refreshToken', COOKIE);
+      res.status(204).end();
     });
   }
   if (!session) return router;

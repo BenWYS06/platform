@@ -208,7 +208,7 @@ No task waits on an open question.
   burst stays at 5. (Done when 3, 11 burst)
   STOP: report to the owner before Task 7.
 
-- [ ] Task 7. POST /api/auth/logout
+- [x] Task 7. POST /api/auth/logout
   `sessionTokens.ts`: `verifyAccessSignature` (D9). `src/services/logout.ts`: verify, then
   `revokeSession(claims.sid, 'logout', claims.sub)` (D4). Route: Bearer only; clears both
   cookies with the login attributes (`res.clearCookie`); 204. Route test with real Redis and

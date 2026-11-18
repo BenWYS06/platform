@@ -17,6 +17,7 @@ import type { AcceptLimit } from './services/acceptLimit.js';
 import type { Health } from './services/health.js';
 import type { InvitationsService } from './services/invitations.js';
 import type { LoginService } from './services/login.js';
+import type { LogoutService } from './services/logout.js';
 import type { RefreshService } from './services/refresh.js';
 import type { SessionService } from './services/session.js';
 import type { Readiness } from './services/startup.js';
@@ -35,13 +36,15 @@ export interface AppDeps {
   session?: SessionService;
   // POST /refresh; server.ts always passes it. Unset: the route is not mounted.
   refresh?: RefreshService;
+  // POST /logout; server.ts always passes it. Unset: the route is not mounted.
+  logout?: LogoutService;
   // Burst limit on login and accept; server.ts always passes it (createAppWithLimits).
   burstLimit?: RequestHandler;
   // Its own burst instance on refresh only, 100 per second (D8).
   refreshBurstLimit?: RequestHandler;
 }
 
-export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login, session, refresh, burstLimit, refreshBurstLimit }: AppDeps): Express {
+export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login, session, refresh, logout, burstLimit, refreshBurstLimit }: AppDeps): Express {
   const app = express();
   // Security headers on every answer, errors and health included (B13).
   app.use(helmet({ frameguard: { action: 'deny' } }));
@@ -60,7 +63,7 @@ export function createApp({ config, logger, health, readiness, invitations, acce
   const cookieMaxAge = { access: config.jwtAccessTtlSeconds ?? DEFAULT_ACCESS_TTL_SECONDS, refresh: config.refreshTtlSeconds ?? DEFAULT_REFRESH_TTL_SECONDS };
   // Cookies are read only under /api/auth (accessToken for GET /session, refreshToken for refresh).
   app.use('/api/auth', cookieParser());
-  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge, session, refresh }));
+  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge, session, refresh, logout }));
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);
