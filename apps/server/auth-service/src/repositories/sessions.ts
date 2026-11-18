@@ -25,7 +25,10 @@ export const SESSION_FIELD = {
 } as const;
 
 const SESSION_KEY_PREFIX = SESSION_KEY.replace('{sid}', '');
-const [USER_SESSIONS_PREFIX, USER_SESSIONS_SUFFIX] = USER_SESSIONS_KEY.split('{userId}');
+// The user set key around `{userId}`, for the rotate script (slice, so both are a string).
+const USER_ID_AT = USER_SESSIONS_KEY.indexOf('{userId}');
+const USER_SESSIONS_PREFIX = USER_SESSIONS_KEY.slice(0, USER_ID_AT);
+const USER_SESSIONS_SUFFIX = USER_SESSIONS_KEY.slice(USER_ID_AT + '{userId}'.length);
 export const sessionKey = (sid: string) => SESSION_KEY.replace('{sid}', sid);
 export const userSessionsKey = (userId: string) =>
   USER_SESSIONS_KEY.replace('{userId}', userId);
