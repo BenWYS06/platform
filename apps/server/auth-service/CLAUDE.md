@@ -51,9 +51,17 @@ forwards `/api/auth/*` here with the prefix kept.
   names checked against `contracts/messaging.json`), `services/sessionCheck.ts` (the four
   checks, one `HMGET`), `middleware/requireAccess.ts` (Bearer only, claims on
   `res.locals.claims`). `cookie-parser` runs under `/api/auth` only.
+- Refresh and logout (1.2b): `POST /api/auth/refresh` (`routes/auth.ts` ->
+  `services/refresh.ts`; per-session counter over `repositories/failureCounter.ts`, prefix
+  `auth:refresh:sid:`) and `POST /api/auth/logout` (`services/logout.ts`; Bearer, signature
+  only via `verifyAccessSignature`). `repositories/sessionScripts.ts` holds the Lua sources;
+  `sessions.ts` adds `readUserId`, `rotate`, `revoke`, `revokeAllOfUser`, `markClaimsStale`.
+  Every session write is a script that checks the hash exists first.
+  `services/sessionRevoker.ts`: the only place that builds event payloads and publishes
+  (`auth:sessions-revoked`, `auth:claims-changed`); refresh and logout call it with plain values.
 - `src/app.ts`: `helmet` first on every answer (`X-Frame-Options: DENY`). The burst limit
   (`middleware/burstLimit.ts`, 5 per second per client IP, memory store) covers login and
-  accept, never health or `/internal`. It is an optional `createApp` entry: `server.ts`
+  accept, never health or `/internal`; refresh has its own instance at 100 per second. It is an optional `createApp` entry: `server.ts`
   builds the app with `createAppWithLimits`, which always adds it; tests that build with
   `createApp` and leave it out get no burst limit.
 

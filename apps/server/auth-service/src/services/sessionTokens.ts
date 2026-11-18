@@ -24,24 +24,29 @@ export interface SessionTokens {
   signAccess(claims: AccessClaims): string;
   // The claims, or undefined for any token that is not valid (bad signature, wrong alg, expired, bad shape).
   verifyAccess(token: string): VerifiedClaims | undefined;
+  // The same check with expiry ignored; logout only (plan 012b D9).
+  verifyAccessSignature(token: string): VerifiedClaims | undefined;
 }
 
 const ALGORITHM = 'HS256';
 
 export function createSessionTokens({ jwtAccessSecret, jwtAccessTtlSeconds }: Pick<Config, 'jwtAccessSecret' | 'jwtAccessTtlSeconds'>): SessionTokens {
+  function verify(token: string, ignoreExpiration: boolean): VerifiedClaims | undefined {
+    let payload: unknown;
+    try {
+      payload = jwt.verify(token, jwtAccessSecret, { algorithms: [ALGORITHM], ignoreExpiration });
+    } catch {
+      return undefined;
+    }
+    return isClaims(payload) ? payload : undefined;
+  }
+
   return {
     signAccess: ({ sub, sid, role, perms, depts, cv }) =>
       jwt.sign({ sub, sid, role, perms, depts, cv }, jwtAccessSecret, { algorithm: ALGORITHM, expiresIn: jwtAccessTtlSeconds }),
 
-    verifyAccess(token) {
-      let payload: unknown;
-      try {
-        payload = jwt.verify(token, jwtAccessSecret, { algorithms: [ALGORITHM] });
-      } catch {
-        return undefined;
-      }
-      return isClaims(payload) ? payload : undefined;
-    },
+    verifyAccess: (token) => verify(token, false),
+    verifyAccessSignature: (token) => verify(token, true),
   };
 }
 

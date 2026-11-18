@@ -83,5 +83,15 @@
     "code": "TOKEN_CLAIMS_STALE",
     "status": 401,
     "description": "The access token claims are older than the session claimsVersion; refresh to get new ones."
+  },
+  {
+    "code": "REFRESH_TOKEN_INVALID",
+    "status": 401,
+    "description": "The refresh token is missing, malformed or matches no live session."
+  },
+  {
+    "code": "REFRESH_TOKEN_REUSE",
+    "status": 401,
+    "description": "An already rotated refresh token was used again; the session is revoked."
   }
 ]

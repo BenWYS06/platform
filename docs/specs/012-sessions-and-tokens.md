@@ -75,8 +75,8 @@ refresh token (D-011).
      2. `revoked=1` and the token matches the current or previous hash: 403
         `ACCOUNT_BLOCKED` if the reason is `blocked`, else 401 `SESSION_REVOKED`;
      3. token hash equals the current hash: store the new hash, move the old one to
-        `prevRefreshHash`, set `rotatedAt`, reset the TTL of the hash and of
-        `user:{userId}:sessions` to `REFRESH_TTL_SECONDS`: success;
+        `prevRefreshHash`, set `rotatedAt`, `SADD` the sid to `user:{userId}:sessions`,
+        reset the TTL of the hash and of that set to `REFRESH_TTL_SECONDS`: success;
      4. token hash equals the previous hash: revoke the session (reason `refresh_reuse`),
         then publish the event, 401 `REFRESH_TOKEN_REUSE`;
      5. anything else: 401 `REFRESH_TOKEN_INVALID`, no revoke.
@@ -138,7 +138,8 @@ refresh token (D-011).
 - Two refreshes at once with the same token: one rotates, the other matches the previous hash
   and revokes the session (reuse). Accepted until 1.6.
 - A blocked user refreshes: the session is revoked with reason `blocked`, 403. The next
-  refresh with the same token answers 403 `ACCOUNT_BLOCKED`.
+  refresh with the same token (the one the client sent, now the previous hash; the client
+  never received the new one) answers 403 `ACCOUNT_BLOCKED`, not `REFRESH_TOKEN_REUSE`.
 - Logout twice with the same token: the second call also answers 204 (B13).
 - Logout with an expired but correctly signed access token: 204, and the session is revoked;
   a token with a wrong signature: 401 `UNAUTHENTICATED`, nothing revoked (O9).
@@ -261,8 +262,9 @@ owner can overrule.
 ## 1.2b Decisions
 
 - B1. The refresh decision is one atomic Redis script with the five steps of auth-design 1.2,
-  in that order. Owner. Step 3 also resets the TTL of `user:{userId}:sessions` to
-  `REFRESH_TTL_SECONDS` in the same script (A14). Claude
+  in that order. Owner. Step 3 also does `SADD` of the sid to `user:{userId}:sessions` and
+  resets the set's TTL to `REFRESH_TTL_SECONDS` in the same script, so a set that expired is
+  rebuilt (A14). Claude
 - B2. A revoked session answers its reason (`ACCOUNT_BLOCKED` 403 for `blocked`, else
   `SESSION_REVOKED`) only when the token matches the current or previous hash. Owner
 - B3. A reused (previous) token revokes the session with reason `refresh_reuse` and publishes

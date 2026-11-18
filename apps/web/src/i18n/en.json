@@ -34,6 +34,8 @@
     "MEMBER_ALREADY_EXISTS": "An account with this email already exists.",
     "SESSION_REVOKED": "Your session has ended. Please sign in again.",
     "TOKEN_CLAIMS_STALE": "Your access has changed. Please reload the page.",
+    "REFRESH_TOKEN_INVALID": "Your session has ended. Please sign in again.",
+    "REFRESH_TOKEN_REUSE": "Your session was ended for safety. Please sign in again.",
     "UNKNOWN": "Something unexpected happened.",
     "NETWORK": "Cannot reach the server. Check your connection."
   }
