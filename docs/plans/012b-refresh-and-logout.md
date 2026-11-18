@@ -222,7 +222,7 @@ No task waits on an open question.
   read: only the token's session is revoked. (Done when 10)
   STOP: report to the owner before Task 8.
 
-- [ ] Task 8. Log capture across refresh, reuse and logout
+- [x] Task 8. Log capture across refresh, reuse and logout
   Extend `test/log-masking.test.ts`: capture every pino and stdout line during a web refresh,
   a body refresh, a reuse, a failed publish and a logout. Code changes only if the test finds
   a leak.
