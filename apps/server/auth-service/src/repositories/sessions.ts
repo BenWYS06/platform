@@ -2,9 +2,10 @@
 // MULTI with its TTL, so no session hash exists without one. The check reads three fields with
 // one HMGET (auth-design 0.3). Redis down: StoreUnavailableError (503, never 401; A8).
 // Key patterns and field names match contracts/messaging.json (test/contract.test.ts).
-// Revoke and claims writes run as one Lua script each (sessionScripts.ts, plan 012b D4, D5).
+// Rotate, revoke and claims writes run as one Lua script each (sessionScripts.ts, plan 012b
+// D3 to D5).
 import { StoreUnavailableError } from './errors.js';
-import { MARK_CLAIMS_STALE, REVOKE_ALL_OF_USER, REVOKE_ONE } from './sessionScripts.js';
+import { MARK_CLAIMS_STALE, REVOKE_ALL_OF_USER, REVOKE_ONE, ROTATE } from './sessionScripts.js';
 import type { RedisClient } from './stores.js';
 
 export const SESSION_KEY = 'sess:{sid}';
@@ -24,6 +25,7 @@ export const SESSION_FIELD = {
 } as const;
 
 const SESSION_KEY_PREFIX = SESSION_KEY.replace('{sid}', '');
+const [USER_SESSIONS_PREFIX, USER_SESSIONS_SUFFIX] = USER_SESSIONS_KEY.split('{userId}');
 export const sessionKey = (sid: string) => SESSION_KEY.replace('{sid}', sid);
 export const userSessionsKey = (userId: string) =>
   USER_SESSIONS_KEY.replace('{userId}', userId);
@@ -46,10 +48,21 @@ export interface SessionForCheck {
 
 export type RevokeReason = 'logout' | 'blocked' | 'refresh_reuse';
 
+// Result of the refresh script (plan 012b D3); the service maps it to a response.
+export type RotateResult =
+  | { kind: 'rotated'; claimsVersion: number }
+  | { kind: 'reuse' }
+  | { kind: 'revoked'; reason: RevokeReason }
+  | { kind: 'invalid' };
+
 export interface SessionStore {
   create(session: NewSession): Promise<string>;
   // undefined when no session hash exists for the sid.
   readForCheck(sid: string): Promise<SessionForCheck | undefined>;
+  // undefined when no session hash exists for the sid (one HGET, spec 012 B12).
+  readUserId(sid: string): Promise<string | undefined>;
+  // The five refresh steps in one script (B1); reuse revokes with refresh_reuse inside it.
+  rotate(sid: string, presentedHash: string, newHash: string): Promise<RotateResult>;
   // true when this call revoked the session; false when it is missing, already revoked or
   // owned by another user than expectedUserId (D4).
   revoke(sid: string, reason: RevokeReason, expectedUserId?: string): Promise<boolean>;
@@ -110,6 +123,29 @@ export function createSessionStore(
           revoked: revoked === '1',
           claimsVersion: Number(claimsVersion),
         };
+      }),
+
+    readUserId: (sid) =>
+      run(async () => (await redis.hGet(sessionKey(sid), F.USER_ID)) ?? undefined),
+
+    rotate: (sid, presentedHash, newHash) =>
+      run(async () => {
+        const [kind, value] = (await redis.eval(ROTATE, {
+          keys: [sessionKey(sid)],
+          arguments: [
+            presentedHash,
+            newHash,
+            String(Date.now()),
+            String(refreshTtlSeconds),
+            USER_SESSIONS_PREFIX,
+            USER_SESSIONS_SUFFIX,
+            sid,
+          ],
+        })) as [string, string?];
+        if (kind === 'rotated') return { kind, claimsVersion: Number(value) };
+        if (kind === 'revoked') return { kind, reason: value as RevokeReason };
+        if (kind === 'reuse') return { kind };
+        return { kind: 'invalid' };
       }),
 
     revoke: (sid, reason, expectedUserId = '') =>

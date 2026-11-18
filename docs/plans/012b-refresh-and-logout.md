@@ -156,7 +156,7 @@ No task waits on an open question.
   `messaging.json`. (Done when 12, part of 1)
   STOP: report to the owner before Task 4.
 
-- [ ] Task 4. Session store: read userId and rotate script
+- [x] Task 4. Session store: read userId and rotate script
   `sessions.ts`: `readUserId(sid)` (one `HGET`); `rotate(sid, presentedHash, newHash)` runs the
   five steps of B1 in one script and returns the D3 union; step 3 does `SADD` of the sid to
   `user:{userId}:sessions` and resets the TTL of the hash and of that set; step 4 revokes with reason `refresh_reuse` inside the
