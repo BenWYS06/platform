@@ -58,7 +58,7 @@ async function shrinkSet(userId: string, sid: string): Promise<string> {
 
 async function expectSetUntouched(setKey: string, sid: string): Promise<void> {
   expect(await redis.client.sMembers(setKey)).toEqual(['dummy']);
-  expect(await redis.client.sIsMember(setKey, sid)).toBe(false);
+  expect(await redis.client.sIsMember(setKey, sid)).toBe(0);
   expect(await redis.client.ttl(setKey)).toBeLessThanOrEqual(5);
 }
 
