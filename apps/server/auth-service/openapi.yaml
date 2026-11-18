@@ -186,6 +186,116 @@ paths:
             SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet). Redis
             down when the session is created: no token and no cookie.
           $ref: "#/components/responses/Error"
+  /api/auth/refresh:
+    post:
+      summary: Rotate the refresh token and answer a new access token (public)
+      description: >-
+        Public: the refresh token is the proof. Taken from the refreshToken cookie, else from
+        the body. A token that is not <sid 22>.<secret 43> base64url, or none at all, answers
+        401 REFRESH_TOKEN_INVALID with no Redis call. Each success rotates: the presented token
+        becomes the previous one, and presenting it again revokes the session (reuse). No grace
+        window, so two tabs refreshing at once log out. With X-Client: web both tokens are set
+        again as cookies (same attributes as login) and the refresh token is not in the body.
+      security: []
+      parameters:
+        - name: X-Client
+          in: header
+          required: false
+          schema: { type: string }
+          description: "web: tokens as cookies. Anything else or missing: refresh token in the body."
+        - name: refreshToken
+          in: cookie
+          required: false
+          schema: { type: string }
+          description: Web. Wins over the body field when both are sent.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                refreshToken:
+                  type: string
+                  maxLength: 256
+                  description: Not for web. <sid>.<secret>.
+      responses:
+        "200":
+          description: >-
+            Rotated. Web (X-Client: web): { accessToken, user } and two Set-Cookie headers as
+            at login. Other clients: { accessToken, refreshToken, user }, no cookie. The access
+            token's cv is the session's current claimsVersion.
+          headers:
+            Set-Cookie:
+              description: Web only. accessToken=<jwt> and refreshToken=<sid>.<secret>; HttpOnly; Secure; SameSite=Lax; Path=/api/auth.
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [accessToken, user]
+                properties:
+                  accessToken: { type: string, description: "JWT HS256, 15 minutes by default." }
+                  refreshToken: { type: string, description: "Not for web. The new <sid>.<secret>." }
+                  user: { $ref: "#/components/schemas/User" }
+        "400":
+          description: VALIDATION_FAILED (unknown body field, or refreshToken not a string or too long).
+          $ref: "#/components/responses/Error"
+        "401":
+          description: >-
+            REFRESH_TOKEN_INVALID (missing or malformed token, no session, user deleted, or a
+            token matching neither the current nor the previous hash; nothing is revoked),
+            REFRESH_TOKEN_REUSE (the previous token again; the session is revoked and other
+            services are told), or SESSION_REVOKED (revoked session, matching token).
+          $ref: "#/components/responses/Error"
+        "403":
+          description: >-
+            ACCOUNT_BLOCKED (the user is blocked: the session is revoked with reason blocked;
+            also later refreshes of that session with a matching token).
+          $ref: "#/components/responses/Error"
+        "429":
+          description: >-
+            RATE_LIMITED: 10 refreshes for one session in a 60-second window (every refresh
+            that finds the session counts, success or not), or the refresh burst limit: more
+            than 100 requests per second from this client IP (its own limit, not shared with
+            login), then Retry-After: 1 and params.retryAfterSeconds 1.
+          headers:
+            Retry-After:
+              description: Seconds until the window ends; equal to params.retryAfterSeconds.
+              schema: { type: integer, minimum: 1 }
+          $ref: "#/components/responses/Error"
+        "503":
+          description: >-
+            SERVICE_UNAVAILABLE (MongoDB or Redis not reachable, or indexes not ready yet).
+            Nothing is rotated; the same token works again once the store is back.
+          $ref: "#/components/responses/Error"
+  /api/auth/logout:
+    post:
+      summary: Log out the token's session
+      description: >-
+        The access token only from Authorization Bearer. Only its HS256 signature is checked;
+        an expired token still logs out. The session comes from the token's sid, never from
+        the request; it is revoked (reason logout) only when it exists and belongs to the
+        token's sub. Both cookies are cleared on every 204.
+      security:
+        - bearerAuth: []
+      responses:
+        "204":
+          description: >-
+            Logged out, also when the session was already revoked or is gone. Two Set-Cookie
+            headers clear accessToken and refreshToken (Path=/api/auth, HttpOnly, Secure,
+            SameSite=Lax).
+          headers:
+            Set-Cookie:
+              description: accessToken and refreshToken, cleared.
+              schema: { type: string }
+        "401":
+          description: UNAUTHENTICATED (no or malformed Bearer header, or a wrong signature); nothing is revoked.
+          $ref: "#/components/responses/Error"
+        "503":
+          description: SERVICE_UNAVAILABLE (Redis not reachable).
+          $ref: "#/components/responses/Error"
   /api/auth/session:
     get:
       summary: Restore the web session from the access cookie

@@ -31,6 +31,9 @@ versions follow [Semantic Versioning](https://semver.org/).
 - Sessions: login creates a session and answers an access token and a refresh token (web:
   httpOnly cookies); `GET /api/auth/session` restores a web login from the cookie and
   `GET /api/auth/me` answers the calling user; revoked or stale sessions get 401 (issue 1.2a).
+- Refresh and logout: `POST /api/auth/refresh` rotates the refresh token and answers a new
+  access token; reusing an old refresh token logs that session out. `POST /api/auth/logout`
+  ends the session and clears the cookies (issue 1.2b).
 
 ### Changed
 

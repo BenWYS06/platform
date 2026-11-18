@@ -115,8 +115,27 @@ errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
   (`TOKEN_CLAIMS_STALE`); any other failure is 401 `UNAUTHENTICATED`, Redis down is 503.
   `GET /api/auth/me` takes the token only from `Authorization: Bearer`; `GET
   /api/auth/session` only from the `accessToken` cookie, so a web reload restores the login
-  without rotating. Refresh, logout and revoke come in 1.2b. Key and field names:
-  `contracts/messaging.json`.
+  without rotating. Key and field names: `contracts/messaging.json`.
+- Refresh and logout (1.2b): `POST /api/auth/refresh` takes the refresh token from the
+  cookie or the body. A malformed token is refused before any Redis call; then the session's
+  `userId` is read (none: 401), a per-session counter allows 10 refreshes a minute, and the
+  user is read from MongoDB (down: 503, nothing rotated). One Lua script then decides: the
+  current hash rotates (old hash kept as `prevRefreshHash`, TTLs of the hash and of
+  `user:{userId}:sessions` reset, sid added back to the set); the previous hash is reuse:
+  the script revokes with `refresh_reuse` and refresh answers 401 `REFRESH_TOKEN_REUSE`; a
+  revoked session answers its reason only for a matching hash; anything else is 401
+  `REFRESH_TOKEN_INVALID` and revokes nothing. A blocked user's session is revoked (403).
+  The new access token carries the script's `claimsVersion`. No grace window: two tabs
+  refreshing at once log out (1.6). Refresh has its own burst limit, 100 per second per IP.
+  `POST /api/auth/logout` checks only the Bearer token's signature (expiry ignored), revokes
+  the token's `sid` when it belongs to `sub`, clears both cookies and answers 204.
+- Revoke helpers (`services/sessionRevoker.ts`): revoke one session, revoke all of a user,
+  mark a user's claims stale. Each Redis write is a Lua script that first checks the hash
+  exists, so no write recreates a session without a TTL. After the Redis change the revoker
+  publishes on Redis pub/sub: `auth:sessions-revoked` `{ userId, sid?, reason }` (only when
+  something changed) and `auth:claims-changed` `{ userId }`. Payloads hold no token or hash;
+  a failed publish logs one warn line and never fails the action. No service listens yet
+  (1.4).
 - Identity design for Phase 1 (users, first owner, sessions, roles, invitations): [auth-design.md](auth-design.md).
 
 ## Java security chain (platform-common-java)

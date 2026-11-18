@@ -230,7 +230,7 @@ No task waits on an open question.
   new), a refresh hash or the `Cookie`/`Set-Cookie`/`Authorization` values. (Done when 14)
   STOP: report to the owner before Task 9.
 
-- [ ] Task 9. Docs
+- [x] Task 9. Docs
   `openapi.yaml`: `/api/auth/refresh` (cookie or body, 200 by client, 400, 401 codes, 403,
   429, 503) and `/api/auth/logout` (Bearer, 204, 401). `docs/architecture.md`: rotation,
   reuse detection, revoke helpers and the two events. auth `CLAUDE.md`: new files in the

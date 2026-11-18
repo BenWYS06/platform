@@ -6,11 +6,15 @@ import express, { type Express, Router } from 'express';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
+import type { LogoutService } from '../src/services/logout.js';
+import type { RefreshService } from '../src/services/refresh.js';
 import type { SessionService } from '../src/services/session.js';
 import { noLimit, unusedInvitations, unusedLogin } from './helpers/invitations.js';
 
 const ALLOWED = ['/api/auth/', '/internal/'];
 const unusedSession = {} as SessionService;
+const unusedRefresh = {} as RefreshService;
+const unusedLogout = {} as LogoutService;
 
 interface Layer {
   route?: { path: string; methods: Record<string, boolean> };
@@ -43,6 +47,8 @@ function listRoutes(mount: (app: Express) => void = () => {}): string[] {
     acceptLimit: noLimit,
     login: unusedLogin,
     session: unusedSession,
+    refresh: unusedRefresh,
+    logout: unusedLogout,
   });
   mount(app);
   const nested = mounts.flatMap(({ prefix, handlers }) =>
@@ -59,7 +65,7 @@ describe('route paths', () => {
   it('mounts every route under /api/auth or /internal, and names a route outside them', () => {
     const routes = listRoutes();
     expect(routes).toEqual(
-      expect.arrayContaining(['POST /api/auth/login', 'GET /api/auth/session', 'GET /api/auth/me', 'GET /api/auth/health', 'GET /internal/ping']),
+      expect.arrayContaining(['POST /api/auth/login', 'POST /api/auth/refresh', 'POST /api/auth/logout', 'GET /api/auth/session', 'GET /api/auth/me', 'GET /api/auth/health', 'GET /internal/ping']),
     );
     expect(outside(routes)).toEqual([]);
 
