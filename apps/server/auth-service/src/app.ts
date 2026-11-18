@@ -4,7 +4,7 @@ import express, { type Express, type RequestHandler } from 'express';
 import helmet from 'helmet';
 import type { Logger } from 'pino';
 import { type Config, DEFAULT_ACCESS_TTL_SECONDS, DEFAULT_REFRESH_TTL_SECONDS } from './config.js';
-import { createBurstLimit } from './middleware/burstLimit.js';
+import { createBurstLimit, REFRESH_BURST_LIMIT } from './middleware/burstLimit.js';
 import { errorHandler, notFound } from './middleware/errors.js';
 import { requireInternalKey } from './middleware/internalKey.js';
 import { requireReady } from './middleware/ready.js';
@@ -17,6 +17,7 @@ import type { AcceptLimit } from './services/acceptLimit.js';
 import type { Health } from './services/health.js';
 import type { InvitationsService } from './services/invitations.js';
 import type { LoginService } from './services/login.js';
+import type { RefreshService } from './services/refresh.js';
 import type { SessionService } from './services/session.js';
 import type { Readiness } from './services/startup.js';
 
@@ -32,11 +33,15 @@ export interface AppDeps {
   login: LoginService;
   // GET /session and GET /me; server.ts always passes it. Unset: neither route is mounted.
   session?: SessionService;
+  // POST /refresh; server.ts always passes it. Unset: the route is not mounted.
+  refresh?: RefreshService;
   // Burst limit on login and accept; server.ts always passes it (createAppWithLimits).
   burstLimit?: RequestHandler;
+  // Its own burst instance on refresh only, 100 per second (D8).
+  refreshBurstLimit?: RequestHandler;
 }
 
-export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login, session, burstLimit }: AppDeps): Express {
+export function createApp({ config, logger, health, readiness, invitations, acceptLimit, login, session, refresh, burstLimit, refreshBurstLimit }: AppDeps): Express {
   const app = express();
   // Security headers on every answer, errors and health included (B13).
   app.use(helmet({ frameguard: { action: 'deny' } }));
@@ -50,11 +55,12 @@ export function createApp({ config, logger, health, readiness, invitations, acce
   app.use('/api/auth', healthRouter(health));
   // One shared limiter for login and accept; never health or /internal (B11).
   if (burstLimit) app.use(['/api/auth/login', '/api/auth/invitations'], burstLimit);
+  if (refreshBurstLimit) app.use('/api/auth/refresh', refreshBurstLimit);
   app.use('/api/auth/invitations', requireReady(readiness), invitationsRouter({ service: invitations, limit: acceptLimit, clientIpHeader: config.clientIpHeader }));
   const cookieMaxAge = { access: config.jwtAccessTtlSeconds ?? DEFAULT_ACCESS_TTL_SECONDS, refresh: config.refreshTtlSeconds ?? DEFAULT_REFRESH_TTL_SECONDS };
-  // Cookies are read only under /api/auth (the accessToken cookie for GET /session).
+  // Cookies are read only under /api/auth (accessToken for GET /session, refreshToken for refresh).
   app.use('/api/auth', cookieParser());
-  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge, session }));
+  app.use('/api/auth', authRouter({ service: login, ready: requireReady(readiness), clientIpHeader: config.clientIpHeader, cookieMaxAge, session, refresh }));
   app.use('/internal', requireInternalKey(config.internalApiKey), internalRouter());
 
   app.use(notFound);
@@ -62,7 +68,8 @@ export function createApp({ config, logger, health, readiness, invitations, acce
   return app;
 }
 
-// The app as server.ts runs it: createApp with the burst limit (plan 009b C5).
-export function createAppWithLimits(deps: Omit<AppDeps, 'burstLimit'>): Express {
-  return createApp({ ...deps, burstLimit: createBurstLimit(deps.config.clientIpHeader) });
+// The app as server.ts runs it: createApp with both burst limits (plan 009b C5, plan 012b D8).
+export function createAppWithLimits(deps: Omit<AppDeps, 'burstLimit' | 'refreshBurstLimit'>): Express {
+  const { clientIpHeader } = deps.config;
+  return createApp({ ...deps, burstLimit: createBurstLimit(clientIpHeader), refreshBurstLimit: createBurstLimit(clientIpHeader, REFRESH_BURST_LIMIT) });
 }

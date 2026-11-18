@@ -196,7 +196,7 @@ No task waits on an open question.
   one session answers 429 with `retryAfterSeconds`. (Done when 2, 4 to 9, 11 per session, 16)
   STOP: report to the owner before Task 6.
 
-- [ ] Task 6. POST /api/auth/refresh and its burst limit
+- [x] Task 6. POST /api/auth/refresh and its burst limit
   `src/routes/auth.ts`: token from the `refreshToken` cookie, else from the strict body (D6);
   with `X-Client: web` set both cookies (same attributes as login) and answer
   `{ accessToken, user }`, else answer `{ accessToken, refreshToken, user }`. Burst as D8.

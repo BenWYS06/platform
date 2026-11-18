@@ -15,8 +15,10 @@ import { createHealth } from './services/health.js';
 import { createInvitationsService } from './services/invitations.js';
 import { startLoginService } from './services/login.js';
 import { createLoginLimit, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS } from './services/loginLimit.js';
+import { createRefreshService, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS } from './services/refresh.js';
 import { createSessionService } from './services/session.js';
 import { createSessionCheck } from './services/sessionCheck.js';
+import { createSessionRevoker } from './services/sessionRevoker.js';
 import { createSessionTokens } from './services/sessionTokens.js';
 import { createStartupLoop } from './services/startup.js';
 
@@ -76,6 +78,14 @@ const app = createAppWithLimits({
   acceptLimit: createAcceptLimit(createFailureCounter(stores.redis, ACCEPT_KEY_PREFIX, ACCEPT_WINDOW_SECONDS)),
   login,
   session: createSessionService(createSessionCheck(tokens, sessions), users),
+  refresh: createRefreshService({
+    users,
+    sessions,
+    counter: createFailureCounter(stores.redis, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS),
+    // PUBLISH needs no second connection; only subscribers do (plan 012b).
+    revoker: createSessionRevoker({ sessions, publisher: stores.redis, logger: log }),
+    tokens,
+  }),
 });
 const server = http.createServer(app);
 server.on('listening', () => log.info({ port: config.port, appEnv: config.appEnv }, 'auth-service listening'));
