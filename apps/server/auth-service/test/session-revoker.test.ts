@@ -123,6 +123,6 @@ describe('session revoker', () => {
     await expect(revoker.revokeSession(sid, 'logout')).resolves.toBe(true);
     expect((await fields(sid)).revoked).toBe('1');
     expect(logs).toHaveLength(1);
-    expect(JSON.parse(logs[0])).toMatchObject({ level: 40, channel: SESSIONS_REVOKED_CHANNEL });
+    expect(JSON.parse(logs[0] ?? '{}')).toMatchObject({ level: 40, channel: SESSIONS_REVOKED_CHANNEL });
   });
 });
