@@ -174,7 +174,7 @@ No task waits on an open question.
   dummy sid is still in the set, the real sid is not, and the set's TTL is at most 5 s. (part of Done when 2, 4, 5, 6, 13, 15)
   STOP: report to the owner before Task 5.
 
-- [ ] Task 5. Refresh service
+- [x] Task 5. Refresh service
   `src/services/refresh.ts`: order B12 then B4: format (D6), `readUserId`, per-session counter
   (D7), `users.findById` (`StoreUnavailableError` passes through as 503; no user 401
   `REFRESH_TOKEN_INVALID`), `rotate`; `reuse` publishes through the revoker's publish-only path
