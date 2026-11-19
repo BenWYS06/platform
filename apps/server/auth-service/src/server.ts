@@ -9,9 +9,8 @@ import { createStores } from './infra/stores.js';
 import { createSessionStore, startLoginService, createLogoutService, createLoginLimit, LOGIN_KEY_PREFIX, LOGIN_WINDOW_SECONDS, createRefreshService, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS, createSessionService, createSessionCheck, createSessionRevoker, createSessionTokens } from './modules/auth/index.js';
 import { createUsersRepository } from './modules/users/index.js';
 import { createFailureCounter } from './common/failureCounter.js';
-import { createBootOwnerStep } from './services/bootOwner.js';
-import { createHealth } from './services/health.js';
-import { createStartupLoop } from './services/startup.js';
+import { createBootOwnerStep, createStartupLoop } from './modules/bootstrap/index.js';
+import { createHealth } from './modules/health/index.js';
 
 const log = createLogger();
 

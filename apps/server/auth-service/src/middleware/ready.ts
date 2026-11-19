@@ -1,6 +1,6 @@
 // Job: answer 503 SERVICE_UNAVAILABLE on data routes until the startup indexes exist.
 import type { RequestHandler } from 'express';
-import type { Readiness } from '../services/startup.js';
+import type { Readiness } from '../modules/bootstrap/index.js';
 import { send } from './errorHandler.js';
 
 export const requireReady =

@@ -10,11 +10,10 @@ import { requireInternalKey } from './middleware/internalKey.js';
 import { requireReady } from './middleware/ready.js';
 import { requestLogger } from './middleware/requestLog.js';
 import { authRouter, type LoginService, type LogoutService, type RefreshService, type SessionService } from './modules/auth/index.js';
-import { healthRouter } from './routes/health.js';
-import { internalRouter } from './routes/internal.js';
+import { healthRouter, type Health } from './modules/health/index.js';
+import { internalRouter } from './modules/internal/index.js';
 import { invitationsRouter, type AcceptLimit, type InvitationsService } from './modules/invitations/index.js';
-import type { Health } from './services/health.js';
-import type { Readiness } from './services/startup.js';
+import type { Readiness } from './modules/bootstrap/index.js';
 
 export interface AppDeps {
   // trustProxy unset: false; clientIpHeader unset: req.ip decides; TTLs unset: the config defaults.

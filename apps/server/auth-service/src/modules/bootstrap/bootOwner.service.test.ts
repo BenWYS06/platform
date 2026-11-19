@@ -1,14 +1,14 @@
 // Integration: the first-owner boot step against a real MongoDB (spec 009 Done when 6, 7, 8).
 import { Writable } from 'node:stream';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { createLogger } from '../src/logger.js';
-import { DuplicateError } from '../src/common/storeErrors.js';
-import { createInvitationsRepository, type Invitation } from '../src/modules/invitations/invitations.repository.js';
-import { createMongo, type Mongo } from '../src/infra/stores.js';
-import { createUsersRepository } from '../src/modules/users/users.repository.js';
-import { createBootOwnerStep, OWNER_INVITATION_TTL_MS } from '../src/services/bootOwner.js';
-import { hashToken } from '../src/common/secretToken.js';
-import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
+import { createLogger } from '../../logger.js';
+import { DuplicateError } from '../../common/storeErrors.js';
+import { createInvitationsRepository, type Invitation } from '../invitations/index.js';
+import { createMongo, type Mongo } from '../../infra/stores.js';
+import { createUsersRepository } from '../users/index.js';
+import { createBootOwnerStep, OWNER_INVITATION_TTL_MS } from './bootOwner.service.js';
+import { hashToken } from '../../common/secretToken.js';
+import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from '../../../test/helpers/mongo.js';
 
 let mongo: TestMongo;
 let client: Mongo;

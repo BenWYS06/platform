@@ -8,7 +8,7 @@ import { createLogger } from '../../logger.js';
 import { createInvitationsRepository } from './invitations.repository.js';
 import { createMongo, type Mongo } from '../../infra/stores.js';
 import { createUsersRepository, type UsersRepository, verifyPassword } from '../users/index.js';
-import { createBootOwnerStep } from '../../services/bootOwner.js';
+import { createBootOwnerStep } from '../bootstrap/index.js';
 import { createInvitationsService, type InvitationsService } from './invitations.service.js';
 import { hashToken, newToken } from '../../common/secretToken.js';
 import { expectError } from '../../../test/helpers/error-body.js';

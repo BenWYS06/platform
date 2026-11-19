@@ -2,10 +2,10 @@
 // BOOTSTRAP_OWNER_EMAIL is set: revoke pending owner invitations, insert a new one and write
 // its link once to stdout. Runs in the startup loop, after the indexes exist.
 import type { Logger } from 'pino';
-import { DuplicateError } from '../common/storeErrors.js';
-import type { InvitationsRepository } from '../modules/invitations/index.js';
-import type { UsersRepository } from '../modules/users/index.js';
-import { hashToken, newToken } from '../common/secretToken.js';
+import { DuplicateError } from '../../common/storeErrors.js';
+import type { InvitationsRepository } from '../invitations/index.js';
+import type { UsersRepository } from '../users/index.js';
+import { hashToken, newToken } from '../../common/secretToken.js';
 
 export const OWNER_INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_ATTEMPTS = 3;

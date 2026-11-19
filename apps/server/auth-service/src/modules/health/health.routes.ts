@@ -2,7 +2,7 @@
 // otherwise 503 { "status": "DOWN" } with no detail (D-010b: the one route whose 503 is not
 // the contract error body).
 import { Router } from 'express';
-import type { Health } from '../services/health.js';
+import type { Health } from './health.service.js';
 
 export function healthRouter(health: Health): Router {
   const router = Router();

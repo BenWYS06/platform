@@ -1,10 +1,10 @@
 import { Writable } from 'node:stream';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { createApp } from '../src/app.js';
-import { createLogger } from '../src/logger.js';
-import { createHealth, type StoreCheck } from '../src/services/health.js';
-import { noLimit, unusedInvitations, unusedLogin } from './helpers/invitations.js';
+import { createApp } from '../../app.js';
+import { createLogger } from '../../logger.js';
+import { createHealth, type StoreCheck } from './health.service.js';
+import { noLimit, unusedInvitations, unusedLogin } from '../../../test/helpers/invitations.js';
 
 const logger = createLogger(new Writable({ write: (_c, _e, done) => done() }));
 const up = (name: string): StoreCheck => ({ name, check: async () => {} });

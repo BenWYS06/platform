@@ -170,8 +170,9 @@ Move next to their file:
   with the router, services, session factories and constants; `app.ts` and `server.ts` use it.
   Check: build and lint pass; renames shown; CI tests pass.
 
-- [ ] Task 7. modules/health, internal and bootstrap
-  `git mv` the 5 files and 2 tests (`startup-loop` stays, point 7); add the three `index.ts` files; `middleware/ready.ts`
+- [x] Task 7. modules/health, internal and bootstrap
+  `git mv` the 5 files and 2 tests (`startup-loop` stays, point 7); add the three
+  `index.ts` files; `middleware/ready.ts`
   takes `Readiness` from the bootstrap index. `src/routes`, `services`, `repositories` and
   `models` are now gone.
   Check: build and lint pass; `ls src` shows only `app.ts config.ts logger.ts server.ts
