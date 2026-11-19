@@ -9,15 +9,11 @@ import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requireInternalKey } from './middleware/internalKey.js';
 import { requireReady } from './middleware/ready.js';
 import { requestLogger } from './middleware/requestLog.js';
-import { authRouter } from './routes/auth.js';
+import { authRouter, type LoginService, type LogoutService, type RefreshService, type SessionService } from './modules/auth/index.js';
 import { healthRouter } from './routes/health.js';
 import { internalRouter } from './routes/internal.js';
 import { invitationsRouter, type AcceptLimit, type InvitationsService } from './modules/invitations/index.js';
 import type { Health } from './services/health.js';
-import type { LoginService } from './services/login.js';
-import type { LogoutService } from './services/logout.js';
-import type { RefreshService } from './services/refresh.js';
-import type { SessionService } from './services/session.js';
 import type { Readiness } from './services/startup.js';
 
 export interface AppDeps {

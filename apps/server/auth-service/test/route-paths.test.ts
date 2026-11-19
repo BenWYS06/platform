@@ -6,9 +6,9 @@ import express, { type Express, Router } from 'express';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
-import type { LogoutService } from '../src/services/logout.js';
-import type { RefreshService } from '../src/services/refresh.js';
-import type { SessionService } from '../src/services/session.js';
+import type { LogoutService } from '../src/modules/auth/logout.service.js';
+import type { RefreshService } from '../src/modules/auth/refresh.service.js';
+import type { SessionService } from '../src/modules/auth/sessionRestore.service.js';
 import { noLimit, unusedInvitations, unusedLogin } from './helpers/invitations.js';
 
 const ALLOWED = ['/api/auth/', '/internal/'];

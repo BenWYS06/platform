@@ -10,7 +10,7 @@ import { createFailureCounter } from '../src/common/failureCounter.js';
 import { createSessionStore, sessionKey } from '../src/modules/auth/session/session.repository.js';
 import { createMongo, createRedis, type Mongo, type Redis, type RedisClient } from '../src/infra/stores.js';
 import { createUsersRepository } from '../src/modules/users/users.repository.js';
-import { createRefreshService, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS } from '../src/services/refresh.js';
+import { createRefreshService, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS } from '../src/modules/auth/refresh.service.js';
 import { createSessionRevoker, SESSIONS_REVOKED_CHANNEL, type SessionRevokerDeps } from '../src/modules/auth/session/sessionRevoker.service.js';
 import { createSessionTokens, newRefreshToken, newSid } from '../src/modules/auth/session/sessionTokens.service.js';
 import { hashToken } from '../src/common/secretToken.js';

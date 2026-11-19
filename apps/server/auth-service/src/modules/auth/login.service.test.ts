@@ -1,10 +1,9 @@
 // Unit: the login service with fakes (spec 009 B1, B2, B8, B10; Done when 2, 6, part of 3).
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { ApiError } from '../src/common/apiError.js';
-import type { User } from '../src/modules/users/users.repository.js';
-import { createDummyHash, createLoginService, startLoginService } from '../src/services/login.js';
-import type { LoginLimit } from '../src/services/loginLimit.js';
-import { hashPassword, verifyPassword } from '../src/modules/users/password.util.js';
+import { ApiError } from '../../common/apiError.js';
+import { type User, hashPassword, verifyPassword } from '../users/index.js';
+import { createDummyHash, createLoginService, startLoginService } from './login.service.js';
+import type { LoginLimit } from './loginLimit.service.js';
 
 const PASSWORD = 'a long enough password';
 const IP = '203.0.113.5';

@@ -10,15 +10,15 @@
 // cookies with the login attributes and answers 204, also for an already revoked session.
 import { type CookieOptions, type RequestHandler, type Response, Router } from 'express';
 import { z } from 'zod';
-import { ApiError } from '../common/apiError.js';
-import { clientIp } from '../middleware/clientIp.js';
-import { bearerToken, requireAccess } from '../modules/auth/session/requireAccess.middleware.js';
-import type { LoginResult, LoginService } from '../services/login.js';
-import type { LogoutService } from '../services/logout.js';
-import type { RefreshService } from '../services/refresh.js';
-import type { SessionService } from '../services/session.js';
-import type { VerifiedClaims } from '../modules/auth/session/sessionTokens.service.js';
-import { chars } from '../common/chars.js';
+import { ApiError } from '../../common/apiError.js';
+import { clientIp } from '../../middleware/clientIp.js';
+import { bearerToken, requireAccess } from './session/requireAccess.middleware.js';
+import type { LoginResult, LoginService } from './login.service.js';
+import type { LogoutService } from './logout.service.js';
+import type { RefreshService } from './refresh.service.js';
+import type { SessionService } from './sessionRestore.service.js';
+import type { VerifiedClaims } from './session/sessionTokens.service.js';
+import { chars } from '../../common/chars.js';
 
 const loginBody = z.strictObject({
   // Trimmed and lower case before the format check and the lookup (B9).

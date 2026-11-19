@@ -2,9 +2,9 @@
 // expiry ignored; the sid and the owner come from the token, never from the request. The
 // session is revoked only when it exists and belongs to `sub`; a missing or already revoked
 // session still answers success (the route sends 204). The revoker publishes only on a change.
-import { ApiError } from '../common/apiError.js';
-import type { SessionRevoker } from '../modules/auth/session/sessionRevoker.service.js';
-import type { SessionTokens } from '../modules/auth/session/sessionTokens.service.js';
+import { ApiError } from '../../common/apiError.js';
+import type { SessionRevoker } from './session/sessionRevoker.service.js';
+import type { SessionTokens } from './session/sessionTokens.service.js';
 
 export interface LogoutService {
   // Throws UNAUTHENTICATED for a missing token or a bad signature; revokes nothing then.

@@ -165,7 +165,7 @@ Move next to their file:
   imports follow. The auth index comes in Task 6, so `services/*` do not import it in between.
   Check: build and lint pass; renames shown; CI tests pass.
 
-- [ ] Task 6. modules/auth
+- [x] Task 6. modules/auth
   `git mv` the 6 auth files and their 6 tests (points 1 and 2); add `modules/auth/index.ts`
   with the router, services, session factories and constants; `app.ts` and `server.ts` use it.
   Check: build and lint pass; renames shown; CI tests pass.

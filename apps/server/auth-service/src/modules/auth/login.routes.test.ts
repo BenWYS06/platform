@@ -3,12 +3,12 @@
 import { Writable } from 'node:stream';
 import request from 'supertest';
 import { describe, expect, it, vi } from 'vitest';
-import { createApp } from '../src/app.js';
-import type { Config } from '../src/config.js';
-import { createLogger } from '../src/logger.js';
-import type { LoginService } from '../src/services/login.js';
-import { expectError } from './helpers/error-body.js';
-import { noLimit, unusedInvitations } from './helpers/invitations.js';
+import { createApp } from '../../app.js';
+import type { Config } from '../../config.js';
+import { createLogger } from '../../logger.js';
+import type { LoginService } from './login.service.js';
+import { expectError } from '../../../test/helpers/error-body.js';
+import { noLimit, unusedInvitations } from '../../../test/helpers/invitations.js';
 
 const USER = { id: 'u1', email: 'boss@team.test', displayName: 'Boss', role: 'Owner' as const };
 const PASSWORD = 'a long enough password';

@@ -3,8 +3,8 @@
 // retryAfterSeconds. A success clears the email counter only; the IP counter only expires.
 // Email keys hold the sha256 of the normalized email, never the email itself.
 import { createHash } from 'node:crypto';
-import { ApiError } from '../common/apiError.js';
-import type { FailureCounter } from '../common/failureCounter.js';
+import { ApiError } from '../../common/apiError.js';
+import type { FailureCounter } from '../../common/failureCounter.js';
 
 export const LOGIN_EMAIL_FAILURE_LIMIT = 5;
 export const LOGIN_IP_FAILURE_LIMIT = 20;

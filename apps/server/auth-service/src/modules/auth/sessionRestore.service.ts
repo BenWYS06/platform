@@ -1,11 +1,11 @@
 // Job: GET /session and GET /me (spec 012 A5, A16, A17; plan 012a C5). Both read the user from
 // MongoDB by `sub`, because email and displayName are not in the token; a user missing there
 // answers 401 UNAUTHENTICATED, MongoDB down 503. Neither writes to Redis: /session never rotates.
-import { ApiError } from '../common/apiError.js';
-import type { UsersRepository } from '../modules/users/index.js';
-import type { LoggedInUser } from './login.js';
-import type { SessionCheck } from '../modules/auth/session/sessionCheck.service.js';
-import type { VerifiedClaims } from '../modules/auth/session/sessionTokens.service.js';
+import { ApiError } from '../../common/apiError.js';
+import type { UsersRepository } from '../users/index.js';
+import type { LoggedInUser } from './login.service.js';
+import type { SessionCheck } from './session/sessionCheck.service.js';
+import type { VerifiedClaims } from './session/sessionTokens.service.js';
 
 export interface SessionService extends SessionCheck {
   // The same access token and its user, after the four checks.
