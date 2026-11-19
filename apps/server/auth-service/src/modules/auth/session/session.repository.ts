@@ -4,9 +4,9 @@
 // Key patterns and field names match contracts/messaging.json (test/contract.test.ts).
 // Rotate, revoke and claims writes run as one Lua script each (sessionScripts.ts, plan 012b
 // D3 to D5).
-import { StoreUnavailableError } from '../common/storeErrors.js';
-import { MARK_CLAIMS_STALE, REVOKE_ALL_OF_USER, REVOKE_ONE, ROTATE } from './sessionScripts.js';
-import type { RedisClient } from '../infra/stores.js';
+import { StoreUnavailableError } from '../../../common/storeErrors.js';
+import { MARK_CLAIMS_STALE, REVOKE_ALL_OF_USER, REVOKE_ONE, ROTATE } from './session.scripts.js';
+import type { RedisClient } from '../../../infra/stores.js';
 
 export const SESSION_KEY = 'sess:{sid}';
 export const USER_SESSIONS_KEY = 'user:{userId}:sessions';

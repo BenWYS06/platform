@@ -2,16 +2,16 @@
 // Done when 2).
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { StoreUnavailableError } from '../src/common/storeErrors.js';
+import { StoreUnavailableError } from '../../../common/storeErrors.js';
 import {
   createSessionStore,
   sessionKey,
   userSessionsKey,
-} from '../src/repositories/sessions.js';
-import { createRedis, type Redis } from '../src/infra/stores.js';
-import { newSid } from '../src/services/sessionTokens.js';
-import { START_TIMEOUT_MS } from './helpers/mongo.js';
-import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';
+} from './session.repository.js';
+import { createRedis, type Redis } from '../../../infra/stores.js';
+import { newSid } from './sessionTokens.service.js';
+import { START_TIMEOUT_MS } from '../../../../test/helpers/mongo.js';
+import { startRedis, type TestRedis, waitFor } from '../../../../test/helpers/redis.js';
 
 const TTL = 2592000;
 

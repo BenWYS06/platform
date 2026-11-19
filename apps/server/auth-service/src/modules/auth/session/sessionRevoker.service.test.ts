@@ -3,18 +3,18 @@
 import { randomUUID } from 'node:crypto';
 import { Writable } from 'node:stream';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { createLogger } from '../src/logger.js';
-import { createSessionStore, sessionKey } from '../src/repositories/sessions.js';
-import { createRedis, type Redis, type RedisClient } from '../src/infra/stores.js';
+import { createLogger } from '../../../logger.js';
+import { createSessionStore, sessionKey } from './session.repository.js';
+import { createRedis, type Redis, type RedisClient } from '../../../infra/stores.js';
 import {
   CLAIMS_CHANGED_CHANNEL,
   createSessionRevoker,
   SESSIONS_REVOKED_CHANNEL,
   type SessionRevokerDeps,
-} from '../src/services/sessionRevoker.js';
-import { newSid } from '../src/services/sessionTokens.js';
-import { START_TIMEOUT_MS } from './helpers/mongo.js';
-import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';
+} from './sessionRevoker.service.js';
+import { newSid } from './sessionTokens.service.js';
+import { START_TIMEOUT_MS } from '../../../../test/helpers/mongo.js';
+import { startRedis, type TestRedis, waitFor } from '../../../../test/helpers/redis.js';
 
 let server: TestRedis;
 let redis: Redis;

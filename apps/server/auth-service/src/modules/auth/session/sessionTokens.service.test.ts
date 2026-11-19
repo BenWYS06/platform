@@ -1,8 +1,8 @@
 import { generateKeyPairSync } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import { describe, expect, it } from 'vitest';
-import { createSessionTokens, newRefreshToken, newSid, type AccessClaims } from '../src/services/sessionTokens.js';
-import { hashToken } from '../src/common/secretToken.js';
+import { createSessionTokens, newRefreshToken, newSid, type AccessClaims } from './sessionTokens.service.js';
+import { hashToken } from '../../../common/secretToken.js';
 
 const SECRET = 's'.repeat(32);
 const TTL = 900;

@@ -3,8 +3,8 @@
 // `<sid>.<32 random bytes base64url>`; only hashToken(refreshToken) is stored.
 import { randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
-import type { Config } from '../config.js';
-import type { Role } from '../modules/users/index.js';
+import type { Config } from '../../../config.js';
+import type { Role } from '../../users/index.js';
 
 export interface AccessClaims {
   sub: string;

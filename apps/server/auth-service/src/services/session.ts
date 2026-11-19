@@ -4,8 +4,8 @@
 import { ApiError } from '../common/apiError.js';
 import type { UsersRepository } from '../modules/users/index.js';
 import type { LoggedInUser } from './login.js';
-import type { SessionCheck } from './sessionCheck.js';
-import type { VerifiedClaims } from './sessionTokens.js';
+import type { SessionCheck } from '../modules/auth/session/sessionCheck.service.js';
+import type { VerifiedClaims } from '../modules/auth/session/sessionTokens.service.js';
 
 export interface SessionService extends SessionCheck {
   // The same access token and its user, after the four checks.

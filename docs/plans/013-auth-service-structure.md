@@ -71,7 +71,9 @@ users <- invitations <- bootstrap; users <- auth. `middleware/ready.ts` imports 
 ## Tests
 
 Stay in `test/` (they cover the whole app): `app`, `burst-and-headers`, `config`, `contract`,
-`log-masking`, `route-paths`, `startup`; and `login-flow`, `refresh` (point 1 below).
+`log-masking`, `route-paths`, `startup`; and `login-flow`, `refresh` (point 1 below);
+and `require-access`, `startup-loop`, which build a small app with
+`middleware/errorHandler.ts`, a file rule 3 does not let a module import (point 7).
 `test/helpers/` stays; tests next to source import it by relative path. Files in `test/`
 may import any `src/` file; the module rules apply to `src/` only.
 
@@ -86,9 +88,9 @@ Move next to their file:
 | `login.test.ts`, `login-limit.test.ts` | `modules/auth/login.service.test.ts`, `loginLimit.service.test.ts` |
 | `login-route.test.ts`, `refresh-route.test.ts`, `logout-route.test.ts`, `session-routes.test.ts` | `modules/auth/login.routes.test.ts`, `refresh.routes.test.ts`, `logout.routes.test.ts`, `sessionRestore.routes.test.ts` (point 2) |
 | `sessions.test.ts`, `session-rotate.test.ts`, `session-revoke.test.ts` | `modules/auth/session/session.repository.test.ts`, `sessionRotate.repository.test.ts`, `sessionRevoke.repository.test.ts` (point 2) |
-| `session-tokens.test.ts`, `session-revoker.test.ts`, `require-access.test.ts` | `modules/auth/session/sessionTokens.service.test.ts`, `sessionRevoker.service.test.ts`, `requireAccess.middleware.test.ts` |
+| `session-tokens.test.ts`, `session-revoker.test.ts` | `modules/auth/session/sessionTokens.service.test.ts`, `sessionRevoker.service.test.ts` |
 | `health.test.ts` | `modules/health/health.routes.test.ts` (covers route and service) |
-| `startup-loop.test.ts`, `boot-owner.test.ts` | `modules/bootstrap/startup.service.test.ts`, `bootOwner.service.test.ts` |
+| `boot-owner.test.ts` | `modules/bootstrap/bootOwner.service.test.ts` |
 
 ## Choices (decided by the owner, 2026-11-19)
 
@@ -111,6 +113,10 @@ Move next to their file:
    A `*.model.js` file is imported only by `*.repository.ts`, another `*.model.ts` or its
    module's `index.ts` (`invitation.model.ts` takes `ROLES` from the users index).
 6. Old finished plans: paths only, nothing else.
+7. Found during the run: `require-access` and `startup-loop` tests mount
+   `middleware/errorHandler.ts`, which rule 3 does not allow for module files; as in point
+   1, they stay in `test/`. Tests next to source import `logger.ts` (to build the app), so
+   lint allows `logger.ts` for tests only; no source file in a module imports it.
 
 ## Kept working
 
@@ -154,18 +160,18 @@ Move next to their file:
   also allows `src/modules/**/*.model.ts` and `*.repository.ts`.
   Check: build and lint pass; renames shown; CI tests pass, same test count as `main`.
 
-- [ ] Task 5. modules/auth/session
-  `git mv` the 6 session files and their 6 tests; add `modules/auth/index.ts` exporting the
-  session factories; `services/*` and `server.ts` import through it.
+- [x] Task 5. modules/auth/session
+  `git mv` the 6 session files and 5 of their tests (`require-access` stays, point 7);
+  imports follow. The auth index comes in Task 6, so `services/*` do not import it in between.
   Check: build and lint pass; renames shown; CI tests pass.
 
 - [ ] Task 6. modules/auth
-  `git mv` the 6 auth files and their 6 tests (points 1 and 2); the auth index adds the
-  router, services and constants; `app.ts`, `server.ts` and `test/` imports follow.
+  `git mv` the 6 auth files and their 6 tests (points 1 and 2); add `modules/auth/index.ts`
+  with the router, services, session factories and constants; `app.ts` and `server.ts` use it.
   Check: build and lint pass; renames shown; CI tests pass.
 
 - [ ] Task 7. modules/health, internal and bootstrap
-  `git mv` the 5 files and 3 tests; add the three `index.ts` files; `middleware/ready.ts`
+  `git mv` the 5 files and 2 tests (`startup-loop` stays, point 7); add the three `index.ts` files; `middleware/ready.ts`
   takes `Readiness` from the bootstrap index. `src/routes`, `services`, `repositories` and
   `models` are now gone.
   Check: build and lint pass; `ls src` shows only `app.ts config.ts logger.ts server.ts

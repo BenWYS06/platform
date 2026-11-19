@@ -12,12 +12,12 @@ import { type CookieOptions, type RequestHandler, type Response, Router } from '
 import { z } from 'zod';
 import { ApiError } from '../common/apiError.js';
 import { clientIp } from '../middleware/clientIp.js';
-import { bearerToken, requireAccess } from '../middleware/requireAccess.js';
+import { bearerToken, requireAccess } from '../modules/auth/session/requireAccess.middleware.js';
 import type { LoginResult, LoginService } from '../services/login.js';
 import type { LogoutService } from '../services/logout.js';
 import type { RefreshService } from '../services/refresh.js';
 import type { SessionService } from '../services/session.js';
-import type { VerifiedClaims } from '../services/sessionTokens.js';
+import type { VerifiedClaims } from '../modules/auth/session/sessionTokens.service.js';
 import { chars } from '../common/chars.js';
 
 const loginBody = z.strictObject({

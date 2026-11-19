@@ -6,11 +6,11 @@ import {
   createSessionStore,
   sessionKey,
   userSessionsKey,
-} from '../src/repositories/sessions.js';
-import { createRedis, type Redis } from '../src/infra/stores.js';
-import { newSid } from '../src/services/sessionTokens.js';
-import { START_TIMEOUT_MS } from './helpers/mongo.js';
-import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';
+} from './session.repository.js';
+import { createRedis, type Redis } from '../../../infra/stores.js';
+import { newSid } from './sessionTokens.service.js';
+import { START_TIMEOUT_MS } from '../../../../test/helpers/mongo.js';
+import { startRedis, type TestRedis, waitFor } from '../../../../test/helpers/redis.js';
 
 const TTL = 2592000;
 const H1 = 'a'.repeat(64);

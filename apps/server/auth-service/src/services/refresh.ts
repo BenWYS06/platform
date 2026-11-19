@@ -5,11 +5,11 @@
 // blocked user: revoke, 403; else sign with the script's claimsVersion.
 import { ApiError } from '../common/apiError.js';
 import type { FailureCounter } from '../common/failureCounter.js';
-import type { SessionStore } from '../repositories/sessions.js';
+import type { SessionStore } from '../modules/auth/session/session.repository.js';
 import type { UsersRepository } from '../modules/users/index.js';
 import type { LoginResult } from './login.js';
-import type { SessionRevoker } from './sessionRevoker.js';
-import { newRefreshToken, type SessionTokens } from './sessionTokens.js';
+import type { SessionRevoker } from '../modules/auth/session/sessionRevoker.service.js';
+import { newRefreshToken, type SessionTokens } from '../modules/auth/session/sessionTokens.service.js';
 import { hashToken } from '../common/secretToken.js';
 
 export const REFRESH_SESSION_LIMIT = 10;

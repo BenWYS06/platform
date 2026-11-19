@@ -3,7 +3,7 @@
 // are built only here; callers pass plain values. A failed publish writes one warn line with
 // the channel and never fails the call. Payloads hold no token or hash.
 import type { Logger } from 'pino';
-import type { RevokeReason, SessionStore } from '../repositories/sessions.js';
+import type { RevokeReason, SessionStore } from './session.repository.js';
 
 // Values match contracts/messaging.json (test/contract.test.ts).
 export const SESSIONS_REVOKED_CHANNEL = 'auth:sessions-revoked';
