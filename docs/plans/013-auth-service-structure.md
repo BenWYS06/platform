@@ -178,7 +178,7 @@ Move next to their file:
   Check: build and lint pass; `ls src` shows only `app.ts config.ts logger.ts server.ts
   common infra middleware modules`; CI tests pass, same test count as `main`.
 
-- [ ] Task 8. Lint rules 2 and 3
+- [x] Task 8. Lint rules 2 and 3
   `no-restricted-imports` in `eslint.config.js`: routes never import a model or Mongoose;
   the MongoDB and model rules of point 5; a module imports another module only through its
   `index.ts`; `common/` and `infra/` import no module; `app.ts`, `server.ts` and
