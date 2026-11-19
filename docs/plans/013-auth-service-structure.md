@@ -137,7 +137,7 @@ Move next to their file:
   `docs/roadmap.md`.
   Check: `git diff main --stat` lists only these four files.
 
-- [ ] Task 2. Build and test config for tests next to source
+- [x] Task 2. Build and test config for tests next to source
   `tsconfig.build.json` excludes `src/**/*.test.ts`; new `vitest.config.ts` with the include
   above.
   Check: build and lint pass; CI `npm test` runs the same number of test files as on `main`.
