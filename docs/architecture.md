@@ -129,7 +129,7 @@ errors -> Sentry-compatible DSN (Sentry or GlitchTip); off by default
   refreshing at once log out (1.6). Refresh has its own burst limit, 100 per second per IP.
   `POST /api/auth/logout` checks only the Bearer token's signature (expiry ignored), revokes
   the token's `sid` when it belongs to `sub`, clears both cookies and answers 204.
-- Revoke helpers (`services/sessionRevoker.ts`): revoke one session, revoke all of a user,
+- Revoke helpers (`modules/auth/session/sessionRevoker.service.ts`): revoke one session, revoke all of a user,
   mark a user's claims stale. Each Redis write is a Lua script that first checks the hash
   exists, so no write recreates a session without a TTL. After the Redis change the revoker
   publishes on Redis pub/sub: `auth:sessions-revoked` `{ userId, sid?, reason }` (only when

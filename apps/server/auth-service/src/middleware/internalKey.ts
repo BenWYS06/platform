@@ -2,7 +2,7 @@
 // compared in constant time. Otherwise 401 { "code": "UNAUTHENTICATED" }.
 import { createHash, timingSafeEqual } from 'node:crypto';
 import type { RequestHandler } from 'express';
-import { send } from './errors.js';
+import { send } from './errorHandler.js';
 
 const sha256 = (value: string): Buffer => createHash('sha256').update(value, 'utf8').digest();
 

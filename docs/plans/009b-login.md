@@ -51,7 +51,7 @@ each task, report and stop as in root `CLAUDE.md` "Work mode".
   test passes. (Done when 1)
 
 - [x] Task 2. Login failure limits
-  `FailureCounter.clear(key)`. `src/services/loginLimit.ts`: `check(email, ip)` (email
+  `FailureCounter.clear(key)`. `src/modules/auth/loginLimit.service.ts`: `check(email, ip)` (email
   locked at 5, then IP at 20; 429 `RATE_LIMITED` with `retryAfterSeconds`), `fail(email, ip)`
   counts both, `succeed(email)` clears the email counter (C1). Email keys hold the sha256
   (C2). Integration tests against a real Redis.
@@ -63,7 +63,7 @@ each task, report and stop as in root `CLAUDE.md` "Work mode".
   `StoreUnavailableError`. (Done when 5, 10)
 
 - [x] Task 3. Login service
-  `src/services/login.ts`: the B1 order over the users repository, `verifyPassword` and the
+  `src/modules/auth/login.service.ts`: the B1 order over the users repository, `verifyPassword` and the
   login limit; dummy hash made once at startup with `ARGON2_OPTIONS` (B10), wired in
   `server.ts`. Answers `{ user }` = `{ id, email, displayName, role }` (B8). Unit tests with
   fakes and a spy on the password check.
@@ -78,7 +78,7 @@ each task, report and stop as in root `CLAUDE.md` "Work mode".
   uses them.
 
 - [x] Task 4. Login route
-  `POST /api/auth/login` in `src/routes/auth.ts` behind `requireReady`: strict body
+  `POST /api/auth/login` in `src/modules/auth/auth.routes.ts` behind `requireReady`: strict body
   `{ email, password }`, email trimmed, lower case, valid, at most 254 characters (B9),
   password as in A18; one service call; 200 `{ user }`. `openapi.yaml` (200, 400, 401, 403,
   429, 503), `docs/architecture.md` (login), auth `CLAUDE.md` layout line. Route tests with

@@ -4,7 +4,7 @@
 // 429 RATE_LIMITED with retryAfterSeconds 1, sent by the error handler with Retry-After: 1.
 import type { RequestHandler } from 'express';
 import { ipKeyGenerator, rateLimit } from 'express-rate-limit';
-import { ApiError } from '../errors.js';
+import { ApiError } from '../common/apiError.js';
 import { clientIp } from './clientIp.js';
 
 export const BURST_LIMIT = 5;

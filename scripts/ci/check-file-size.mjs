@@ -10,8 +10,8 @@ const root = process.argv[2] ?? process.cwd();
 function limitFor(path) {
   if (/\.vue$/.test(path) || /Screen\.kt$/.test(path)) return 400;
   if (/(Service|Controller)\.(java|kt|ts)$/.test(path)) return 500;
-  // Express: route and service modules live in src/routes/ and src/services/.
-  if (/^apps\/server\/[^/]+\/src\/(routes|services)\/.+\.ts$/.test(path)) return 500;
+  // Express: <name>.routes.ts and <name>.service.ts in src/modules/ (D-012).
+  if (/^apps\/server\/[^/]+\/src\/modules\/.+\.(routes|service)\.ts$/.test(path)) return 500;
   return undefined;
 }
 

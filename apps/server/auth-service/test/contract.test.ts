@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { ERROR_STATUS } from '../src/errors.js';
-import { SESSION_FIELD, SESSION_KEY, USER_SESSIONS_KEY } from '../src/repositories/sessions.js';
-import { CLAIMS_CHANGED_CHANNEL, SESSIONS_REVOKED_CHANNEL } from '../src/services/sessionRevoker.js';
+import { ERROR_STATUS } from '../src/common/apiError.js';
+import { SESSION_FIELD, SESSION_KEY, USER_SESSIONS_KEY } from '../src/modules/auth/session/session.repository.js';
+import { CLAIMS_CHANGED_CHANNEL, SESSIONS_REVOKED_CHANNEL } from '../src/modules/auth/session/sessionRevoker.service.js';
 
 // Every code this service returns exists in contracts/error-codes.json with the same status.
 describe('error codes', () => {

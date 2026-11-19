@@ -18,3 +18,4 @@ Job: list every plan and its status. One line per plan; the spec has the same nu
 | 009b | [1.1b Login](009b-login.md) | [spec](../specs/009-first-owner-login.md) | #35 | done |
 | 012a | [1.2a Sessions, access token, /session and /me](012a-sessions-and-login.md) | [spec](../specs/012-sessions-and-tokens.md) | #47 | done |
 | 012b | [1.2b Refresh rotation, reuse detection, logout](012b-refresh-and-logout.md) | [spec](../specs/012-sessions-and-tokens.md) | #48 | done |
+| 013 | [auth-service organised by feature](013-auth-service-structure.md) | none, short plan; see issue #52 | #52 | done |

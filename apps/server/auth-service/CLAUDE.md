@@ -14,56 +14,79 @@ forwards `/api/auth/*` here with the prefix kept.
 
 ## Layout
 
+By feature (D-012); the rules are in `.claude/rules/express.md` (rules 1 to 5) and lint
+plus `scripts/ci/check-structure.mjs` enforce them. In short: a feature is
+`src/modules/<feature>/` with `<name>.<role>.ts` files; modules import each other only
+through `index.ts`; module files may also import `config.ts`, `common/`, `infra/` and
+`middleware/clientIp.ts`; tests next to source may also import `app.ts`, `logger.ts` and
+`test/helpers/`; `common/` and `infra/` import no module (`common/failureCounter.ts` takes
+the `RedisClient` type from `infra/`).
+
 - `src/config.ts`: the only `process.env` reader (lint enforces it); production guard.
 - `src/app.ts`: builds the app without listening (tests use it with supertest).
 - `src/server.ts`: config, store clients, listen, startup loop, shutdown.
-- `src/routes/` (HTTP only) -> `src/services/` (logic) -> `src/repositories/` (MongoDB, Redis).
-- MongoDB through Mongoose, not the raw driver (D-009). `src/models/`: schemas, models and
-  indexes; only repositories import them, routes never import Mongoose (lint enforces it).
-- `src/repositories/`: `stores.ts` (Mongoose connection, Redis client), `users.ts`,
-  `invitations.ts` (only writer of both in `platform`). Emails are stored trimmed and lower
-  case. `mapStoreErrors`: duplicate key (11000) -> `DuplicateError`, MongoDB unreachable ->
-  `StoreUnavailableError` (the error handler answers 503).
-- `src/services/startup.ts`: one retry loop (every 30 s) connects and runs `syncIndexes`,
-  then the after-index step. Until the indexes exist, data routes answer 503 (`middleware/ready.ts`);
-  health answers from the start. Data routes mount behind `requireReady` in `app.ts`.
-- `src/services/bootOwner.ts`: the after-index step. While no user exists and
+- `src/logger.ts`: pino; `Authorization`, `Cookie`, `X-Internal-Key` are redacted.
+- `src/common/`: `apiError.ts` (`ApiError`, codes), `storeErrors.ts` (`mapStoreErrors`:
+  duplicate key (11000) -> `DuplicateError`, MongoDB unreachable -> `StoreUnavailableError`,
+  which the error handler answers with 503), `failureCounter.ts` (Redis failure counters),
+  `chars.ts`, `secretToken.ts` (`newToken`, `hashToken`, `TOKEN_SHAPE`).
+- `src/infra/stores.ts`: Mongoose connection and Redis client.
+- `src/middleware/`: `errorHandler.ts` (contract error body), `internalKey.ts`, `ready.ts`
+  (readiness gate), `burstLimit.ts`, `clientIp.ts`, `requestLog.ts` (pino-http; the token
+  segment of `/api/auth/invitations/<token>` and of a `/invite/<token>` Referer shows as
+  `[redacted]` in request, error and 404 lines).
+- MongoDB through Mongoose, not the raw driver (D-009). Schemas, models and indexes are
+  `*.model.ts`; only repositories and the module index import them, routes never import
+  Mongoose (lint enforces it).
+- `modules/users/`: `users.repository.ts`, `user.model.ts`, `password.util.ts` (argon2).
+  `modules/invitations/`: `invitations.repository.ts`, `invitation.model.ts`. The two
+  repositories are the only writers of users and invitations in `platform`. Emails are
+  stored trimmed and lower case.
+- `modules/bootstrap/startup.service.ts`: one retry loop (every 30 s) connects and runs
+  `syncIndexes`, then the after-index step. Until the indexes exist, data routes answer 503
+  (`middleware/ready.ts`); health answers from the start. Data routes mount behind
+  `requireReady` in `app.ts`.
+- `modules/bootstrap/bootOwner.service.ts`: the after-index step. While no user exists and
   `BOOTSTRAP_OWNER_EMAIL` is set, it revokes pending owner invitations, inserts a new one
   (sha256 of the token stored, 7 days) and writes the boot link once to stdout (plain
   write, the one token allowed out; never through pino).
-- `src/middleware/`: contract error handler, internal key check, readiness gate.
-- `src/logger.ts`: pino; `Authorization`, `Cookie`, `X-Internal-Key` are redacted.
-- `src/middleware/requestLog.ts`: pino-http; the token segment of `/api/auth/invitations/<token>`
-  and of a `/invite/<token>` Referer shows as `[redacted]` in request, error and 404 lines.
-- Routes: `GET /api/auth/health` (pings MongoDB and Redis, 2.5 s timeout; 200
-  `{"status":"UP"}` or 503 `{"status":"DOWN"}`, not the error body, D-010b), `GET /internal/ping`
-  (behind `X-Internal-Key`), `POST /api/auth/invitations/:token/accept-password`
-  (`routes/invitations.ts` -> `services/invitations.ts`; token helpers in
-  `services/tokens.ts`; failure limit `services/acceptLimit.ts` over
-  `repositories/failureCounter.ts`; client IP `middleware/clientIp.ts`),
-  `POST /api/auth/login` (`routes/auth.ts` -> `services/login.ts`; failure limits
-  `services/loginLimit.ts`; `server.ts` awaits `startLoginService`, which makes the dummy
-  hash, before it listens), `GET /api/auth/session` and `GET /api/auth/me` (`routes/auth.ts`
-  -> `services/session.ts`). API: `openapi.yaml`; update it with every route change.
-  `test/route-paths.test.ts` fails for a route outside `/api/auth` and `/internal`.
-- Sessions (1.2a): `services/sessionTokens.ts` (sign and verify the access JWT, sid, refresh
-  token), `repositories/sessions.ts` (`sess:{sid}` hash and `user:{userId}:sessions` set;
-  names checked against `contracts/messaging.json`), `services/sessionCheck.ts` (the four
-  checks, one `HMGET`), `middleware/requireAccess.ts` (Bearer only, claims on
-  `res.locals.claims`). `cookie-parser` runs under `/api/auth` only.
-- Refresh and logout (1.2b): `POST /api/auth/refresh` (`routes/auth.ts` ->
-  `services/refresh.ts`; per-session counter over `repositories/failureCounter.ts`, prefix
-  `auth:refresh:sid:`) and `POST /api/auth/logout` (`services/logout.ts`; Bearer, signature
-  only via `verifyAccessSignature`). `repositories/sessionScripts.ts` holds the Lua sources;
-  `sessions.ts` adds `readUserId`, `rotate`, `revoke`, `revokeAllOfUser`, `markClaimsStale`.
-  Every session write is a script that checks the hash exists first.
-  `services/sessionRevoker.ts`: the only place that builds event payloads and publishes
-  (`auth:sessions-revoked`, `auth:claims-changed`); refresh and logout call it with plain values.
+- Routes: `GET /api/auth/health` (`modules/health/`; pings MongoDB and Redis, 2.5 s timeout;
+  200 `{"status":"UP"}` or 503 `{"status":"DOWN"}`, not the error body, D-010b),
+  `GET /internal/ping` (`modules/internal/`, behind `X-Internal-Key`),
+  `POST /api/auth/invitations/:token/accept-password` (`invitations.routes.ts` ->
+  `invitations.service.ts`; token helpers in `common/secretToken.ts`; failure limit
+  `acceptLimit.service.ts` over `common/failureCounter.ts`; client IP
+  `middleware/clientIp.ts`), `POST /api/auth/login` (`modules/auth/auth.routes.ts` ->
+  `login.service.ts`; failure limits `loginLimit.service.ts`; `server.ts` awaits
+  `startLoginService`, which makes the dummy hash, before it listens), `GET /api/auth/session`
+  and `GET /api/auth/me` (`auth.routes.ts` -> `sessionRestore.service.ts`). API:
+  `openapi.yaml`; update it with every route change. `test/route-paths.test.ts` fails for a
+  route outside `/api/auth` and `/internal`.
+- Sessions (1.2a), in `modules/auth/session/`: `sessionTokens.service.ts` (sign and verify the
+  access JWT, sid, refresh token), `session.repository.ts` (`sess:{sid}` hash and
+  `user:{userId}:sessions` set; names checked against `contracts/messaging.json`),
+  `sessionCheck.service.ts` (the four checks, one `HMGET`), `requireAccess.middleware.ts`
+  (Bearer only, claims on `res.locals.claims`). `cookie-parser` runs under `/api/auth` only.
+- Refresh and logout (1.2b): `POST /api/auth/refresh` (`auth.routes.ts` ->
+  `refresh.service.ts`; per-session counter over `common/failureCounter.ts`, prefix
+  `auth:refresh:sid:`) and `POST /api/auth/logout` (`logout.service.ts`; Bearer, signature
+  only via `verifyAccessSignature`). `session/session.scripts.ts` holds the Lua sources;
+  `session.repository.ts` adds `readUserId`, `rotate`, `revoke`, `revokeAllOfUser`,
+  `markClaimsStale`. Every session write is a script that checks the hash exists first.
+  `session/sessionRevoker.service.ts`: the only place that builds event payloads and
+  publishes (`auth:sessions-revoked`, `auth:claims-changed`); refresh and logout call it with
+  plain values.
 - `src/app.ts`: `helmet` first on every answer (`X-Frame-Options: DENY`). The burst limit
   (`middleware/burstLimit.ts`, 5 per second per client IP, memory store) covers login and
   accept, never health or `/internal`; refresh has its own instance at 100 per second. It is an optional `createApp` entry: `server.ts`
   builds the app with `createAppWithLimits`, which always adds it; tests that build with
   `createApp` and leave it out get no burst limit.
+- Tests: next to the file they test (`<name>.<role>.test.ts`). In `test/`: whole-app tests
+  (`app`, `burst-and-headers`, `config`, `contract`, `log-masking`, `route-paths`,
+  `startup`) and those that need a file rule 3 does not allow (`login-flow`, `refresh`:
+  the user model; `require-access`, `startup-loop`: `middleware/errorHandler.ts`).
+  `tsconfig.build.json` leaves `*.test.ts` out of `dist/`; `vitest.config.ts` runs
+  `src/**/*.test.ts` and `test/**/*.test.ts`.
 
 ## Config
 
@@ -91,7 +114,7 @@ Use these; never hand-write them (`docs/auth-design.md` 0.12).
 
 - Route tests use fakes: `createApp` takes `health`, `readiness`, `invitations`,
   `acceptLimit` and `login` objects (stubs in `test/helpers/invitations.ts`). Repository,
-  startup, accept, login flow and limit tests use a real MongoDB and Redis (`test/helpers/mongo.ts`, `redis.ts`,
+  startup, accept, login flow and limit tests use a real MongoDB and Redis (`test/helpers/mongo.ts`, `redis.ts`, `repos.ts`,
   Testcontainers): Docker must be running, the first run pulls `mongo:8.0.17` and
   `redis:7.4.6`. Each test uses its own database name or Redis key prefix.
 - Redis client: no offline queue, so commands fail at once while Redis is down; the failure

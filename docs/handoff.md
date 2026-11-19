@@ -6,30 +6,31 @@ Last updated: 2026-11-19
 
 ## Now
 
-- Issue: #48 1.2b Refresh rotation, reuse detection, logout: done on
-  `feature/refresh-and-logout`, PR next (the user says when to push)
-- Spec: [specs/012-sessions-and-tokens.md](specs/012-sessions-and-tokens.md), part 1.2b
-- Plan: [plans/012b-refresh-and-logout.md](plans/012b-refresh-and-logout.md), done
+- Issue: #52 auth-service organised by feature (D-012): done on
+  `chore/auth-service-structure`, PR next (the user says when to push)
+- Plan: [plans/013-auth-service-structure.md](plans/013-auth-service-structure.md), done
 
 ## Done
 
-- Plan 012b Tasks 1 to 10: refresh error codes and the two event channels in contracts;
-  Lua revoke scripts; session revoker with publish (`auth:sessions-revoked`,
-  `auth:claims-changed`); `readUserId` and the rotate script; refresh service (rotation,
-  reuse, per-session limit); `POST /api/auth/refresh` with its own 100/s burst;
-  `POST /api/auth/logout` (signature only); log capture test; OpenAPI, architecture, auth
-  `CLAUDE.md`, changelog; the route path test lists both routes.
-- Work mode: no task was run locally; CI proves them on the PR.
+- Plan 013 Tasks 1 to 11: auth-service `src/` moved by feature (`common/`, `infra/`,
+  `middleware/`, `modules/users|invitations|auth|auth/session|health|internal|bootstrap`)
+  with `git mv`, imports and paths only, an `index.ts` per module; tests next to their
+  file, whole-app tests in `test/`; lint enforces the module and layer import rules;
+  `scripts/ci/check-structure.mjs` (with tests) in CI; `check-file-size.mjs` follows the
+  new names; rules in `.claude/rules/express.md` and the auth `CLAUDE.md`; old plans' paths.
+- Owner allowed local runs for this plan: build, lint, all 193 auth tests (same count as
+  `main`), contracts and the repo checks pass.
+- Plan 012b (1.2b) was merged as PR #51.
 
-## Next step: open the 1.2b PR, then 1.3
+## Next step: open the #52 PR, then 1.3
 
-1. When the user says so: scan, push `feature/refresh-and-logout`, open the PR with
-   `Closes #48` and 'Android: later, issue #25'. Read `gh pr checks` once; fix all red
-   checks in one commit and push again.
-2. The user runs the Caddy check: web login via `localhost:8080`, `POST /api/auth/refresh`
-   sets both cookies again, logout clears them and `/session` then answers 401. The user merges.
+1. When the user says so: scan, push `chore/auth-service-structure`, open the PR with
+   `Closes #52`. Read `gh pr checks` once; fix all red checks in one commit and push again.
+2. The user reads the diff (`git diff -M --stat main` shows renames) and merges.
 3. Then 1.3 Capabilities, roles, workspace settings (no issue number yet): branch from an
-   up-to-date `main`, `/write-spec` (contract and security change).
+   up-to-date `main`, `/write-spec` (contract and security change). New code goes in
+   `src/modules/<feature>/` (express.md rules 1 to 5).
+4. Later issue: the same feature layout for Java (chat, ai) and web.
 
 ## Known gaps
 

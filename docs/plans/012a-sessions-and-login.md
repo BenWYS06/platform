@@ -77,11 +77,11 @@ Short form; the spec has the full text.
   `INTERNAL_API_KEY` does; prod refuses missing, under 32 characters, the local default or
   the `.env.example` value. Both TTLs are positive integers; the access TTL must be smaller
   than the refresh TTL, else config refuses to start. Claude
-- C4. Files: `src/services/sessionTokens.ts` (sign, verify, `newRefreshToken`; the hash
-  reuses `hashToken` from `src/services/tokens.ts`), `src/repositories/sessions.ts`
-  (`create`, `readForCheck` with one `HMGET`), `src/services/sessionCheck.ts` (the four
-  checks, shared by the middleware and `/session`), `src/middleware/requireAccess.ts`,
-  routes in `src/routes/auth.ts`. Claude
+- C4. Files: `src/modules/auth/session/sessionTokens.service.ts` (sign, verify, `newRefreshToken`; the hash
+  reuses `hashToken` from `src/common/secretToken.ts`), `src/modules/auth/session/session.repository.ts`
+  (`create`, `readForCheck` with one `HMGET`), `src/modules/auth/session/sessionCheck.service.ts` (the four
+  checks, shared by the middleware and `/session`), `src/modules/auth/session/requireAccess.middleware.ts`,
+  routes in `src/modules/auth/auth.routes.ts`. Claude
 - C5. `/me` and `/session` read the user from MongoDB by `sub`: email and displayName are not
   in the token. `perms` comes from the token (empty until 1.3). A user missing from MongoDB
   answers 401 `UNAUTHENTICATED`; MongoDB down answers 503. Owner (approved as written).
@@ -125,7 +125,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 3.
 
 - [x] Task 3. Token helpers
-  Add `jsonwebtoken` and `@types/jsonwebtoken` (exact versions). `src/services/sessionTokens.ts`:
+  Add `jsonwebtoken` and `@types/jsonwebtoken` (exact versions). `src/modules/auth/session/sessionTokens.service.ts`:
   `signAccess(claims)` and `verifyAccess(token)` with HS256 pinned and the secret and TTL from
   config; `newSid()` (16 bytes base64url); `newRefreshToken(sid)` (`<sid>.<32 bytes
   base64url>`); refresh hash through `hashToken`. Unit tests, no I/O.
@@ -137,7 +137,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 4.
 
 - [x] Task 4. Session store
-  `src/repositories/sessions.ts`: `create({ userId, method, platform, deviceId, refreshHash })`
+  `src/modules/auth/session/session.repository.ts`: `create({ userId, method, platform, deviceId, refreshHash })`
   returns `sid`; one `MULTI`: `HSET sess:{sid}` with every 0.2 field (`claimsVersion` 1,
   `revoked` 0, empty `prevRefreshHash`, `rotatedAt`, `revokedReason`), `EXPIRE`, `SADD
   user:{userId}:sessions`, `EXPIRE` both to `REFRESH_TTL_SECONDS`. `readForCheck(sid)`: one
@@ -153,9 +153,9 @@ No task waits on an open question.
   STOP: report to the owner before Task 5.
 
 - [x] Task 5. Login answers tokens
-  `src/services/login.ts`: after the 1.1b checks pass, create the session (C6), sign the
+  `src/modules/auth/login.service.ts`: after the 1.1b checks pass, create the session (C6), sign the
   access token (`cv` 1, `perms` and `depts` empty, A12), return `{ accessToken,
-  refreshToken, user }`. `src/routes/auth.ts`: `platform` from `X-Client` (A13); with
+  refreshToken, user }`. `src/modules/auth/auth.routes.ts`: `platform` from `X-Client` (A13); with
   `X-Client: web` set both cookies (A4, max ages from config) and answer `{ accessToken,
   user }`; otherwise no cookie and `refreshToken` in the body. Wire in `server.ts`. Test in
   `test/login-flow.test.ts` with real Redis and MongoDB.
@@ -169,10 +169,10 @@ No task waits on an open question.
   STOP: report to the owner before Task 6.
 
 - [x] Task 6. Access-token middleware
-  `src/services/sessionCheck.ts`: the four checks in order (verify, session exists and
+  `src/modules/auth/session/sessionCheck.service.ts`: the four checks in order (verify, session exists and
   `userId` equals `sub`, not revoked, `cv` at least `claimsVersion`) with one
   `readForCheck`; returns the claims or throws the matching `ApiError`; Redis down rethrows
-  `StoreUnavailableError` (503). `src/middleware/requireAccess.ts`: token only from
+  `StoreUnavailableError` (503). `src/modules/auth/session/requireAccess.middleware.ts`: token only from
   `Authorization: Bearer`, then the check; claims on `res.locals`. Test with a small app that
   mounts the middleware on a test route, real Redis.
   Check: tests pass: valid token 200; no header, a cookie only, a malformed header, an expired

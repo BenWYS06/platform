@@ -5,7 +5,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { createAppWithLimits } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
-import type { LoginService } from '../src/services/login.js';
+import type { LoginService } from '../src/modules/auth/login.service.js';
 import { expectError } from './helpers/error-body.js';
 import { noLimit, unusedInvitations } from './helpers/invitations.js';
 

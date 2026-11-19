@@ -81,3 +81,13 @@ Decision: on the web both tokens are httpOnly cookies, and the client keeps a co
 - Rule: all auth routes stay under `/api/auth`, because the cookies are only sent there. A test fails if an auth route is mounted elsewhere.
 Why: Path=/api/auth because the cookies are read only by auth routes, so chat and ai never receive them. SameSite=Lax because it keeps shared links working and still blocks cross-site POST requests. The access cookie lets a page reload get a token back without rotating the refresh token.
 Instead of: the access token in memory only with a SameSite=Strict refresh cookie (auth-design 0.1 before this entry).
+
+## D-012 auth-service is organised by feature, not by layer (2026-11-19)
+Decision: auth-service `src/` is split by feature. Each feature is a folder `src/modules/<feature>/` (users, invitations, auth with `auth/session/`, health, internal, bootstrap) with files named `<name>.<role>.ts`, role one of routes, service, repository, model, middleware, scripts, util. Shared code with no feature knowledge sits in `src/common/`, store connections in `src/infra/`, cross-cutting Express middleware in `src/middleware/`. `app.ts`, `server.ts`, `config.ts` and `logger.ts` stay at the top.
+- Inside a module: routes -> service -> repository -> model. Routes never import a model or Mongoose.
+- A module imports another module only through its `index.ts`, which exports only what others need. `common/` and `infra/` import no module. `app.ts`, `server.ts` and `middleware/` may import module `index.ts` files.
+- About 12 source files per folder at most; past that, a sub-folder.
+- Tests sit next to the file they test (`<name>.<role>.test.ts`); tests of the whole app stay in `test/`.
+- ESLint `no-restricted-imports` enforces the import rules; `scripts/ci/check-structure.mjs` fails when the old layer folders come back or a module file breaks the name rule. Plan 013.
+Why: one feature's code was spread over `routes/`, `services/`, `repositories/` and `models/`; with sessions and refresh added, `services/` held 17 files. A feature folder keeps one change in one place, and the index files make cross-feature use visible.
+Instead of: the layer layout (`routes/` -> `services/` -> `repositories/` -> `models/`) from the service skeleton (0.4) and 1.1a.

@@ -26,6 +26,7 @@ Job: the phases of the project and the issues in each. Ticked when an issue's PR
   - [x] 1.2b Refresh rotation, reuse detection, logout (5, #48)
   - Web cookies on `/api/auth` (D-011), `GET /api/auth/session`, a test that every auth route
     is mounted under `/api/auth`
+- [x] auth-service organised by feature (3, #52, D-012)
 - [ ] 1.3 Capabilities, roles, workspace settings
 - [ ] 1.4 Session check in every service; logout and permission-change events
   - Bearer only: a test that a request with only the cookie gets 401 (D-011)

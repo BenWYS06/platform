@@ -69,12 +69,12 @@ Short form; the spec has the full text.
   `^[a-z][a-z0-9]*(-[a-z0-9]+)*(:[a-z][a-z0-9]*(-[a-z0-9]+)*)+$`. So `auth:sessions-revoked`
   and `auth:claims-changed` pass. Names: `SESSIONS_REVOKED_CHANNEL`, `CLAIMS_CHANGED_CHANNEL`.
   The schema `description` adds "Redis pub/sub channels". Owner (approved).
-- D2. Files: Lua sources in `src/repositories/sessionScripts.ts` (strings only, loaded with
-  `defineScript` or `EVAL`); `src/repositories/sessions.ts` gains `readUserId`, `rotate`,
-  `revoke`, `revokeAllOfUser`, `markClaimsStale`; `src/services/sessionRevoker.ts` holds the
+- D2. Files: Lua sources in `src/modules/auth/session/session.scripts.ts` (strings only, loaded with
+  `defineScript` or `EVAL`); `src/modules/auth/session/session.repository.ts` gains `readUserId`, `rotate`,
+  `revoke`, `revokeAllOfUser`, `markClaimsStale`; `src/modules/auth/session/sessionRevoker.service.ts` holds the
   channel constants, builds every event payload and publishes (D11), next to the three revoke
-  helpers (Redis change, then publish); `src/services/refresh.ts` and `src/services/logout.ts` hold
-  the two flows; routes stay in `src/routes/auth.ts`. Claude
+  helpers (Redis change, then publish); `src/modules/auth/refresh.service.ts` and `src/modules/auth/logout.service.ts` hold
+  the two flows; routes stay in `src/modules/auth/auth.routes.ts`. Claude
 - D3. Script results are small tagged values the store maps to a TypeScript union, for example
   `rotate` returns `{ kind: 'rotated', claimsVersion }`, `{ kind: 'reuse' }`,
   `{ kind: 'revoked', reason }` or `{ kind: 'invalid' }`. Errors (`ApiError`) are thrown by the
@@ -131,7 +131,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 2.
 
 - [x] Task 2. Session store: revoke scripts
-  `src/repositories/sessionScripts.ts` and `sessions.ts` as D2, D4, D5: `revoke`,
+  `src/modules/auth/session/session.scripts.ts` and `session.repository.ts` as D2, D4, D5: `revoke`,
   `revokeAllOfUser`, `markClaimsStale`; each one script, each checks the hash exists first.
   Redis down: `StoreUnavailableError`. Integration test against a real Redis.
   Check: tests pass: `revoke` sets `revoked` 1 and the reason and returns true, a second call
@@ -143,7 +143,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 3.
 
 - [x] Task 3. Events and revoke helpers
-  `src/services/sessionRevoker.ts` (D2, D4, D10, D11): the channel constants from Task 1 and
+  `src/modules/auth/session/sessionRevoker.service.ts` (D2, D4, D10, D11): the channel constants from Task 1 and
   the payloads `{ userId, sid?, reason }` and `{ userId }`, built only here;
   `revokeSession`, `revokeAllSessions`, `markClaimsStale` (Redis change first, then publish);
   `announceRevoked({ userId, sid, reason })`, publish only. A failed publish logs one line
@@ -157,7 +157,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 4.
 
 - [x] Task 4. Session store: read userId and rotate script
-  `sessions.ts`: `readUserId(sid)` (one `HGET`); `rotate(sid, presentedHash, newHash)` runs the
+  `session.repository.ts`: `readUserId(sid)` (one `HGET`); `rotate(sid, presentedHash, newHash)` runs the
   five steps of B1 in one script and returns the D3 union; step 3 does `SADD` of the sid to
   `user:{userId}:sessions` and resets the TTL of the hash and of that set; step 4 revokes with reason `refresh_reuse` inside the
   script. Integration test against a real Redis.
@@ -175,7 +175,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 5.
 
 - [x] Task 5. Refresh service
-  `src/services/refresh.ts`: order B12 then B4: format (D6), `readUserId`, per-session counter
+  `src/modules/auth/refresh.service.ts`: order B12 then B4: format (D6), `readUserId`, per-session counter
   (D7), `users.findById` (`StoreUnavailableError` passes through as 503; no user 401
   `REFRESH_TOKEN_INVALID`), `rotate`; `reuse` publishes through the revoker's publish-only path
   (D11; the script already revoked) and throws `REFRESH_TOKEN_REUSE`; `revoked` throws its reason (B2);
@@ -197,7 +197,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 6.
 
 - [x] Task 6. POST /api/auth/refresh and its burst limit
-  `src/routes/auth.ts`: token from the `refreshToken` cookie, else from the strict body (D6);
+  `src/modules/auth/auth.routes.ts`: token from the `refreshToken` cookie, else from the strict body (D6);
   with `X-Client: web` set both cookies (same attributes as login) and answer
   `{ accessToken, user }`, else answer `{ accessToken, refreshToken, user }`. Burst as D8.
   Wire in `server.ts` and `app.ts`. Route test with real Redis and MongoDB.
@@ -209,7 +209,7 @@ No task waits on an open question.
   STOP: report to the owner before Task 7.
 
 - [x] Task 7. POST /api/auth/logout
-  `sessionTokens.ts`: `verifyAccessSignature` (D9). `src/services/logout.ts`: verify, then
+  `sessionTokens.service.ts`: `verifyAccessSignature` (D9). `src/modules/auth/logout.service.ts`: verify, then
   `revokeSession(claims.sid, 'logout', claims.sub)` (D4). Route: Bearer only; clears both
   cookies with the login attributes (`res.clearCookie`); 204. Route test with real Redis and
   MongoDB.

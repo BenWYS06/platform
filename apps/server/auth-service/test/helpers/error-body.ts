@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { Ajv } from 'ajv';
 import type { Response } from 'supertest';
 import { expect } from 'vitest';
-import { ERROR_STATUS, type ErrorCode, type ErrorParams } from '../../src/errors.js';
+import { ERROR_STATUS, type ErrorCode, type ErrorParams } from '../../src/common/apiError.js';
 
 const schemaUrl = new URL('../../../../../contracts/schemas/error-body.schema.json', import.meta.url);
 const validate = new Ajv({ allErrors: true }).compile(JSON.parse(readFileSync(schemaUrl, 'utf8')));
