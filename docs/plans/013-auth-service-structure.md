@@ -3,7 +3,7 @@
 Issue: #52, its "Done when" list. Short plan. No behaviour, API, contract or security change;
 decided in D-012.
 Branch: chore/auth-service-structure
-Status: not started
+Status: done
 Rule: one task, one commit. Exception for this plan only (owner's choice, 2026-11-19): all
 tasks in one run without stopping between tasks; at the end run build, lint and the full
 tests of auth-service, the contracts test and the repo checks locally, fix red, report once.
@@ -210,7 +210,7 @@ Move next to their file:
   auth-service file name, and for the old test file names, finds nothing in `docs/`,
   `.claude/`, or any `CLAUDE.md`.
 
-- [ ] Task 11. Close the issue
+- [x] Task 11. Close the issue
   Tick this plan and set `Status: done`; set its line in docs/plans/README.md to `done`;
   tick the line in docs/roadmap.md; point docs/handoff.md to the next issue (1.3)
   (/session-summary). Scan; when the user says so, push and open the PR. CI runs the full
