@@ -4,7 +4,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { Writable } from 'node:stream';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { createAppWithLimits } from '../../app.js';
 import { createLogger } from '../../logger.js';
 import { createFailureCounter } from '../../common/failureCounter.js';
@@ -109,8 +109,11 @@ describe('POST /api/auth/refresh', () => {
   });
 
   it('answers the 101st refresh within a second from one IP with 429, while login keeps its burst of 5', async () => {
+    // Freeze the clock before the limiters are built: their memory store resets a count only
+    // when Date.now() passes the window, and drops idle clients on a setInterval tick. Frozen,
+    // all 101 requests count in one window however slow the machine is (no real-time race).
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
     const { app } = await setup();
-    // One listening server, so the 100 parallel requests land inside one window.
     const server = http.createServer(app).listen(0);
     try {
       const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -125,6 +128,7 @@ describe('POST /api/auth/refresh', () => {
       expectError(await request(url).post('/api/auth/login').send(body), 'RATE_LIMITED', { retryAfterSeconds: 1 });
     } finally {
       server.close();
+      vi.useRealTimers();
     }
   });
 });
