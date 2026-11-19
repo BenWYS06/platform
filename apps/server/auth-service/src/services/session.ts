@@ -2,7 +2,7 @@
 // MongoDB by `sub`, because email and displayName are not in the token; a user missing there
 // answers 401 UNAUTHENTICATED, MongoDB down 503. Neither writes to Redis: /session never rotates.
 import { ApiError } from '../common/apiError.js';
-import type { UsersRepository } from '../repositories/users.js';
+import type { UsersRepository } from '../modules/users/index.js';
 import type { LoggedInUser } from './login.js';
 import type { SessionCheck } from './sessionCheck.js';
 import type { VerifiedClaims } from './sessionTokens.js';

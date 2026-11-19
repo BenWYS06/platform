@@ -1,9 +1,9 @@
 // Job: invitations repository over the Mongoose `Invitation` model. Only the sha256 of a
 // token is stored; one pending invitation per email. Callers never see Mongoose types.
 import type { Connection } from 'mongoose';
-import { type InvitationFields, invitationModel } from '../models/invitation.js';
-import { mapStoreErrors } from '../common/storeErrors.js';
-import { normalizeEmail } from './users.js';
+import { type InvitationFields, invitationModel } from './invitation.model.js';
+import { mapStoreErrors } from '../../common/storeErrors.js';
+import { normalizeEmail } from '../users/index.js';
 
 export type InvitationStatus = InvitationFields['status'];
 

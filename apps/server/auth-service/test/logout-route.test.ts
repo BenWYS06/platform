@@ -8,7 +8,7 @@ import { createApp } from '../src/app.js';
 import { createLogger } from '../src/logger.js';
 import { createSessionStore, SESSION_FIELD, sessionKey } from '../src/repositories/sessions.js';
 import { createMongo, createRedis, type Mongo, type Redis, type RedisClient } from '../src/infra/stores.js';
-import { createUsersRepository } from '../src/repositories/users.js';
+import { createUsersRepository } from '../src/modules/users/users.repository.js';
 import { createLogoutService } from '../src/services/logout.js';
 import { createSessionService } from '../src/services/session.js';
 import { createSessionCheck } from '../src/services/sessionCheck.js';

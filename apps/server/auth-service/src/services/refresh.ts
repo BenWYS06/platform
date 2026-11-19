@@ -6,7 +6,7 @@
 import { ApiError } from '../common/apiError.js';
 import type { FailureCounter } from '../common/failureCounter.js';
 import type { SessionStore } from '../repositories/sessions.js';
-import type { UsersRepository } from '../repositories/users.js';
+import type { UsersRepository } from '../modules/users/index.js';
 import type { LoginResult } from './login.js';
 import type { SessionRevoker } from './sessionRevoker.js';
 import { newRefreshToken, type SessionTokens } from './sessionTokens.js';

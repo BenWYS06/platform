@@ -6,9 +6,8 @@
 import { randomBytes } from 'node:crypto';
 import { ApiError } from '../common/apiError.js';
 import type { NewSession, SessionStore } from '../repositories/sessions.js';
-import { normalizeEmail, type Role, type UsersRepository } from '../repositories/users.js';
+import { normalizeEmail, type Role, type UsersRepository, hashPassword, verifyPassword } from '../modules/users/index.js';
 import type { LoginLimit } from './loginLimit.js';
-import { hashPassword, verifyPassword } from './password.js';
 import { newRefreshToken, newSid, type SessionTokens } from './sessionTokens.js';
 import { hashToken } from '../common/secretToken.js';
 

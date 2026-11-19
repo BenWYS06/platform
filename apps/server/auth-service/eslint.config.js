@@ -19,7 +19,7 @@ export default tseslint.config(
   {
     // A31: only models and repositories touch MongoDB.
     files: ['src/**/*.ts'],
-    ignores: ['src/models/**', 'src/repositories/**', 'src/infra/stores.ts', 'src/common/storeErrors.ts'],
+    ignores: ['src/models/**', 'src/repositories/**', 'src/modules/**/*.model.ts', 'src/modules/**/*.repository.ts', 'src/infra/stores.ts', 'src/common/storeErrors.ts'],
     rules: {
       'no-restricted-imports': [
         'error',

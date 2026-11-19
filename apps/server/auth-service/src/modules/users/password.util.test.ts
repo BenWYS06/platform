@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hashPassword, verifyPassword } from '../src/services/password.js';
+import { hashPassword, verifyPassword } from './password.util.js';
 
 // Also the install check for the argon2 native package on Windows and Linux (plan 009a, Task 1).
 describe('password hashing', () => {

@@ -1,7 +1,7 @@
 // Job: stubs for app tests: invitations and login services that must never be reached, and an
 // accept limit that never blocks.
-import type { AcceptLimit } from '../../src/services/acceptLimit.js';
-import type { InvitationsService } from '../../src/services/invitations.js';
+import type { AcceptLimit } from '../../src/modules/invitations/acceptLimit.service.js';
+import type { InvitationsService } from '../../src/modules/invitations/invitations.service.js';
 import type { LoginService } from '../../src/services/login.js';
 
 export const unusedInvitations: InvitationsService = {

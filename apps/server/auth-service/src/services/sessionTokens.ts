@@ -4,7 +4,7 @@
 import { randomBytes } from 'node:crypto';
 import jwt from 'jsonwebtoken';
 import type { Config } from '../config.js';
-import type { Role } from '../repositories/users.js';
+import type { Role } from '../modules/users/index.js';
 
 export interface AccessClaims {
   sub: string;

@@ -1,7 +1,7 @@
 // Job: the Mongoose model of `invitations` in database `platform` (auth-service is the only
 // writer). Only the sha256 of a token is stored. Only repositories import this file.
 import { type Connection, type Model, Schema } from 'mongoose';
-import { ROLES } from './user.js';
+import { ROLES } from '../users/index.js';
 
 export const INVITATION_STATUSES = ['pending', 'accepted', 'revoked'] as const;
 

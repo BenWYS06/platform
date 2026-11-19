@@ -148,7 +148,7 @@ Move next to their file:
   also allows `infra/stores.ts` and `common/storeErrors.ts`.
   Check: build and lint pass; `git diff -M --stat main` shows 7 renames; CI tests pass.
 
-- [ ] Task 4. modules/users and modules/invitations
+- [x] Task 4. modules/users and modules/invitations
   `git mv` 8 source files and their tests (table above), split `repositories.test.ts`, add
   both `index.ts` files; other files import them through the index. The MongoDB lint rule
   also allows `src/modules/**/*.model.ts` and `*.repository.ts`.

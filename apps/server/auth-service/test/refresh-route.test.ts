@@ -10,7 +10,7 @@ import { createLogger } from '../src/logger.js';
 import { createFailureCounter } from '../src/common/failureCounter.js';
 import { createSessionStore } from '../src/repositories/sessions.js';
 import { createMongo, createRedis, type Mongo, type Redis } from '../src/infra/stores.js';
-import { createUsersRepository } from '../src/repositories/users.js';
+import { createUsersRepository } from '../src/modules/users/users.repository.js';
 import type { LoginService } from '../src/services/login.js';
 import { createRefreshService, REFRESH_KEY_PREFIX, REFRESH_WINDOW_SECONDS } from '../src/services/refresh.js';
 import { createSessionRevoker } from '../src/services/sessionRevoker.js';
