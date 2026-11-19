@@ -45,6 +45,7 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | Local infra up | `docker compose --env-file .env -f infra/docker-compose/compose.yml up -d --wait` |
 | Local infra check | `node infra/docker-compose/smoke.mjs` (`--services`: all three must answer 200) |
 | Local infra reset (deletes data) | `docker compose --env-file .env -f infra/docker-compose/compose.yml down -v` |
+| Test gate (what CI runs) | `bash scripts/test-all.sh [part...]`; no part = all (Docker running) |
 | auth-service | `cd apps/server/auth-service && npm ci && npm run build && npm run lint && npm test` |
 | Java build, all parts (Docker running) | `./mvnw verify` (repo root) |
 | One Java service | `./mvnw -pl apps/server/<name> -am verify` |
@@ -52,7 +53,7 @@ Placeholders until the code exists; update this table in the PR that adds each p
 | Run a service locally | auth: `npm run dev`; chat / ai: `./mvnw -pl apps/server/<name> -am spring-boot:run` |
 | Web | `cd apps/web && npm ci && npm run lint && npm run build && npm test`; dev: `npm run dev` |
 | Android | `cd apps/client && ./gradlew testDevDebugUnitTest` (issue 0.7b, later) |
-| CI checks locally | see "Run the CI checks locally" in `CONTRIBUTING.md` |
+| CI checks locally | `bash scripts/test-all.sh`; secrets and workflow lint: `CONTRIBUTING.md` |
 | Test a hook | `echo '{"tool_input":{"file_path":".env"}}' \| bash .claude/hooks/protect-files.sh; echo $?` |
 
 ## How we work
@@ -64,9 +65,9 @@ Placeholders until the code exists; update this table in the PR that adds each p
   only (`/write-plan` from the issue).
 - Tiny fix (one file or one rule): no spec, no plan; just the issue and a PR.
 - Estimates are 1, 2, 3, 5 or 8. A 4 means round up to 5.
-- One plan task at a time, as in "Work mode" below.
+- One plan task at a time, as in "Test gate" below.
 - Tick each finished task in the plan and put that change in the same commit as the task.
-- One task, one commit, made when the task is done. Push only as in "Work mode".
+- One task, one commit, made when the task is green. Push only as in "Test gate".
 - One PR per issue. The last plan task marks the plan, plans index and roadmap `done` and
   points `docs/handoff.md` to the next issue, on the feature branch, before the PR opens.
 - Branch per issue (`feature/...`, `fix/...`, `chore/...`, `docs/...`); never commit to `main`.
@@ -76,26 +77,27 @@ Placeholders until the code exists; update this table in the PR that adds each p
   #25 is done.
 - End a session with `/session-summary` so `docs/handoff.md` is current.
 
-Details: `.claude/rules/git-and-docs.md`, `.claude/rules/testing.md`.
+Details: `.claude/rules/git-and-docs.md`, `.claude/rules/testing.md`, `.claude/rules/test-gate.md`.
 
-## Work mode
+## Test gate
 
-1. Do not run build, lint, tests, the app or CI while working on plan tasks. Write clean,
-   short code and the task's core test file together: one test file at most, core flow
-   only, no edge-case variations. A plan's "Check" lines say what CI must prove at the end;
-   they are not commands to run per task.
-2. After each task: one commit, no push. Report in this form and stop:
+Claude runs the tests itself; rules in `.claude/rules/test-gate.md` (D-013).
+
+1. Inside a task: write the failing test, run the narrow test, implement, run it green with
+   build and lint of that part. Before "done": `bash scripts/test-all.sh <parts>`. Before
+   the final push or PR: `bash scripts/test-all.sh` (all parts). Red tests or coverage
+   below the threshold = not done.
+2. Stop after each task and report, wait for my go. One commit per task, no push. Report:
    - "What changed in behavior": 2 to 4 plain lines, no file names.
    - "Read": the 1 to 3 files that carry business rules or security, with line ranges.
    - "Skip": the other files changed, grouped (config, tests, docs, lockfile).
-   - "Not run locally."
-   The user checks and says when to continue with the next task.
-3. Push only after the last task of the plan, when the user says so; CI then runs on the
-   open PR. Read the result once with `gh pr checks`. For a red check open only its log;
-   fix all red checks in one commit on the same branch and push again.
+   - "Tests": parts run, tests passed, coverage before -> after, threshold raised or not.
+3. Push only after the last task of the plan, when the user says so; CI runs the same gate
+   on the open PR. Read the result once with `gh pr checks`. For a red check open only its
+   log; fix all red checks in one commit on the same branch and push again.
 4. Tick a task in the plan in the task's own commit. A Caddy or browser run in the close
    task is for the user, not Claude.
-5. If a task needs a decision, a new library or a contract change: stop and ask.
+5. Ask first: a new library, an API or contract change, anything irreversible.
 
 ## Rules that matter every session
 
@@ -118,6 +120,8 @@ Details: `.claude/rules/security.md`. Stack rules load by path from `.claude/rul
 ## Known gotchas
 
 - Windows + Git Bash. Hooks parse JSON with `node`, not `jq` (not installed).
+- Tests: Docker must run for auth, chat and ai (Testcontainers); Vitest fails every suite
+  from a lowercase `d:\` (`test-all.sh` handles it). See `.claude/rules/test-gate.md`.
 - `.gitattributes` forces LF; keep shell scripts LF or Git Bash breaks on them.
 - A deny rule on `.env` reads also blocks writes to `.env`: edit env files by hand.
 - Permission rules match command text only; they are a guard, not a sandbox.

@@ -9,7 +9,11 @@ Job: how work is done in this repo, and what every file in the harness is for.
 3. **Plan.** `/write-plan` splits the spec into tasks in `docs/plans/NNN-name.md`, each with
    a check.
 4. **Branch.** One branch per issue from an up-to-date `main`.
-5. **Task by task.** Do one task, run its check, show the output, stop. One task, one commit.
+5. **Task by task.** Per task: write a failing test, run the narrow test (it fails),
+   implement, run it again (it passes) with build and lint of that part, commit, report,
+   stop. Before the PR, `bash scripts/test-all.sh` must be green: tests pass and line
+   coverage is at or above `scripts/ci/coverage-thresholds.txt`
+   (`.claude/rules/test-gate.md`). One task, one commit.
 6. **Handoff.** End each session with `/session-summary`; `docs/handoff.md` holds the next step.
 7. **Close.** The last plan task marks the plan, plans index and roadmap `done` and points
    the handoff to the next issue, on the feature branch, before the PR opens.
@@ -19,17 +23,20 @@ Job: how work is done in this repo, and what every file in the harness is for.
 
 ## Run the CI checks locally
 
-Each CI job, and the command that does the same on your machine (repo root, Git Bash):
+Each CI job, and the command that does the same on your machine (repo root, Git Bash).
+`bash scripts/test-all.sh` with no part runs every test job below, coverage gate included.
+It does not install: run `npm ci` in a Node part after a lockfile change. Docker must run
+for `auth-service` and `java` (Testcontainers).
 
 | CI job | Local command |
 |---|---|
-| `contracts` | `cd contracts && npm ci && npm test` |
-| `auth-service` | `cd apps/server/auth-service && npm ci && npm run build && npm run lint && npm test` |
-| `web` | `cd apps/web && npm ci && npm run lint && npm run build && npm test` |
-| `java` | `./mvnw -B spotless:check` (fix: `./mvnw spotless:apply`), then `./mvnw -B verify` (Docker running, for Testcontainers) |
+| `contracts` | `bash scripts/test-all.sh contracts` |
+| `auth-service` | `bash scripts/test-all.sh auth-service` (build, lint, tests with coverage, gate) |
+| `web` | `bash scripts/test-all.sh web` (lint, build, tests with coverage, gate) |
+| `java` | `bash scripts/test-all.sh platform-common-java chat-service ai-service` (spotless check, fix: `./mvnw spotless:apply`; verify with JaCoCo; gate per module) |
 | `secrets` | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo ghcr.io/gitleaks/gitleaks:v8.30.1 git --redact --exit-code 1 .` says "no leaks found" |
 | `env-leak` | `git ls-files \| grep -E '(^\|/)\.env(\..*)?$\|\.(pem\|key\|p12\|jks\|keystore)$' \| grep -vE '(^\|/)\.env\.example$'` prints nothing |
-| `repo-checks` | `node --test "scripts/ci/test/*.test.mjs"`, then `node scripts/ci/check-env.mjs`, `node scripts/ci/check-file-size.mjs`, `node scripts/ci/check-tests-exist.mjs`, `node scripts/ci/check-structure.mjs` |
+| `repo-checks` | `bash scripts/test-all.sh repo-checks` (check-script tests, env names, file sizes, tests per service, feature layout, coverage thresholds) |
 | workflow lint | `MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/repo" -w /repo rhysd/actionlint:1.7.7` prints nothing |
 
 ## Branches
@@ -70,6 +77,7 @@ The body names the plan task, e.g. `Task 3 of plan 001.`
 | `.claude/rules/security.md` | Identity from the token, internal key, secrets, new endpoint checklist |
 | `.claude/rules/git-and-docs.md` | Branch names, commit format, PR flow, docs in the same PR |
 | `.claude/rules/testing.md` | Test types per layer; a regression test for every bug fix |
+| `.claude/rules/test-gate.md` | When work is done: test-all green, coverage not below the threshold, tests that assert |
 | `.claude/rules/clean-code.md` | File size limits, thin controllers, helpers only when shared |
 | `.claude/rules/spring.md` | Spring Boot conventions; loads only for Java services and the Java library |
 | `.claude/rules/express.md` | Express + TypeScript conventions; loads only for auth-service |
@@ -84,7 +92,9 @@ The body names the plan task, e.g. `Task 3 of plan 001.`
 | `.github/CODEOWNERS` | Who must review changes |
 | `.github/workflows/ci.yml` | CI: the checks every PR to `main` must pass |
 | `apps/web/` | Vue 3 web client; its own `CLAUDE.md` says how to run and test it |
-| `scripts/ci/` | Repo checks run by CI: env names and allowed hosts, file sizes, tests per service |
+| `scripts/test-all.sh` | The test gate: what CI runs per part, then the coverage gate (`.claude/rules/test-gate.md`) |
+| `scripts/ci/` | Repo checks run by CI: env names and allowed hosts, file sizes, tests per service, feature layout, coverage thresholds |
+| `scripts/ci/coverage-gate.sh` | Fails a part whose line coverage is below its line in `coverage-thresholds.txt` |
 | `scripts/ci/allowed-hosts.txt` | URL hosts allowed in source and config; never a production host |
 | `docs/handoff.md` | Where the last session stopped and the next step |
 | `docs/roadmap.md` | Phases 0 to 6 and the issues in each |

@@ -8,6 +8,24 @@ Job: which tests each layer needs, and when a change is tested enough. Loaded ev
 2. Fix the bug; the test passes.
 3. Name the test after the behavior, not the ticket: `rejects_expired_token`, not `bug_42`.
 
+## Test types in this project
+
+1. **Unit / service-level** (the majority): logic with its dependencies mocked or faked; fast,
+   no Docker. Services, guards, pure functions, Vue components.
+2. **Integration**: supertest on the Express app in memory; Testcontainers with a real
+   MongoDB, Redis or RabbitMQ for the data and messaging layers (Docker running).
+3. **Later**: a post-deploy smoke script, then browser end-to-end with Playwright.
+   Today there is **no browser end-to-end test**: nothing clicks through the web app.
+
+## Narrow test and full gate
+
+- Narrow test, inside a task: one test file or one package, not the whole repo.
+  Vitest: `cd D:/openbox/platform/apps/<part> && npx vitest run <file>`.
+  Java: `./mvnw -pl apps/server/<name> -am verify -Dtest=<Class> -Dsurefire.failIfNoSpecifiedTests=false`.
+  Node check scripts: `node --test scripts/ci/test/<file>.test.mjs`.
+- Full gate: `bash scripts/test-all.sh <parts>`, before "done" and before a PR
+  (`test-gate.md`).
+
 ## Tests per layer
 
 | Layer | Test type | Tools |
@@ -29,4 +47,5 @@ Job: which tests each layer needs, and when a change is tested enough. Loaded ev
 - No sleeps to wait for async work; poll with a timeout or use the tool's await helper.
 - Tests must pass in any order and in parallel; each test sets up its own data.
 - Do not delete or skip a failing test to make the build green. Fix it or ask the user.
-- Plan tasks are not run locally (root `CLAUDE.md` "Work mode"); CI runs the tests on the open PR.
+- Tests assert real values; a test that only calls a function proves nothing (`test-gate.md`).
+- Claude runs the tests itself (`test-gate.md`); CI runs the same gate again on the open PR.
