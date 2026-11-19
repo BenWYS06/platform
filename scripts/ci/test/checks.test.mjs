@@ -76,13 +76,13 @@ test('check-file-size fails on a long screen, component, service and controller'
     'apps/client/app/LoginScreen.kt': lines(401),
     'apps/server/demo/src/main/java/RoomService.java': lines(501),
     'apps/server/demo/src/main/java/RoomController.java': lines(501),
-    'apps/server/node-demo/src/routes/users.ts': lines(501),
+    'apps/server/node-demo/src/modules/users/users.routes.ts': lines(501),
     'apps/server/demo/src/main/java/OkService.java': lines(500),
     'apps/server/demo/src/test/java/BigServiceTest.java': lines(900),
   });
   const r = run('check-file-size.mjs', root);
   assert.equal(r.code, 1, r.out);
-  for (const name of ['ChatView.vue', 'LoginScreen.kt', 'RoomService.java', 'RoomController.java', 'routes/users.ts']) {
+  for (const name of ['ChatView.vue', 'LoginScreen.kt', 'RoomService.java', 'RoomController.java', 'users.routes.ts']) {
     assert.match(r.out, new RegExp(name.replace('.', '\\.')));
   }
   assert.doesNotMatch(r.out, /OkService|BigServiceTest/);
@@ -105,4 +105,28 @@ test('check-tests-exist fails for a service with zero tests', (t) => {
   assert.equal(r.code, 1, r.out);
   assert.match(r.out, /apps\/server\/untested: no test files/);
   assert.doesNotMatch(r.out, /apps\/server\/(tested|node-tested):/);
+});
+
+// --- check-structure ---
+
+test('check-structure passes on the real repo', () => {
+  const r = run('check-structure.mjs', repoRoot);
+  assert.equal(r.code, 0, r.out);
+});
+
+test('check-structure fails on a layer folder and on a module file without a role', (t) => {
+  const root = sample(t, {
+    'apps/server/node-demo/package.json': '{}\n',
+    'apps/server/node-demo/src/services/login.ts': '',
+    'apps/server/node-demo/src/modules/users/helpers.ts': '',
+    'apps/server/node-demo/src/modules/users/index.ts': '',
+    'apps/server/node-demo/src/modules/users/users.repository.ts': '',
+    'apps/server/node-demo/src/modules/users/users.repository.test.ts': '',
+    'apps/server/java-demo/src/main/java/services/App.java': '',
+  });
+  const r = run('check-structure.mjs', root);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /node-demo\/src\/services: layer folder/);
+  assert.match(r.out, /users\/helpers\.ts: name is not/);
+  assert.doesNotMatch(r.out, /index\.ts|users\.repository|java-demo/);
 });

@@ -188,7 +188,7 @@ Move next to their file:
   `modules/auth/login.service.ts`, and of `./user.model.js` from a routes file, each make
   lint fail (tried locally, not committed).
 
-- [ ] Task 9. CI structure check and file-size pattern
+- [x] Task 9. CI structure check and file-size pattern
   New `scripts/ci/check-structure.mjs`: for each `apps/server/*` with a `package.json`, fails
   when `src/routes`, `src/services`, `src/repositories` or `src/models` exists, or when a
   file under `src/modules/` other than `index.ts` does not match

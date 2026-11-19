@@ -104,6 +104,8 @@ jobs:
         run: node scripts/ci/check-file-size.mjs
       - name: Every service has tests
         run: node scripts/ci/check-tests-exist.mjs
+      - name: Feature layout of Node services
+        run: node scripts/ci/check-structure.mjs
 
   secrets:
     runs-on: ubuntu-latest
