@@ -82,7 +82,7 @@ for p in "${parts[@]}"; do
       ;;
     repo-checks)
       in_dir . node --test "scripts/ci/test/*.test.mjs"
-      for check in check-env check-file-size check-tests-exist check-structure; do
+      for check in check-env check-file-size check-tests-exist check-structure check-coverage-thresholds; do
         in_dir . node "scripts/ci/$check.mjs"
       done
       ;;

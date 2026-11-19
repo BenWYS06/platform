@@ -130,3 +130,30 @@ test('check-structure fails on a layer folder and on a module file without a rol
   assert.match(r.out, /users\/helpers\.ts: name is not/);
   assert.doesNotMatch(r.out, /index\.ts|users\.repository|java-demo/);
 });
+
+// --- check-coverage-thresholds ---
+
+// The comment line must not count as a gated part ("as").
+const CI_GATES = '# CI runs coverage-gate.sh as its own step\nsteps:\n  - run: bash scripts/ci/coverage-gate.sh web\n  - run: bash scripts/ci/coverage-gate.sh auth-service\n';
+
+test('check-coverage-thresholds passes on the real repo', () => {
+  const r = run('check-coverage-thresholds.mjs', repoRoot);
+  assert.equal(r.code, 0, r.out);
+});
+
+test('check-coverage-thresholds fails when a gated part has no threshold line', (t) => {
+  const root = sample(t, {
+    '.github/workflows/ci.yml': CI_GATES,
+    'scripts/ci/coverage-thresholds.txt': '# goals\nweb=70\n',
+  });
+  const r = run('check-coverage-thresholds.mjs', root);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /no "auth-service=NN" line/);
+});
+
+test('check-coverage-thresholds fails when the thresholds file is missing', (t) => {
+  const root = sample(t, { '.github/workflows/ci.yml': CI_GATES });
+  const r = run('check-coverage-thresholds.mjs', root);
+  assert.equal(r.code, 1, r.out);
+  assert.match(r.out, /coverage-thresholds\.txt: missing/);
+});
