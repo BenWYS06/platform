@@ -7,7 +7,7 @@ import {
   sessionKey,
   userSessionsKey,
 } from '../src/repositories/sessions.js';
-import { createRedis, type Redis } from '../src/repositories/stores.js';
+import { createRedis, type Redis } from '../src/infra/stores.js';
 import { newSid } from '../src/services/sessionTokens.js';
 import { START_TIMEOUT_MS } from './helpers/mongo.js';
 import { startRedis, type TestRedis, waitFor } from './helpers/redis.js';

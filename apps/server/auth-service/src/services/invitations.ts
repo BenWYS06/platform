@@ -2,12 +2,12 @@
 // token-shape and body checks: lookup and status, email already a user, atomic claim, create.
 // A failed create puts the invitation back to pending.
 import type { Logger } from 'pino';
-import { ApiError } from '../errors.js';
-import { DuplicateError } from '../repositories/errors.js';
+import { ApiError } from '../common/apiError.js';
+import { DuplicateError } from '../common/storeErrors.js';
 import type { InvitationsRepository } from '../repositories/invitations.js';
 import type { Role, UsersRepository } from '../repositories/users.js';
 import { hashPassword } from './password.js';
-import { hashToken } from './tokens.js';
+import { hashToken } from '../common/secretToken.js';
 
 export interface AcceptInput {
   token: string;

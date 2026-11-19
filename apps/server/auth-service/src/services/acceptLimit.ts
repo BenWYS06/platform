@@ -1,7 +1,7 @@
 // Job: the accept failure limit (spec 009 A6, A14): 20 token-check failures per client IP in a
 // 15-minute fixed window, then 429 RATE_LIMITED with retryAfterSeconds. Successes never count.
-import { ApiError } from '../errors.js';
-import type { FailureCounter } from '../repositories/failureCounter.js';
+import { ApiError } from '../common/apiError.js';
+import type { FailureCounter } from '../common/failureCounter.js';
 
 export const ACCEPT_FAILURE_LIMIT = 20;
 export const ACCEPT_WINDOW_SECONDS = 15 * 60;

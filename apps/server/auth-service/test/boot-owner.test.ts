@@ -2,12 +2,12 @@
 import { Writable } from 'node:stream';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createLogger } from '../src/logger.js';
-import { DuplicateError } from '../src/repositories/errors.js';
+import { DuplicateError } from '../src/common/storeErrors.js';
 import { createInvitationsRepository, type Invitation } from '../src/repositories/invitations.js';
-import { createMongo, type Mongo } from '../src/repositories/stores.js';
+import { createMongo, type Mongo } from '../src/infra/stores.js';
 import { createUsersRepository } from '../src/repositories/users.js';
 import { createBootOwnerStep, OWNER_INVITATION_TTL_MS } from '../src/services/bootOwner.js';
-import { hashToken } from '../src/services/tokens.js';
+import { hashToken } from '../src/common/secretToken.js';
 import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
 
 let mongo: TestMongo;

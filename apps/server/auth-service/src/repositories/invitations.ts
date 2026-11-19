@@ -2,7 +2,7 @@
 // token is stored; one pending invitation per email. Callers never see Mongoose types.
 import type { Connection } from 'mongoose';
 import { type InvitationFields, invitationModel } from '../models/invitation.js';
-import { mapStoreErrors } from './errors.js';
+import { mapStoreErrors } from '../common/storeErrors.js';
 import { normalizeEmail } from './users.js';
 
 export type InvitationStatus = InvitationFields['status'];

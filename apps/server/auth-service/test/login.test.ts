@@ -1,6 +1,6 @@
 // Unit: the login service with fakes (spec 009 B1, B2, B8, B10; Done when 2, 6, part of 3).
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { ApiError } from '../src/errors.js';
+import { ApiError } from '../src/common/apiError.js';
 import type { User } from '../src/repositories/users.js';
 import { createDummyHash, createLoginService, startLoginService } from '../src/services/login.js';
 import type { LoginLimit } from '../src/services/loginLimit.js';

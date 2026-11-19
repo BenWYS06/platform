@@ -1,8 +1,8 @@
 // Job: fixed-window failure counters in Redis (hand-written on purpose, auth CLAUDE.md). The
 // first failure starts the window; the key expires with it or is cleared. Redis down:
 // StoreUnavailableError (the error handler answers 503), so limits fail closed (A13).
-import { StoreUnavailableError } from './errors.js';
-import type { RedisClient } from './stores.js';
+import { StoreUnavailableError } from './storeErrors.js';
+import type { RedisClient } from '../infra/stores.js';
 
 export interface FailureCount {
   count: number;

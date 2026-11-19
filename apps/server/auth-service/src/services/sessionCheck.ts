@@ -2,7 +2,7 @@
 // requireAccess middleware and GET /session. Order: verify the token; the session exists and
 // its userId equals `sub`; not revoked; `cv` at least claimsVersion. One readForCheck (one
 // HMGET) per call. Redis down: StoreUnavailableError passes through (503, never 401).
-import { ApiError } from '../errors.js';
+import { ApiError } from '../common/apiError.js';
 import type { SessionStore } from '../repositories/sessions.js';
 import type { SessionTokens, VerifiedClaims } from './sessionTokens.js';
 

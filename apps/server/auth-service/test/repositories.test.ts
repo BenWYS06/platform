@@ -1,8 +1,8 @@
 // Integration: users and invitations repositories (Mongoose) against a real MongoDB.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { DuplicateError } from '../src/repositories/errors.js';
+import { DuplicateError } from '../src/common/storeErrors.js';
 import { createInvitationsRepository } from '../src/repositories/invitations.js';
-import { createMongo, type Mongo } from '../src/repositories/stores.js';
+import { createMongo, type Mongo } from '../src/infra/stores.js';
 import { createUsersRepository } from '../src/repositories/users.js';
 import { START_TIMEOUT_MS, startMongo, type TestMongo, uniqueDbName } from './helpers/mongo.js';
 

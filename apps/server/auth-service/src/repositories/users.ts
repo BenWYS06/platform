@@ -2,7 +2,7 @@
 // case; a unique index keeps one user per email. Callers never see Mongoose types.
 import { type Connection, isValidObjectId } from 'mongoose';
 import { type UserFields, userModel } from '../models/user.js';
-import { mapStoreErrors } from './errors.js';
+import { mapStoreErrors } from '../common/storeErrors.js';
 
 export type Role = UserFields['role'];
 export type UserStatus = UserFields['status'];

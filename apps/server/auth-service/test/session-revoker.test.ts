@@ -5,7 +5,7 @@ import { Writable } from 'node:stream';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createLogger } from '../src/logger.js';
 import { createSessionStore, sessionKey } from '../src/repositories/sessions.js';
-import { createRedis, type Redis, type RedisClient } from '../src/repositories/stores.js';
+import { createRedis, type Redis, type RedisClient } from '../src/infra/stores.js';
 import {
   CLAIMS_CHANGED_CHANNEL,
   createSessionRevoker,

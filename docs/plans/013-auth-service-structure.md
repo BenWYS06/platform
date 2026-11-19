@@ -142,7 +142,7 @@ Move next to their file:
   above.
   Check: build and lint pass; CI `npm test` runs the same number of test files as on `main`.
 
-- [ ] Task 3. common/, infra/ and the error handler
+- [x] Task 3. common/, infra/ and the error handler
   `git mv` the six files to `common/` and `infra/`, `middleware/errors.ts` to
   `middleware/errorHandler.ts`; fix imports in `src/` and `test/`; the MongoDB lint rule
   also allows `infra/stores.ts` and `common/storeErrors.ts`.

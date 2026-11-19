@@ -2,12 +2,12 @@
 // token shape, failure limit, body, then one service call (spec 009 A23).
 import { Router } from 'express';
 import { z } from 'zod';
-import { ApiError, type ErrorCode } from '../errors.js';
+import { ApiError, type ErrorCode } from '../common/apiError.js';
 import { clientIp } from '../middleware/clientIp.js';
 import type { AcceptLimit } from '../services/acceptLimit.js';
 import type { InvitationsService } from '../services/invitations.js';
-import { TOKEN_SHAPE } from '../services/tokens.js';
-import { chars } from './chars.js';
+import { TOKEN_SHAPE } from '../common/secretToken.js';
+import { chars } from '../common/chars.js';
 
 // Token-check answers count toward the limit; bad input and MEMBER_ALREADY_EXISTS do not.
 const TOKEN_FAILURES = new Set<ErrorCode>([

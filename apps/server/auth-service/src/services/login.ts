@@ -4,13 +4,13 @@
 // blocked: clear the email counter (not a guess), 403; success: clear the email counter, create
 // the session (Redis down: 503, no token), then sign the access token.
 import { randomBytes } from 'node:crypto';
-import { ApiError } from '../errors.js';
+import { ApiError } from '../common/apiError.js';
 import type { NewSession, SessionStore } from '../repositories/sessions.js';
 import { normalizeEmail, type Role, type UsersRepository } from '../repositories/users.js';
 import type { LoginLimit } from './loginLimit.js';
 import { hashPassword, verifyPassword } from './password.js';
 import { newRefreshToken, newSid, type SessionTokens } from './sessionTokens.js';
-import { hashToken } from './tokens.js';
+import { hashToken } from '../common/secretToken.js';
 
 export interface LoginInput {
   email: string;

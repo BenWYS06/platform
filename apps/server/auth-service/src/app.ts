@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import type { Logger } from 'pino';
 import { type Config, DEFAULT_ACCESS_TTL_SECONDS, DEFAULT_REFRESH_TTL_SECONDS } from './config.js';
 import { createBurstLimit, REFRESH_BURST_LIMIT } from './middleware/burstLimit.js';
-import { errorHandler, notFound } from './middleware/errors.js';
+import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { requireInternalKey } from './middleware/internalKey.js';
 import { requireReady } from './middleware/ready.js';
 import { requestLogger } from './middleware/requestLog.js';

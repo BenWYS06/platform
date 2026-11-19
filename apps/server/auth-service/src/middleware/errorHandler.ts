@@ -2,8 +2,8 @@
 // Never sends a stack trace or an error message.
 import type { ErrorRequestHandler, RequestHandler } from 'express';
 import { ZodError } from 'zod';
-import { ApiError, ERROR_STATUS, type ErrorCode, type ErrorParams } from '../errors.js';
-import { StoreUnavailableError } from '../repositories/errors.js';
+import { ApiError, ERROR_STATUS, type ErrorCode, type ErrorParams } from '../common/apiError.js';
+import { StoreUnavailableError } from '../common/storeErrors.js';
 
 export function send(res: Parameters<RequestHandler>[1], code: ErrorCode, params?: ErrorParams): void {
   res.status(ERROR_STATUS[code]).json(params ? { code, params } : { code });

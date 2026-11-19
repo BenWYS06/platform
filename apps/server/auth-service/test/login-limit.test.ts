@@ -2,10 +2,10 @@
 // C1, C2; Done when 5, 10).
 import { createHash, randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ApiError } from '../src/errors.js';
-import { StoreUnavailableError } from '../src/repositories/errors.js';
-import { createFailureCounter } from '../src/repositories/failureCounter.js';
-import { createRedis, type Redis } from '../src/repositories/stores.js';
+import { ApiError } from '../src/common/apiError.js';
+import { StoreUnavailableError } from '../src/common/storeErrors.js';
+import { createFailureCounter } from '../src/common/failureCounter.js';
+import { createRedis, type Redis } from '../src/infra/stores.js';
 import {
   createLoginLimit,
   LOGIN_WINDOW_SECONDS,

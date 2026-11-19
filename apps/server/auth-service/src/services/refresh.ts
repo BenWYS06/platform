@@ -3,14 +3,14 @@
 // (no session: 401, no counter key); per-session counter, 10 per 60 s; the user from MongoDB
 // (down: 503 from StoreUnavailableError, nothing rotated; no user: 401); the rotate script;
 // blocked user: revoke, 403; else sign with the script's claimsVersion.
-import { ApiError } from '../errors.js';
-import type { FailureCounter } from '../repositories/failureCounter.js';
+import { ApiError } from '../common/apiError.js';
+import type { FailureCounter } from '../common/failureCounter.js';
 import type { SessionStore } from '../repositories/sessions.js';
 import type { UsersRepository } from '../repositories/users.js';
 import type { LoginResult } from './login.js';
 import type { SessionRevoker } from './sessionRevoker.js';
 import { newRefreshToken, type SessionTokens } from './sessionTokens.js';
-import { hashToken } from './tokens.js';
+import { hashToken } from '../common/secretToken.js';
 
 export const REFRESH_SESSION_LIMIT = 10;
 export const REFRESH_WINDOW_SECONDS = 60;
