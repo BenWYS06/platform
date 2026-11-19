@@ -1,5 +1,5 @@
 // Job: the Mongoose model of `users` in database `platform` (auth-service is the only writer).
-// Only repositories import this file.
+// Only the repository and the module index.ts import this file.
 import { type Connection, type Model, Schema } from 'mongoose';
 
 export const ROLES = ['Owner', 'Admin', 'Member'] as const;

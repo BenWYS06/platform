@@ -201,7 +201,7 @@ Move next to their file:
   failures and the pass on the real repo; a 501-line `users.routes.ts` sample fails the size
   check.
 
-- [ ] Task 10. Rules and docs
+- [x] Task 10. Rules and docs
   `.claude/rules/express.md`: the layer layout line is replaced by rules 1 to 5 (with points
   3 and 4). `apps/server/auth-service/CLAUDE.md`: "Layout" rewritten for the new folders;
   every file path in it updated. Old paths updated in `docs/architecture.md` and plans

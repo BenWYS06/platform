@@ -31,7 +31,7 @@ Rule: one task, one commit, one check. Stop after each task and show the check o
 
 - [x] Task 1. argon2 install check, Windows and Linux CI
   Add the argon2 package with prebuilt binaries for Windows and Linux (exact version) to
-  auth-service, and `src/services/password.ts`: `hashPassword`, `verifyPassword` with
+  auth-service, and `src/modules/users/password.util.ts`: `hashPassword`, `verifyPassword` with
   argon2id m=19456, t=2, p=1, with a unit test. Push the branch and open the 1.1a PR as a
   draft so the Linux CI job runs; it is marked ready in Task 8.
   Check: on Windows `npm ci && npm run build && npm run lint && npm test` passes and the
