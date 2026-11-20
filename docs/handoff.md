@@ -2,12 +2,12 @@
 
 Job: where the last session stopped and what to do next. Read this first in every new session.
 
-Last updated: 2026-11-19
+Last updated: 2026-11-20
 
 ## Now
 
-- Change: test gate replaces Work mode (D-013), on `chore/test-gate`, no issue number
-  yet. Five commits (inspect, coverage tooling, scripts, CI, rules and docs); not pushed.
+- Issue #54: test gate replaces Work mode (D-013), on `chore/test-gate`; not pushed.
+  Commits: coverage tooling, scripts, CI, rules and docs, then two test-stability fixes.
 - Issue #52 (auth-service by feature, plan 013) was merged as PR #53.
 
 ## Done
@@ -20,13 +20,16 @@ Last updated: 2026-11-19
   chat-service 59, ai-service 59). Tests in `scripts/ci/test/`.
 - CI: each test job runs `test-all.sh --no-gate <part>`, then a coverage gate step per part;
   repo-checks also checks that every gated part has a threshold.
+- Test stability: the two flaky auth-service tests are fixed (commit 9fed29b: own 20 s
+  timeout for 30 argon2 logins; frozen clock for the 101st refresh). auth-service Vitest
+  runs with `maxWorkers: 4` (commit 18898e5): more parallel Testcontainers overloaded Docker.
 - Rules: `.claude/rules/test-gate.md`; Work mode removed from `CLAUDE.md`; `testing.md`,
   `git-and-docs.md`, `CONTRIBUTING.md` and the write-plan skill use the test-first task
   shape and the QA task.
 
 ## Next step: open the test gate PR, then 1.3
 
-1. When the user says so: scan, push `chore/test-gate`, open the PR. Read `gh pr checks`
+1. When the user says so: scan, push `chore/test-gate`, open the PR with `Closes #54`. Read `gh pr checks`
    once; fix all red checks in one commit and push again. The user merges.
 2. Then 1.3 Capabilities, roles, workspace settings (no issue number yet): branch from an
    up-to-date `main`, `/write-spec` (contract and security change). Plans now use the
@@ -40,10 +43,8 @@ Last updated: 2026-11-19
 - Burst limits use a memory store: per process, reset on restart (fine for one instance).
 - The login burst test relies on 6 fast requests within 1 second; a CI stall over 1 s would
   make it flaky (user chose to keep it as is).
-- Flaky under a full local auth run (all 29 files in parallel), with or without coverage, on
-  2026-11-19: "answers 30 successful logins from one IP all with 200" (30 argon2 logins
-  pass the 5 s timeout) and "answers the 101st refresh within a second ... 429". Each passes
-  alone. Not fixed; needs the user's decision (issue to write).
+- auth-service Vitest is capped at 4 workers; do not raise it (random Testcontainers
+  timeouts, `.claude/rules/test-gate.md`).
 - The route path test sees routers mounted with `app.use`; a router nested inside another
   router would not be listed (none exists).
 - Revoke scripts name session keys outside `KEYS`: fine on one Redis node, not Redis Cluster.

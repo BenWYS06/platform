@@ -27,6 +27,8 @@ a clean machine. Loaded every session. Decision: D-013.
    - Docker must be running for `auth-service`, `chat-service` and `ai-service`
      (Testcontainers). Without it most of their tests fail; that is not a code failure.
      Check with `docker version` (it must show a Server).
+   - Do not raise maxWorkers: more parallel Testcontainers overload Docker and cause
+     random timeouts (auth-service `vitest.config.ts` has `maxWorkers: 4`).
    - Windows: Vitest fails every suite when Node starts from a lowercase `d:\`.
      `test-all.sh` switches to an uppercase drive and refuses to start Vitest otherwise.
      For a narrow Vitest run by hand, `cd D:/openbox/...` first.
