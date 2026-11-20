@@ -17,7 +17,7 @@ Last updated: 2026-11-20
 - `scripts/test-all.sh [part...]`: lint, build, tests with coverage, then the gate; switches
   to an uppercase drive for Vitest. `scripts/ci/coverage-gate.sh <part>` with
   `scripts/ci/coverage-thresholds.txt` (auth-service 91, web 94, platform-common-java 85,
-  chat-service 59, ai-service 59). Tests in `scripts/ci/test/`.
+  chat-service 55, ai-service 55). Tests in `scripts/ci/test/`.
 - CI: each test job runs `test-all.sh --no-gate <part>`, then a coverage gate step per part;
   repo-checks also checks that every gated part has a threshold.
 - Test stability: the two flaky auth-service tests are fixed (commit 9fed29b: own 20 s
@@ -58,7 +58,7 @@ Last updated: 2026-11-20
 - `MONGODB_URI` set to an empty string fails in the MongoDB driver before the guard runs.
 - Vitest on Windows fails every suite when Node starts from a lowercase `d:`;
   `test-all.sh` switches to `D:/`; a narrow run by hand needs `cd D:/openbox/...`.
-- chat-service and ai-service line coverage is 60% (9 of 15 lines); each has only
+- chat-service and ai-service line coverage is 56.25% (9 of 16 lines, clean build); each has only
   Testcontainers tests so far. Goal backend 90.
 - Docker must run for auth-service, chat-service and ai-service tests.
 - A running auth-service locks the argon2 native file; stop it before `npm ci`.

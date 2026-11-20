@@ -4,5 +4,5 @@
 auth-service=91
 web=94
 platform-common-java=85
-chat-service=59
-ai-service=59
+chat-service=55
+ai-service=55

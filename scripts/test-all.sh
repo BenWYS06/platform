@@ -69,7 +69,8 @@ run_java() {
   local list
   list="$(IFS=,; echo "${mods[*]}")"
   in_dir . ./mvnw -B -pl "$list" -am spotless:check
-  in_dir . ./mvnw -B -pl "$list" -am verify
+  # clean: stale classes in target/ change JaCoCo's line count, so local must match CI's fresh build.
+  in_dir . ./mvnw -B -pl "$list" -am clean verify
   for p in "${parts[@]}"; do
     if [[ "$JAVA" == *" $p "* ]]; then gate_part "$p"; fi
   done
