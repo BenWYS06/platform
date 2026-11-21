@@ -13,6 +13,8 @@
       "Bash(npx prettier *)",
       "Bash(npx vitest *)",
       "Bash(npx tsc *)",
+      "Bash(bash scripts/test-all.sh*)",
+      "Bash(bash scripts/ci/coverage-gate.sh*)",
       "Bash(./mvnw *)",
       "Bash(mvn *)",
       "Bash(./gradlew *)",

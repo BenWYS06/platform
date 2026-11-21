@@ -137,7 +137,8 @@ describe('login flow', () => {
     expect((await post(EMAIL, PASSWORD, '203.0.113.2')).status).toBe(200);
   });
 
-  it('answers 30 successful logins from one IP all with 200', async () => {
+  // 30 real argon2 verifications in a row: past the 5 s default when all test files run at once.
+  it('answers 30 successful logins from one IP all with 200', { timeout: 20_000 }, async () => {
     const { post } = await setup();
     for (let i = 0; i < 30; i++) expect((await post(EMAIL, PASSWORD)).status).toBe(200);
   });

@@ -91,3 +91,13 @@ Decision: auth-service `src/` is split by feature. Each feature is a folder `src
 - ESLint `no-restricted-imports` enforces the import rules; `scripts/ci/check-structure.mjs` fails when the old layer folders come back or a module file breaks the name rule. Plan 013.
 Why: one feature's code was spread over `routes/`, `services/`, `repositories/` and `models/`; with sessions and refresh added, `services/` held 17 files. A feature folder keeps one change in one place, and the index files make cross-feature use visible.
 Instead of: the layer layout (`routes/` -> `services/` -> `repositories/` -> `models/`) from the service skeleton (0.4) and 1.1a.
+
+## D-013 Test gate replaces Work mode (2026-11-19)
+Decision: Claude runs the tests itself. Inside a task: a failing test first, the narrow test (one file or one package) red, the code, the narrow test green with build and lint of that part. Before "done": `bash scripts/test-all.sh <parts>`; before the PR: `bash scripts/test-all.sh` (all parts). A task is not done while a test fails or line coverage is below its line in `scripts/ci/coverage-thresholds.txt`.
+- `scripts/test-all.sh` is the one definition of how each part is tested (lint, build, tests with coverage). CI calls it per job and runs `scripts/ci/coverage-gate.sh` per gated part as its own step.
+- Coverage is LINE percent: Vitest `coverage-summary.json` (auth-service, web), JaCoCo `jacoco.csv` (platform-common-java, chat-service, ai-service). contracts and repo-checks have no gate.
+- Ratchet: thresholds start at the measured value rounded down, minus 1, and only go up. The gate prints the new value at 2+ points above; it goes in the same PR. Long-term goals: backend 90, web 70.
+- What stays from Work mode: stop after every task, report, wait for the user's "go"; one commit per task; no push without the user's word; ask before a new library, an API or contract change, anything irreversible.
+- Rules: `.claude/rules/test-gate.md`.
+Why: with no local runs, red tests and weak tests showed up only in CI after the push, and nothing stopped coverage from dropping. Running the same script locally and in CI means local green is CI green.
+Instead of: Work mode (no build, lint or tests while working on plan tasks; one core test file per task; CI the only test run).

@@ -18,5 +18,13 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['tests/**/*.test.ts'],
+    // npm run test:cov: line percent of src/ in coverage/coverage-summary.json (scripts/ci/coverage-gate.sh).
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,vue}'],
+      exclude: ['src/**/*.d.ts'],
+      reporter: ['text-summary', 'json-summary'],
+      reportsDirectory: 'coverage',
+    },
   },
 });

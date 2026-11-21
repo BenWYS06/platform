@@ -1,5 +1,7 @@
 # Job: check every PR to main and every push to main. Read-only; no secrets used.
 # Actions are pinned by commit SHA; the version is in the comment next to each one.
+# How each part is tested lives in scripts/test-all.sh (run the same locally); CI adds the
+# install step and runs scripts/ci/coverage-gate.sh as its own step per gated part.
 name: CI
 
 on:
@@ -18,9 +20,6 @@ concurrency:
 jobs:
   contracts:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: contracts
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -31,13 +30,12 @@ jobs:
           cache: npm
           cache-dependency-path: contracts/package-lock.json
       - run: npm ci
-      - run: npm test
+        working-directory: contracts
+      - name: Test
+        run: bash scripts/test-all.sh contracts
 
   auth-service:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/server/auth-service
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -48,15 +46,15 @@ jobs:
           cache: npm
           cache-dependency-path: apps/server/auth-service/package-lock.json
       - run: npm ci
-      - run: npm run build
-      - run: npm run lint
-      - run: npm test
+        working-directory: apps/server/auth-service
+      # Build, lint, then tests with coverage; Testcontainers uses the runner's Docker.
+      - name: Test
+        run: bash scripts/test-all.sh --no-gate auth-service
+      - name: Coverage gate
+        run: bash scripts/ci/coverage-gate.sh auth-service
 
   web:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/web
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -67,9 +65,12 @@ jobs:
           cache: npm
           cache-dependency-path: apps/web/package-lock.json
       - run: npm ci
-      - run: npm run lint
-      - run: npm run build
-      - run: npm test
+        working-directory: apps/web
+      # Lint, build, then tests with coverage.
+      - name: Test
+        run: bash scripts/test-all.sh --no-gate web
+      - name: Coverage gate
+        run: bash scripts/ci/coverage-gate.sh web
 
   java:
     runs-on: ubuntu-latest
@@ -82,10 +83,16 @@ jobs:
           distribution: temurin
           java-version: 21
           cache: maven
-      # One Java format (google-java-format via Spotless); fix with ./mvnw spotless:apply.
-      - run: ./mvnw -B spotless:check
-      # Library, chat and ai in order; Testcontainers uses the runner's Docker.
-      - run: ./mvnw -B verify
+      # spotless:check (fix: ./mvnw spotless:apply), then verify with JaCoCo: library, chat
+      # and ai in order; Testcontainers uses the runner's Docker.
+      - name: Test
+        run: bash scripts/test-all.sh --no-gate platform-common-java chat-service ai-service
+      - name: Coverage gate platform-common-java
+        run: bash scripts/ci/coverage-gate.sh platform-common-java
+      - name: Coverage gate chat-service
+        run: bash scripts/ci/coverage-gate.sh chat-service
+      - name: Coverage gate ai-service
+        run: bash scripts/ci/coverage-gate.sh ai-service
 
   repo-checks:
     runs-on: ubuntu-latest
@@ -96,16 +103,10 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-      - name: Tests for the check scripts
-        run: node --test "scripts/ci/test/*.test.mjs"
-      - name: Env names and allowed hosts
-        run: node scripts/ci/check-env.mjs
-      - name: File-size limits
-        run: node scripts/ci/check-file-size.mjs
-      - name: Every service has tests
-        run: node scripts/ci/check-tests-exist.mjs
-      - name: Feature layout of Node services
-        run: node scripts/ci/check-structure.mjs
+      # Tests for the check scripts, then: env names and hosts, file sizes, tests per
+      # service, feature layout of Node services, a coverage threshold per gated part.
+      - name: Test
+        run: bash scripts/test-all.sh repo-checks
 
   secrets:
     runs-on: ubuntu-latest
